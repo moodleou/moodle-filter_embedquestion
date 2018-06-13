@@ -34,14 +34,20 @@ $courseid = required_param('course', PARAM_INT);
 $token = required_param('token', PARAM_RAW);
 $behaviour = optional_param('behaviour', 'interactive', PARAM_COMPONENT);
 
+$PAGE->set_pagelayout('popup');
 require_login($courseid);
+if (isguestuser()) {
+    print_error('noguests', 'filter_embedquestion');
+}
 $context = context_course::instance($courseid);
 $question = question_bank::load_question($id);
+if ($token !== filter_embedquestion\token::make_iframe_token($question->id)) {
+    print_error('invalidtoken', 'filter_embedquestion');
+}
 
 // Process options.
 $options = new filter_embedquestion\question_options($question, $courseid, $behaviour);
 $options->set_from_request();
-$PAGE->set_pagelayout('popup');
 $PAGE->set_url($options->get_page_url($question->id));
 
 // Get and validate existing preview, or start a new one.
