@@ -32,37 +32,31 @@ require_once($CFG->dirroot . '/question/previewlib.php');
 $id = required_param('id', PARAM_INT);
 $courseid = required_param('course', PARAM_INT);
 $token = required_param('token', PARAM_RAW);
-$behaviour = optional_param('behaviour', null, PARAM_COMPONENT);
+$behaviour = optional_param('behaviour', 'interactive', PARAM_COMPONENT);
 
 require_login($courseid);
 $context = context_course::instance($courseid);
 $question = question_bank::load_question($id);
-$PAGE->set_pagelayout('popup');
 
 // Process options.
-$options = new question_preview_options($question);
+$options = new filter_embedquestion\question_options($question, $courseid, $behaviour);
 $options->set_from_request();
-$PAGE->set_url(''); // TODO.
+$PAGE->set_pagelayout('popup');
+$PAGE->set_url($options->get_page_url($question->id));
 
 // Get and validate existing preview, or start a new one.
-$previewid = optional_param('previewid', 0, PARAM_INT);
-
-if ($previewid) {
+$qubaid = optional_param('qubaid', 0, PARAM_INT);
+if ($qubaid) {
     try {
-        $quba = question_engine::load_questions_usage_by_activity($previewid);
+        $quba = question_engine::load_questions_usage_by_activity($qubaid);
 
     } catch (Exception $e) {
         // This may not seem like the right error message to display, but
         // actually from the user point of view, it makes sense.
-        print_error('submissionoutofsequencefriendlymessage', 'question',
-                // TODO fix url.
-                question_preview_url($question->id, $options->behaviour,
-                $options->maxmark, $options, $options->variant, $context), null, $e);
+        print_error('submissionoutofsequencefriendlymessage', 'question', $PAGE->url, null, $e);
     }
 
-    if ($quba->get_owning_context()->instanceid != $USER->id) {
-        print_error('notyourpreview', 'question');
-    }
+    filter_embedquestion\utils::verify_usage($quba);
 
     $slot = $quba->get_first_question_number();
     $usedquestion = $quba->get_question($slot);
@@ -74,7 +68,7 @@ if ($previewid) {
 
 } else {
     $quba = question_engine::make_questions_usage_by_activity(
-            'core_question_preview', context_user::instance($USER->id));
+            'filter_embedquestion', context_user::instance($USER->id));
     $quba->set_preferred_behaviour($options->behaviour);
     $slot = $quba->add_question($question, $options->maxmark);
 
@@ -93,8 +87,8 @@ if ($previewid) {
 $options->behaviour = $quba->get_preferred_behaviour();
 $options->maxmark = $quba->get_question_max_mark($slot);
 
-// Prepare a URL that is used in various places. TODO
-$actionurl = question_preview_action_url($question->id, $quba->get_id(), $options, $context);
+// Prepare a URL that is used in various places.
+$actionurl = $options->get_action_url($quba, $slot);
 
 // Process any actions from the buttons at the bottom of the form.
 if (data_submitted() && confirm_sesskey()) {
@@ -103,7 +97,7 @@ if (data_submitted() && confirm_sesskey()) {
 
         if (optional_param('restart', false, PARAM_BOOL)) {
             // TODO
-            restart_preview($previewid, $question->id, $options, $context);
+            restart_preview($qubaid, $question->id, $options, $context);
 
         } else {
             $quba->process_all_actions();
@@ -138,11 +132,6 @@ if ($question->length) {
     $displaynumber = '1';
 } else {
     $displaynumber = 'i';
-}
-
-// If question type cannot give us a correct response, disable this button.
-if (!$previewid) {
-    $restartdisabled = array('disabled' => 'disabled');
 }
 
 // Start output.

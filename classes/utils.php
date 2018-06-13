@@ -15,33 +15,31 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Token managment.
+ * Helper functions for filter_embedquestion.
  *
- * @package    filter
- * @subpackage embedquestion
- * @copyright  2018 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   filter_embedquestion
+ * @copyright 2018 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace filter_embedquestion;
 
 defined('MOODLE_INTERNAL') || die();
 
-class token {
 
-    public static function make_secret_token(\stdClass $data) {
-        if (empty($data->qidnum) || empty($data->catidnum)) {
-            return false;
+/**
+ * Helper functions for filter_embedquestion.
+ *
+ * @copyright 2018 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+abstract class utils {
+
+    public static function verify_usage($quba) {
+        global $USER;
+
+        if ($quba->get_owning_context()->instanceid != $USER->id) {
+            throw new \moodle_exception('notyourpreview', 'question');
         }
-        $secret = get_config('filter_embedquestion', 'secret');
-        $datastring = $data->qidnum . '/' . $data->catidnum . '##' . $secret;
-        $token = hash('sha256', $datastring);
-        return $token;
     }
-
-    public static function make_iframe_token($questionid) {
-        $secret = get_config('filter_embedquestion', 'secret');
-        return hash('sha256', "$questionid#iframe#$secret");
-    }
-
 }
