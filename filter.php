@@ -25,27 +25,98 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-/**
-* Glossary linking filter class.
-*
-* NOTE: multilang glossary entries are not compatible with this filter.
-*/
 class filter_embedquestion extends moodle_text_filter {
+    const STRING_PREFIX = '{Q{';
+    const STRING_SUFFIX = '}Q}';
+
+    /**
+     * @param some $text
+     * @param array $options
+     * @return some|string
+     * @throws coding_exception
+     */
     public function filter($text, array $options = array()) {
+        // TODO: Find a better way to sanity check the input stirng.
+        //if(!$this->validate_input($text)) {
+        //    return $text;
+        //}
         if (!is_string($text) or empty($text)) {
             return $text;
         }
         if (strpos($text, '{Q{') === false) {
             return $text;
         }
+
         // Look for text to filter ({Q{ … 40 character token … }Q}).
-        if (!preg_match_all('~\{Q\{[a-zA-Z0-9]*\}Q\}~', $text, $matches)) {
+        if (!preg_match_all('~\{Q\{[a-zA-Z0-9|=\-\/]*\}Q\}~', $text, $matches)) {
             return $text;
         }
-        foreach ($matches as $match) {
-            $token = $match[1];
-            // TODO, replace the token with a suitable iframe.
+
+        $output = '';
+        foreach ($matches as $index => $match) {
+            $params = $this->tokenise($this->clean_text($match[$index]));
+            $courseid = $this->context->get_course_context(true)->instanceid;
+            $question = question_bank::load_question($params['id']);
+            $questionoptions = new filter_embedquestion\question_options($question, $courseid, $params['behaviour']);
+            $src = $questionoptions->get_page_url($question->id);
+            $iframe = "<iframe name='filter-embedquestion' id='filter-embedquestion' width='99%' height='500px' src='$src' ></iframe>";
+            $output .= $iframe;
         }
-        return $text;
+        return $output;
+    }
+
+    /**
+     * @param $text
+     * @return bool
+     * @throws moodle_exception
+     */
+    public function validate_input($text) {
+        if (!is_string($text) or empty($text)) {
+            print("'$text' is not a valid input string");
+            return false;
+        }
+        if (strpos($text, self::STRING_PREFIX) === false) {
+            print("'$text' is not a valid input string, the string should starts with '" . self::STRING_PREFIX . "'.");
+            return false;
+        }
+        if (strpos($text, '}Q}') === false) {
+            print("'$text' is not a valid input string, the string should starts with '" . self::STRING_SUFFIX . "'.");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Tokenise the input text, generate a temporary token and return an assossiative array.
+     *
+     * @param string $text
+     * @return array
+     */
+    public function tokenise($text) {
+        $text = $this->clean_text($text);
+        $params = preg_split('/[|]+/', $text);
+        $catandqueidnum = $params[0];
+        $keyvaluePairs = array();
+        foreach($params as $param) {
+            if ($param === $catandqueidnum) {
+                continue;
+            }
+            $keyvaluePair = preg_split('/[=]+/', $param);
+            $keyvaluePairs[$keyvaluePair[0]] = $keyvaluePair[1];
+        }
+        // TODO: sort this out properly
+        // Add the hash token.
+        $keyvaluePairs['token'] = hash('md5', $catandqueidnum, false);
+        return $keyvaluePairs;
+    }
+
+    /**
+     * Chop off the prefix '{Q{', suffix '}Q}' and return the cleaned text.
+     *
+     * @param string $text
+     * @return string
+     */
+    public function clean_text($text) {
+        return str_replace(self::STRING_PREFIX, '', str_replace(self::STRING_SUFFIX, '', $text));
     }
 }
