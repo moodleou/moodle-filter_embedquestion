@@ -115,6 +115,11 @@ if (data_submitted() && confirm_sesskey()) {
             if ($scrollpos !== '') {
                 $actionurl->param('scrollpos', (int) $scrollpos);
             }
+
+            // Log the submit.
+            \filter_embedquestion\event\question_attempted::create(
+                    ['context' => $context, 'objectid' => $question->id])->trigger();
+
             redirect($actionurl);
         }
 
@@ -138,6 +143,10 @@ if ($question->length) {
 } else {
     $displaynumber = 'i';
 }
+
+// Log the view.
+\filter_embedquestion\event\question_viewed::create(
+        ['context' => $context, 'objectid' => $question->id])->trigger();
 
 // Start output.
 $title = get_string('iframetitle', 'filter_embedquestion');
