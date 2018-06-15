@@ -15,16 +15,25 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Embedquestion filter version information.
+ * Task definition for filter_embedquestion.
  *
- * @package    filter
- * @subpackage embedquestion
- * @copyright  2018 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   filter_embedquestion
+ * @category  task
+ * @copyright 2018 the Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2018061500;
-$plugin->requires = 2017110800;  // Requires this Moodle version.
-$plugin->component= 'filter_embedquestion';
+$tasks = [
+    // Run the cleanup task once per hour.
+    [
+        'classname' => '\filter_embedquestion\task\cleanup_task',
+        'blocking' => 0,
+        'minute' => 'R',
+        'hour' => '*',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+    ],
+];
