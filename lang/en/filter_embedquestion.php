@@ -27,4 +27,5 @@ $string['iframetitle'] = 'Embedded question';
 $string['invalidtoken'] = 'This question may not be embedded here.';
 $string['noguests'] = 'Guests users do not have permission to interact with embedded questions.';
 $string['pluginname'] = 'Embed questions';
+$string['restart'] = 'Start again';
 $string['taskcleanup'] = 'Clean up old embedded question attempts';

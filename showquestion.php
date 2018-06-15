@@ -88,6 +88,9 @@ if ($qubaid) {
     $transaction = $DB->start_delegated_transaction();
     question_engine::save_questions_usage_by_activity($quba);
     $transaction->allow_commit();
+
+    \filter_embedquestion\event\question_started::create(
+            ['context' => $context, 'objectid' => $question->id])->trigger();
 }
 $options->behaviour = $quba->get_preferred_behaviour();
 $options->maxmark = $quba->get_question_max_mark($slot);
@@ -101,8 +104,13 @@ if (data_submitted() && confirm_sesskey()) {
     try {
 
         if (optional_param('restart', false, PARAM_BOOL)) {
-            // TODO
-            restart_preview($qubaid, $question->id, $options, $context);
+            $transaction = $DB->start_delegated_transaction();
+            question_engine::delete_questions_usage_by_activity($quba->get_id());
+            $transaction->allow_commit();
+
+            // Not logged, because we immediately redirect to start a new attempt, which is logged.
+
+            redirect($options->get_page_url($question->id));
 
         } else {
             $quba->process_all_actions();
@@ -142,6 +150,12 @@ if ($question->length) {
     $displaynumber = '1';
 } else {
     $displaynumber = 'i';
+}
+
+if ($quba->get_question_state($slot)->is_finished()) {
+    $options->extrainfocontent = html_writer::div(html_writer::empty_tag('input', ['type' => 'submit',
+            'name' => 'restart', 'value' => get_string('restart', 'filter_embedquestion'),
+            'class' => 'btn btn-secondary']));
 }
 
 // Log the view.
