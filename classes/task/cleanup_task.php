@@ -23,7 +23,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace filter_embedquestion\task;
-
+use core\task\scheduled_task;
 
 /**
  * A scheduled task to ensure that old attempt data is cleaned up.
