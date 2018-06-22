@@ -22,6 +22,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 $string['filtername'] = 'Embed questions';
 $string['iframetitle'] = 'Embedded question';
 $string['invalidtoken'] = 'This question may not be embedded here.';

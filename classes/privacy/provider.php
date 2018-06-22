@@ -23,8 +23,8 @@
  */
 
 namespace filter_embedquestion\privacy;
-
 defined('MOODLE_INTERNAL') || die();
+
 
 /**
  * Privacy Subsystem for filter_embedquestion implementing null_provider.

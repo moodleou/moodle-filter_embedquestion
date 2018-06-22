@@ -15,15 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-* Embedquestion filter allows question bank questions to be used within other activities.
-*
-* @package    filter
-* @subpackage embedquestion
-* @copyright  2018 The Open University
-* @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
+ * Embedquestion filter allows question bank questions to be used within other activities.
+ *
+ * @package    filter_embedquestion
+ * @copyright  2018 The Open University
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 defined('MOODLE_INTERNAL') || die();
+
 
 class filter_embedquestion extends moodle_text_filter {
     const STRING_PREFIX = '{Q{';
@@ -98,18 +98,18 @@ class filter_embedquestion extends moodle_text_filter {
         $text = $this->clean_text($text);
         $params = preg_split('/[|]+/', $text);
         $catandqueidnum = $params[0];
-        $keyvaluePairs = array();
-        foreach($params as $param) {
+        $keyvaluepairs = array();
+        foreach ($params as $param) {
             if ($param === $catandqueidnum) {
                 continue;
             }
-            $keyvaluePair = preg_split('/[=]+/', $param);
-            $keyvaluePairs[$keyvaluePair[0]] = $keyvaluePair[1];
+            $keyvaluepair = preg_split('/[=]+/', $param);
+            $keyvaluepairs[$keyvaluepair[0]] = $keyvaluepair[1];
         }
         // TODO: sort this out properly
         // Add the hash token.
-        $keyvaluePairs['token'] = hash('md5', $catandqueidnum, false);
-        return $keyvaluePairs;
+        $keyvaluepairs['token'] = hash('md5', $catandqueidnum, false);
+        return $keyvaluepairs;
     }
 
     /**

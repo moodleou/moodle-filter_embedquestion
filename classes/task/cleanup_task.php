@@ -25,6 +25,9 @@
 namespace filter_embedquestion\task;
 use core\task\scheduled_task;
 
+defined('MOODLE_INTERNAL') || die();
+
+
 /**
  * A scheduled task to ensure that old attempt data is cleaned up.
  */
@@ -32,7 +35,7 @@ class cleanup_task extends scheduled_task {
     /**
      * @var int time after which to delete attempts. We delete attempts that have not been touched for 24 hours.
      */
-    const MAX_AGE = 24*60*60;
+    const MAX_AGE = 24 * 60 * 60;
 
     public function get_name() {
         return get_string('taskcleanup', 'filter_embedquestion');

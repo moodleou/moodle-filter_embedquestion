@@ -1,8 +1,9 @@
-/* Set the overflow-y to auto, user !important to force this upon the rule on theme/osep/style/layout.css */
+/* Set the overflow-y to auto, user !important to force this upon the rule on theme/osep/style/layout.css. */
 html:not(.no-forced-vertical-scroll) {
     overflow-y: auto !important;
 }
-/** Adjust the question inside the iframe to take less space and look nicer */
+
+/* Adjust the question inside the iframe to take less space and look nicer. */
 body#page-filter-embedquestion-showquestion .que {
     margin: 0;
     border-top: none;

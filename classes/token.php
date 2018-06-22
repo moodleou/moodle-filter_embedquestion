@@ -24,8 +24,8 @@
  */
 
 namespace filter_embedquestion;
-
 defined('MOODLE_INTERNAL') || die();
+
 
 class token {
 

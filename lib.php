@@ -22,22 +22,24 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
-* Called via pluginfile.php -> question_pluginfile to serve files belonging to
-* a question in a question_attempt when that attempt an embedded question.
-*
-* @category files
-* @param stdClass $course course settings object
-* @param stdClass $context context object
-* @param string $component the name of the component we are serving files for.
-* @param string $filearea the name of the file area.
-* @param int $qubaid the question_usage this image belongs to.
-* @param int $slot the relevant slot within the usage.
-* @param array $args the remaining bits of the file path.
-* @param bool $forcedownload whether the user must be forced to download the file.
-* @param array $options additional options affecting the file serving
-* @return bool false if file not found, does not return if found - justsend the file
-*/
+ * Called via pluginfile.php -> question_pluginfile to serve files belonging to
+ * a question in a question_attempt when that attempt an embedded question.
+ *
+ * @category files
+ * @param stdClass $course course settings object
+ * @param stdClass $context context object
+ * @param string $component the name of the component we are serving files for.
+ * @param string $filearea the name of the file area.
+ * @param int $qubaid the question_usage this image belongs to.
+ * @param int $slot the relevant slot within the usage.
+ * @param array $args the remaining bits of the file path.
+ * @param bool $forcedownload whether the user must be forced to download the file.
+ * @param array $options additional options affecting the file serving
+ * @return bool false if file not found, does not return if found - justsend the file
+ */
 function filter_embedquestion_question_pluginfile($course, $context, $component,
         $filearea, $qubaid, $slot, $args, $forcedownload, $fileoptions) {
 
