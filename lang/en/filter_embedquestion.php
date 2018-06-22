@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 $string['filtername'] = 'Embed questions';
 $string['iframetitle'] = 'Embedded question';
 $string['invalidtoken'] = 'This question may not be embedded here.';
+$string['nameandcount'] = '{$a->name} ({$a->count})';
 $string['noguests'] = 'Guests users do not have permission to interact with embedded questions.';
 $string['pluginname'] = 'Embed questions';
 $string['restart'] = 'Start again';

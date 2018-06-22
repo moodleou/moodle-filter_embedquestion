@@ -41,4 +41,139 @@ abstract class utils {
             throw new \moodle_exception('notyourpreview', 'question');
         }
     }
+
+    /**
+     * Find a category with a given idnumber in a given context.
+     *
+     * @param \context $context a context.
+     * @param string $idnumber the idnumber to look for.
+     * @return \stdClass|false row from the question_categories table, or false if none.
+     */
+    public static function get_category_by_idnumber(\context $context, $idnumber) {
+        global $DB;
+
+        return $DB->get_record_select('question_categories',
+                'contextid = ? AND ' . $DB->sql_like('name', '?'),
+                [$context->id, '%[ID:' . $DB->sql_like_escape($idnumber) . ']%']);
+    }
+
+    /**
+     * Find a question with a given idnumber in a given context.
+     *
+     * @param int $categoryid id of the question category to look in.
+     * @param string $idnumber the idnumber to look for.
+     * @return \stdClass|false row from the question_categories table, or false if none.
+     */
+    public static function get_question_by_idnumber($categoryid, $idnumber) {
+        global $DB;
+
+        return $DB->get_record_select('question',
+                'category = ? AND ' . $DB->sql_like('name', '?'),
+                [$categoryid, '%[ID:' . $DB->sql_like_escape($idnumber) . ']%']);
+    }
+
+    /**
+     * Get a list of the question categories in a particular context that
+     * contain sharable questions (and which have an idnumber set).
+     *
+     * The list is returned in a form suitable for using in a select menu.
+     *
+     * If a userid is given, then only questions created by that user
+     * are considered.
+     *
+     * @param \context $context a context.
+     * @param int $userid (optional) if set, only count questions created by this user.
+     * @return array category idnumber => Category name (question count).
+     */
+    public static function get_categories_with_sharable_question_choices(\context $context, $userid = null) {
+        global $DB;
+
+        $params = [];
+        $params[] = '%[ID:%]%';
+
+        $creatortest = '';
+        if ($userid) {
+            $creatortest = 'AND q.createdby = ?';
+            $params[] = $userid;
+        }
+        $params[] = $context->id;
+        $params[] = '%[ID:%]%';
+
+        $categories = $DB->get_records_sql("
+                SELECT qc.id, qc.name, COUNT(q.id) AS count
+
+                  FROM {question_categories} qc
+             LEFT JOIN {question} q ON q.category = qc.id
+                                    AND " . $DB->sql_like('q.name', '?') . "
+                                    $creatortest
+
+                 WHERE qc.contextid = ?
+                   AND " . $DB->sql_like('qc.name', '?') . "
+
+              GROUP BY qc.id, qc.name
+              ORDER BY qc.name
+                ", $params);
+
+        $choices = [];
+        foreach ($categories as $category) {
+            if (!preg_match('~\[ID:(.*)\]~', $category->name, $matches)) {
+                continue;
+            }
+
+            $choices[$matches[1]] = get_string('nameandcount', 'filter_embedquestion',
+                    ['name' => format_string($category->name), 'count' => $category->count]);
+        }
+
+        return $choices;
+    }
+
+
+    /**
+     * Get shareable questions from a category (those which have an idnumber set).
+     *
+     * The list is returned in a form suitable for using in a select menu.
+     *
+     * If a userid is given, then only questions created by that user
+     * are considered.
+     *
+     * @param int $categoryid id of a question category.
+     * @param int $userid (optional) if set, only count questions created by this user.
+     * @return array question idnumber => question name.
+     */
+    public static function get_sharable_question_choices($categoryid, $userid = null) {
+        global $DB;
+
+        $params = [];
+        $params[] = $categoryid;
+        $params[] = '%[ID:%]%';
+
+        $creatortest = '';
+        if ($userid) {
+            $creatortest = 'AND q.createdby = ?';
+            $params[] = $userid;
+        }
+
+        $questions = $DB->get_records_sql("
+                SELECT q.name
+
+                  FROM {question} q
+
+                 WHERE q.category = ?
+                   AND " . $DB->sql_like('q.name', '?') . "
+                   $creatortest
+ 
+              ORDER BY q.name
+                ", $params);
+
+        $choices = [];
+        foreach ($questions as $question) {
+            if (!preg_match('~\[ID:(.*)\]~', $question->name, $matches)) {
+                continue;
+            }
+
+            $choices[$matches[1]] = format_string($question->name);
+        }
+
+        return $choices;
+    }
 }
