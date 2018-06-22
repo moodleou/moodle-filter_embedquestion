@@ -25,8 +25,8 @@ define(['jquery'], function($) {
     var t = {
         height: 0,
 
-        init: function() {
-            var iframe = $('#filter-embedquestion');
+        init: function(qid) {
+            var iframe = $('#filter-embedquestion' + qid);
             iframe.addClass('no-forced-vertical-scroll');
             if (iframe.length === 0) {
                 return;
@@ -37,7 +37,7 @@ define(['jquery'], function($) {
             }
             iframe.css(
                 {
-                    'overflow' : 'auto',
+                    'overflow-y' : 'auto; !important',
                     'vspace' : '0',
                     'hspace' : '0',
                     'frameborder' : '0',

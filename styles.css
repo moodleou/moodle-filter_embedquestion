@@ -1,0 +1,4 @@
+/* Set the overflow-y to auto, user !important to force this upon the rule on theme/osep/style/layout.css */
+html:not(.no-forced-vertical-scroll) {
+    overflow-y: auto !important;
+}

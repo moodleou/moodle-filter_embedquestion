@@ -52,15 +52,16 @@ class filter_embedquestion extends moodle_text_filter {
         if (!preg_match_all('~\{Q\{[a-zA-Z0-9|=\-\/]*\}Q\}~', $text, $matches)) {
             return $text;
         }
+        $courseid = $this->context->get_course_context(true)->instanceid;
         $output = '';
-        foreach ($matches as $index => $match) {
-            $params = $this->tokenise($match[$index]);
-            $courseid = $this->context->get_course_context(true)->instanceid;
+        foreach ($matches[0] as $match) {
+            $params = $this->tokenise($match);
             $question = question_bank::load_question($params['id']);
             $questionoptions = new filter_embedquestion\question_options($question, $courseid, $params['behaviour']);
             $src = $questionoptions->get_page_url($question->id);
-            $PAGE->requires->js_call_amd('filter_embedquestion/question', 'init');
-            $iframe = "<iframe name='filter-embedquestion' id='filter-embedquestion' width='99%' height='500px' src='$src' ></iframe>";
+            $PAGE->requires->js_call_amd('filter_embedquestion/question', 'init', array($params['id']));
+            $iframeid = 'filter-embedquestion' . $params['id'];
+            $iframe = "<iframe name='filter-embedquestion' id='$iframeid' width='99%' height='500px' src='$src' ></iframe>";
             $output .= $iframe;
         }
         //$PAGE->requires->js_call_amd('filter_embedquestion/question', 'init', $text);
