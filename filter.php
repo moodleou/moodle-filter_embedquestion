@@ -64,8 +64,6 @@ class filter_embedquestion extends moodle_text_filter {
             $iframe = "<iframe name='filter-embedquestion' id='$iframeid' width='99%' height='500px' src='$src' ></iframe>";
             $output .= $iframe;
         }
-        //$PAGE->requires->js_call_amd('filter_embedquestion/question', 'init', $text);
-
         return $output;
     }
 
