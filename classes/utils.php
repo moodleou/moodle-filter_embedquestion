@@ -114,7 +114,7 @@ abstract class utils {
               ORDER BY qc.name
                 ", $params);
 
-        $choices = [];
+        $choices = ['' => get_string('choosedots')];
         foreach ($categories as $category) {
             if (!preg_match('~\[ID:(.*)\]~', $category->name, $matches)) {
                 continue;
@@ -165,7 +165,7 @@ abstract class utils {
               ORDER BY q.name
                 ", $params);
 
-        $choices = [];
+        $choices = ['' => get_string('choosedots')];
         foreach ($questions as $question) {
             if (!preg_match('~\[ID:(.*)\]~', $question->name, $matches)) {
                 continue;

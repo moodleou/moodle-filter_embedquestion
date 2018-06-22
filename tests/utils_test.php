@@ -104,6 +104,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
                 ['category' => $catwithid2->id, 'name' => 'Question [ID:frog]']);
 
         $this->assertEquals([
+                '' => 'Choose...',
                 'abc123' => 'Category with idnumber [ID:abc123] (0)',
                 'pqr789' => 'Second category with [ID:pqr789] (1)'],
                 \filter_embedquestion\utils::get_categories_with_sharable_question_choices(
@@ -131,6 +132,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         $this->setAdminUser();
 
         $this->assertEquals([
+                '' => 'Choose...',
                 'abc123' => 'Category with idnumber [ID:abc123] (1)',
                 'pqr789' => 'Second category with [ID:pqr789] (0)'],
                 \filter_embedquestion\utils::get_categories_with_sharable_question_choices(
@@ -154,6 +156,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
                 ['category' => $category->id]);
 
         $this->assertEquals([
+                '' => 'Choose...',
                 'frog' => 'Question 1 [ID:frog]',
                 'toad' => 'Question 2 [ID:toad]'],
                 \filter_embedquestion\utils::get_sharable_question_choices(
@@ -180,6 +183,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
                 ['category' => $category->id]);
 
         $this->assertEquals([
+                '' => 'Choose...',
                 'frog' => 'Question 1 [ID:frog]'],
                 \filter_embedquestion\utils::get_sharable_question_choices(
                         $category->id, $USER->id));
