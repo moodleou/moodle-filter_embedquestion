@@ -51,13 +51,14 @@ class filter_embedquestion_testcase extends advanced_testcase {
                 ['{Q{cat/q|' . $requiredtoken . '}Q}',
                         '<iframe class="filter_embedquestion-iframe" src="' . $CFG->wwwroot .
                         '/filter/embedquestion/showquestion.php?catid=cat&amp;qid=q&amp;' .
-                        'course=1&amp;token=' . token::make_iframe_token('cat', 'q') .
+                        'course=' . SITEID . '&amp;token=' . token::make_iframe_token('cat', 'q') .
                         '&amp;behaviour=interactive&amp;correctness=1&amp;marks=2&amp;markdp=2' .
                         '&amp;feedback=1&amp;generalfeedback=1&amp;rightanswer=1&amp;history=0"></iframe>'],
-                ['{Q{cat/q|behaviour=immediatefeedback|marks=10|markdp=3|generalfeedback=0}Q}',
-                        ['<iframe class="filter_embedquestion-iframe"', '?catid=cat&amp;qid=q&amp;token=',
-                                '&amp;behaviour=interactive&amp;', '&amp;marks=10&amp;markdp=3&amp;',
-                                '&amp;generalfeedback=1&amp;']],
+                ['{Q{cat/q|behaviour=immediatefeedback|marks=10|markdp=3|generalfeedback=0|' . $requiredtoken . '}Q}',
+                        ['<iframe class="filter_embedquestion-iframe"',
+                                '?catid=cat&amp;qid=q&amp;course=' . SITEID . '&amp;token=',
+                                '&amp;behaviour=immediatefeedback&amp;', '&amp;marks=10&amp;markdp=3&amp;',
+                                '&amp;generalfeedback=0&amp;']],
             ];
     }
 
@@ -72,9 +73,11 @@ class filter_embedquestion_testcase extends advanced_testcase {
      */
     public function test_filter($input, $expectedoutput) {
         global $PAGE;
+
         $context = context_course::instance(SITEID);
         $filter = new filter_embedquestion($context, []);
         $filter->setup($PAGE, $context);
+
         $actualoutput = $filter->filter($input);
 
         if (is_string($expectedoutput)) {
@@ -82,11 +85,27 @@ class filter_embedquestion_testcase extends advanced_testcase {
 
         } else if (is_array($expectedoutput)) {
             foreach ($expectedoutput as $expectedpart) {
-                $this->assertContains($actualoutput, $expectedpart);
+                $this->assertContains($expectedpart, $actualoutput);
             }
 
         } else {
             throw new coding_exception('Unexpected expected output type.');
         }
+    }
+
+    public function test_no_guests() {
+        global $PAGE;
+
+        $this->resetAfterTest();
+        $this->setGuestUser();
+
+        $context = context_course::instance(SITEID);
+        $filter = new filter_embedquestion($context, []);
+        $filter->setup($PAGE, $context);
+
+        $actualoutput = $filter->filter('{Q{cat/q|' . token::make_secret_token('cat', 'q') . '}Q}');
+
+        $this->assertContains('<div class="filter_embedquestion-error">', $actualoutput);
+        $this->assertContains('Guest users do not have permission to interact with embedded questions.', $actualoutput);
     }
 }

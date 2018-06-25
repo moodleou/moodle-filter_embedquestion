@@ -71,6 +71,10 @@ class filter_embedquestion extends moodle_text_filter {
      */
     public function embed_question($embedcode) {
 
+        if (isguestuser()) {
+            return $this->display_error('noguests');
+        }
+
         $parts = explode('|', $embedcode);
 
         if (count($parts) < 2) {
@@ -104,7 +108,7 @@ class filter_embedquestion extends moodle_text_filter {
      * @param array|\stdClass|null $a any values needed by the strings.
      */
     protected function display_error($string, $a = null) {
-        $this->renderer->render(new error_message($string, $a));
+        return $this->renderer->render(new error_message($string, $a));
     }
 
     /**
