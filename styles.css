@@ -1,9 +1,9 @@
-/* Set the overflow-y to auto, user !important to force this upon the rule on theme/osep/style/layout.css. */
-html:not(.no-forced-vertical-scroll) {
-    overflow-y: auto !important;
+.filter_embedquestion-iframe {
+    display: block;
+    width: 100%;
+    border: 0 none;
 }
 
-/* Adjust the question inside the iframe to take less space and look nicer. */
 body#page-filter-embedquestion-showquestion .que {
     margin: 0;
     border-top: none;

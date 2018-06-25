@@ -25,26 +25,13 @@ define(['jquery'], function($) {
     var t = {
         height: 0,
 
-        init: function(qid) {
-            var iframe = $('#filter-embedquestion' + qid);
-            iframe.addClass('no-forced-vertical-scroll');
-            if (iframe.length === 0) {
-                return;
-            }
-            iframe.css('height', iframe[0].contentWindow.screen.height + 'px');
-            if (t.height !== iframe.css('height')) {
-                 t.height = iframe.css('height');
-            }
-            iframe.css(
-                {
-                    'overflow-y' : 'auto; !important',
-                    'vspace' : '0',
-                    'hspace' : '0',
-                    'frameborder' : '0',
-                    'border' : '0',
-                    'cellspacing' : '0'
-                }
-            );
+        init: function() {
+            setTimeout(function() {
+                $('.filter_embedquestion-iframe').each(function (index, iframe) {
+                    iframe.style.height = Math.min(window.innerHeight,
+                        iframe.contentWindow.document.body.scrollHeight) + 'px';
+                });
+            }, 500);
         }
     };
     return t;
