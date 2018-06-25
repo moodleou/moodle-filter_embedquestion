@@ -34,7 +34,7 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class question_options extends \question_display_options {
-    /** @var the course id the qusetion is being displayed within. */
+    /** @var int the course id the qusetion is being displayed within. */
     public $courseid;
 
     /** @var string the behaviour to use for this preview. */
@@ -47,11 +47,17 @@ class question_options extends \question_display_options {
     public $variant;
 
     /**
-     * Constructor.
+     * The question_options constructor.
+     *
+     * This creates the options with all default values. Use
+     * a method like set_from_request or set_from_form to complete the setup.
+     *
+     * @param \question_definition $question the question to be displayed.
+     * @param int $courseid the course within which this question is being displayed.
      */
-    public function __construct($question, $courseid, $behaviour) {
+    public function __construct(\question_definition $question, $courseid) {
         $this->courseid = $courseid;
-        $this->behaviour = $behaviour;
+        $this->behaviour = 'iteractive';
         $this->maxmark = $question->defaultmark;
         $this->variant = null;
         $this->correctness = self::VISIBLE;
@@ -95,7 +101,24 @@ class question_options extends \question_display_options {
     }
 
     /**
+     * Set the value of any fields included in the request.
+     *
+     * @param \stdClass $fromform data from the form.
+     */
+    public function set_from_form($fromform) {
+        foreach ($this->get_field_types() as $field => $notused) {
+            if ($fromform->$field !== '') {
+                $this->$field = $fromform->$field;
+            }
+        }
+        $this->numpartscorrect = $this->feedback;
+    }
+
+    /**
      * Get the URL parameters needed for starting or continuing the display of a question.
+     *
+     * @param int the id of the question being shown.
+     * @param int $qubaid the usage id of the current attempt, if there is one.
      *
      * @return array URL parameters.
      */
@@ -140,4 +163,29 @@ class question_options extends \question_display_options {
         return new \moodle_url('/filter/embedquestion/showquestion.php',
                 $this->get_url_params($quba->get_question($slot)->id, $quba->get_id()));
     }
+
+    /**
+     * Get the non-default URL parameters from form.
+     *
+     * It is assumed that the form data is all already validated.
+     *
+     * @param \stdClass $fromform the form data. E.g. from the form in question_helper.
+     *
+     * @return string the code that the filter will process to show this question.
+     */
+    public function get_embed_from_form_options($fromform) {
+
+        $parts = [$fromform->categoryidnumber . '/' . $fromform->questionidnumber];
+        foreach ($this->get_field_types() as $field => $type) {
+            if ($fromform->$field === '') {
+                continue;
+            }
+
+            $parts[] = $field . '=' . $fromform->$field;
+        }
+        $parts[] = token::make_secret_token($fromform->categoryidnumber, $fromform->questionidnumber);
+
+        return \filter_embedquestion::STRING_PREFIX . implode('|', $parts) . \filter_embedquestion::STRING_SUFFIX;
+    }
+
 }

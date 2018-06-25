@@ -27,6 +27,7 @@
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 require_once($CFG->libdir . '/formslib.php');
+require_once(__DIR__ . '/filter.php');
 
 $courseid = required_param('courseid', PARAM_INT);
 
@@ -66,11 +67,12 @@ class filter_embedquestion_test_form extends moodleform {
         $mform->addRule('categoryidnumber', null, 'required', null, 'client');
 
         $mform->addElement('text', 'questionidnumber', 'Question idnumber');
-        $mform->setType('questionidnumber', PARAM_RAW);
+        $mform->setType('questionidnumber', PARAM_RAW_TRIMMED);
         $mform->addRule('questionidnumber', null, 'required', null, 'client');
 
-        $mform->addElement('text', 'questionvariant', 'Question variant');
-        $mform->setType('questionvariant', PARAM_INT);
+        $mform->addElement('text', 'variant', 'Question variant');
+        $mform->setType('variant', PARAM_RAW_TRIMMED); // Not PARAM_INT because we need to keep blank input as ''.
+        $mform->setDefault('variant', '');
 
         $mform->addElement('header', 'attemptheader', 'Attempt options');
 
@@ -85,17 +87,17 @@ class filter_embedquestion_test_form extends moodleform {
 
         // Question max mark.
         $mform->addElement('text', 'maxmark', 'Marked out of', ['size' => 7]);
-        $mform->setType('maxmark', PARAM_FLOAT);
+        $mform->setType('maxmark', PARAM_RAW_TRIMMED); // Not PARAM_FLOAT because we need to keep blank input as ''.
 
         // Decimal places to display.
-        $options = array_merge([-1 => 'Default'], question_engine::get_dp_options());
+        $options = array_merge(['' => 'Default'], question_engine::get_dp_options());
         $mform->addElement('select', 'markdp',
                 get_string('decimalplacesingrades', 'question'), $options);
 
         $mform->addElement('header', 'reviewheader', 'Review options');
 
         $hiddenorvisible = array(
-                -1 => 'Default',
+                '' => 'Default',
                 question_display_options::HIDDEN => get_string('notshown', 'question'),
                 question_display_options::VISIBLE => get_string('shown', 'question'),
         );
@@ -104,7 +106,7 @@ class filter_embedquestion_test_form extends moodleform {
                 $hiddenorvisible);
 
         $marksoptions = array(
-                -1 => 'Default',
+                '' => 'Default',
                 question_display_options::HIDDEN => get_string('notshown', 'question'),
                 question_display_options::MAX_ONLY => get_string('showmaxmarkonly', 'question'),
                 question_display_options::MARK_AND_MAX => get_string('showmarkandmax', 'question'),
@@ -132,12 +134,44 @@ class filter_embedquestion_test_form extends moodleform {
 
         $category = \filter_embedquestion\utils::get_category_by_idnumber($context, $data['categoryidnumber']);
 
-        $question = \filter_embedquestion\utils::get_question_by_idnumber($category->id, $data['questionidnumber']);
-        if (!$question) {
+        $questiondata = \filter_embedquestion\utils::get_question_by_idnumber($category->id, $data['questionidnumber']);
+        if (!$questiondata) {
             $errors['questionidnumber'] = 'Unknown, or unsharable question.';
         }
 
+        if ($data['variant'] !== '') {
+            $variant = clean_param($data['variant'], PARAM_INT);
+            if ($questiondata) {
+                $question = \question_bank::load_question($questiondata->id);
+                $maxvariant = $question->get_num_variants();
+                if ($data['variant'] !== (string) $variant || $variant < 1 || $variant > $maxvariant) {
+                    $errors['variant'] = 'Variant number must be a positive integer at most ' . $maxvariant . '.';
+                }
+            } else {
+                if ($data['variant'] !== (string) $variant || $variant < 1) {
+                    $errors['variant'] = 'Variant number must be a positive integer.';
+                }
+            }
+        }
+
+        if ($data['maxmark'] !== '') {
+            $maxmark = unformat_float($data['maxmark']);
+            if ($maxmark === '.' || !preg_match('~^\d*([\.,]\d*)?$~', $data['maxmark'])) {
+                $errors['maxmark'] = 'The maximum mark must be a number.';
+            }
+        }
+
         return $errors;
+    }
+
+    public function get_data() {
+        $data = parent::get_data();
+
+        if ($data->maxmark !== '') {
+            $data->maxmark = (float) str_replace(',', '.', $data->maxmark);
+        }
+
+        return $data;
     }
 }
 
@@ -146,11 +180,13 @@ $form = new filter_embedquestion_test_form(null, ['context' => $context]);
 echo $OUTPUT->header();
 
 if ($fromform = $form->get_data()) {
-    $question = question_bank::load_question($fromform->id);
-    $context = context::instance_by_id($question->contextid);
+    $category = \filter_embedquestion\utils::get_category_by_idnumber($context, $fromform->categoryidnumber);
+    $questiondata = \filter_embedquestion\utils::get_question_by_idnumber($category->id, $fromform->questionidnumber);
+    $question = question_bank::load_question($questiondata->id);
 
     $options = new filter_embedquestion\question_options($question,
-            $context->get_course_context()->instanceid, $fromform->behaviour);
+            $context->get_course_context()->instanceid);
+    $options->set_from_form($fromform);
 
     echo $OUTPUT->heading('Information for embedding question ' . format_string($question->name));
 
@@ -158,7 +194,10 @@ if ($fromform = $form->get_data()) {
     echo html_writer::tag('p', 'Link to show the question in the iframe: ' .
             html_writer::link($iframeurl, $iframeurl));
 
-    echo html_writer::tag('p', 'Code to embed the question: TODO');
+    $embedcode = $options->get_embed_from_form_options($fromform);
+    echo html_writer::tag('p', 'Code to embed the question: ' . $embedcode);
+
+    echo format_text('The embedded question: ' . $embedcode, FORMAT_HTML, ['context' => $context]);
 }
 
 echo $OUTPUT->heading('Generate code an links for embedding a question.');

@@ -57,7 +57,7 @@ class filter_embedquestion extends moodle_text_filter {
         foreach ($matches[0] as $match) {
             $params = $this->tokenise($match);
             $question = question_bank::load_question($params['id']);
-            $questionoptions = new filter_embedquestion\question_options($question, $courseid, $params['behaviour']);
+            $questionoptions = new filter_embedquestion\question_options($question, $courseid);
             $src = $questionoptions->get_page_url($question->id);
             $PAGE->requires->js_call_amd('filter_embedquestion/question', 'init', array($params['id']));
             $iframeid = 'filter-embedquestion' . $params['id'];

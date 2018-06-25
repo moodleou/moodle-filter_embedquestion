@@ -62,7 +62,7 @@ abstract class utils {
      *
      * @param int $categoryid id of the question category to look in.
      * @param string $idnumber the idnumber to look for.
-     * @return \stdClass|false row from the question_categories table, or false if none.
+     * @return \stdClass|false row from the question table, or false if none.
      */
     public static function get_question_by_idnumber($categoryid, $idnumber) {
         global $DB;

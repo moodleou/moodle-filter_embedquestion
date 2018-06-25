@@ -45,7 +45,7 @@ if ($token !== filter_embedquestion\token::make_iframe_token($question->id)) {
 }
 
 // Process options.
-$options = new filter_embedquestion\question_options($question, $courseid, $behaviour);
+$options = new filter_embedquestion\question_options($question, $courseid);
 $options->set_from_request();
 $PAGE->set_url($options->get_page_url($question->id));
 

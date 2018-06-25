@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Token managment.
+ * Token management.
  *
  * @package   filter_embedquestion
  * @copyright 2018 The Open University
@@ -28,19 +28,20 @@ defined('MOODLE_INTERNAL') || die();
 
 class token {
 
-    public static function make_secret_token(\stdClass $data) {
-        if (empty($data->qidnum) || empty($data->catidnum)) {
-            return false;
-        }
+    /**
+     * Compute the security token used to validate the embedding code.
+     *
+     * @param string $categoryidnumber the question category idnumber.
+     * @param string $questionidnumber the question idnumber.
+     * @return string the security token.
+     */
+    public static function make_secret_token($categoryidnumber, $questionidnumber) {
         $secret = get_config('filter_embedquestion', 'secret');
-        $datastring = $data->qidnum . '/' . $data->catidnum . '##' . $secret;
-        $token = hash('sha256', $datastring);
-        return $token;
+        return hash('sha256', $categoryidnumber . '/' . $questionidnumber . '#embed#' . $secret);
     }
 
     public static function make_iframe_token($questionid) {
         $secret = get_config('filter_embedquestion', 'secret');
         return hash('sha256', "$questionid#iframe#$secret");
     }
-
 }
