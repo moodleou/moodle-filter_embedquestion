@@ -1,0 +1,120 @@
+Embed question filter
+=====================
+
+This filter allows questions from the question bank to be embedded
+anywhere that users can input HTML. This can be used in various ways.
+For example, it can be a way to make learning materials more interactive.
+
+
+Setup
+=====
+
+The admin will need to
+
+1. Go to Site administration -> Plugins -> Filters -> Manage filters
+  and Enable the Embed questions filter.
+
+2. Go to Site administration -> Plugins -> Filters -> Embed questions,
+  and review the default options for embedded questions. No needs to
+  be changed, but you may have different preferences for your site.
+
+
+Before you can embed a question
+===============================
+
+Questions can only be embedded from course question banks, and they
+can only be embedded if they have and 'idnumber' set, and are in
+a cateogry with an 'idnumber'.
+
+At the moment, questions and categories in Moodle do not have
+idnumbers (until MDL-62708 has been completed), so instead you
+need to add '[ID:idnumber-goes-here]' to the question/category name.
+In what follows we will assume you have done this, so you have
+a category called 'Embeddable questions [ID:embeddable]' that
+contains a question called 'Test question [ID:test]' in the course
+with id 2.
+
+
+How to embed a question
+=======================
+
+There will evenutally be an Atto editor plugin to help with this.
+Until then, only users with capability mdl/site:config can
+generate the necessary embed codes using the helper script.
+
+1. To generate the code, you have to use the script
+   .../filter/embedquestion/testhelper.php?courseid=NNN
+   in your Moodle site. (E.g. NNN = 2 for the example above.)
+
+2. Select a question category (e.g. 'Embeddable questions [ID:embeddable]').
+
+3. Enter a question idnumber (e.g. 'test').
+
+4. All the other options can be left as default, or changed as you wish.
+   Note that it is only possible to select question behaviours that
+   allow the question to finish without the equivalent of the
+   whole quiz attempt being submitted.
+
+5. Click the Generate information button.
+
+6. You will see a preview of the embedded questions, which can be used to
+   check it is working the way you want. If not you can change the options
+   and regenerate.
+
+7. Once you are happy, copy the '{Q{...}Q}' bit from where it says
+   'Code to embed the question:'. This can be pasted into any HTML editor
+   in the same Moodle course, for example into a page resource or a forum post.
+
+You will notice that the embed code ends with a 40-character hex string.
+This (along with the requirement for questions and categories to have
+idnumbers) is how we prevent unauthorised users from being able to guess
+the embed code for a question that they should not be allowed to see.
+
+
+Interacting with an embedded question
+=====================================
+
+When a user encounters an embedded question, the question will
+just appear inline in the page.
+
+Technically the question is embedded in an iframe, but this
+should be invisible to users. The iframe should be automatically
+sized to just fit the question.
+
+The question should work exactly as it would in a quiz
+attempt, if the quiz was set up with the same
+options that were used when embedding the question.
+
+After the question has finished, there will be a Start again
+button to restart the question. If the question has variants,
+and the variant number is not being fixed, then a different
+variant will be chosen when the question is restarted.
+
+
+Miscellaneous points
+====================
+
+* Question attempts are stored in the database, but not
+  permanently. There is a scheduled task 'Clean up old
+  embedded question attempts' which runs once-per-hour
+  (by default) to do the necessary clean-up. Attempts are
+  removed after 24 hours.
+
+* If you leave a page and come back, the question will
+  start again from the beginning.
+
+* Hence, this plugin stores no personally identifiable information,
+  and implements the Moodle privacy API to document this.
+
+* Guests are never allowed to interact with embedded questions.
+
+* All interactions with a question (Start, View, Submit) are logged.
+
+* If there are images in the question text, feedback, etc.,
+  they will show up just fine.
+
+* If you want to embed questions on site-wide page, they
+  need to go in the 'Front page' area of the question bank.
+
+* A a course is backed-up and restored (e.g. roll-forwards)
+  the embedded questions should work in the new course.

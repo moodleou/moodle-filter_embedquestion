@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Embedquestion filter version information.
+ * Embed question filter version information.
  *
  * @package   filter_embedquestion
  * @copyright 2018 The Open University

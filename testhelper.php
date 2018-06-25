@@ -192,10 +192,6 @@ if ($fromform = $form->get_data()) {
 
     echo $OUTPUT->heading('Information for embedding question ' . format_string($question->name));
 
-    $iframeurl = $options->get_page_url($fromform->categoryidnumber, $fromform->questionidnumber);
-    echo html_writer::tag('p', 'Link to show the question in the iframe: ' .
-            html_writer::link($iframeurl, $iframeurl));
-
     $embedcode = $options->get_embed_from_form_options($fromform);
     echo html_writer::tag('p', 'Code to embed the question: ' . $embedcode);
 
