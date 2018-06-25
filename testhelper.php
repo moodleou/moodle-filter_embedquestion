@@ -28,6 +28,7 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 require_once($CFG->libdir . '/formslib.php');
 require_once(__DIR__ . '/filter.php');
+use filter_embedquestion\utils;
 
 $courseid = required_param('courseid', PARAM_INT);
 
@@ -167,7 +168,7 @@ class filter_embedquestion_test_form extends moodleform {
     public function get_data() {
         $data = parent::get_data();
 
-        if ($data->maxmark !== '') {
+        if ($data && $data->maxmark !== '') {
             $data->maxmark = (float) str_replace(',', '.', $data->maxmark);
         }
 
@@ -180,17 +181,16 @@ $form = new filter_embedquestion_test_form(null, ['context' => $context]);
 echo $OUTPUT->header();
 
 if ($fromform = $form->get_data()) {
-    $category = \filter_embedquestion\utils::get_category_by_idnumber($context, $fromform->categoryidnumber);
-    $questiondata = \filter_embedquestion\utils::get_question_by_idnumber($category->id, $fromform->questionidnumber);
+    $category = utils::get_category_by_idnumber($context, $fromform->categoryidnumber);
+    $questiondata = utils::get_question_by_idnumber($category->id, $fromform->questionidnumber);
     $question = question_bank::load_question($questiondata->id);
 
-    $options = new filter_embedquestion\question_options($question,
-            $context->get_course_context()->instanceid);
+    $options = new filter_embedquestion\question_options($courseid);
     $options->set_from_form($fromform);
 
     echo $OUTPUT->heading('Information for embedding question ' . format_string($question->name));
 
-    $iframeurl = $options->get_page_url($question->id);
+    $iframeurl = $options->get_page_url($fromform->categoryidnumber, $fromform->questionidnumber);
     echo html_writer::tag('p', 'Link to show the question in the iframe: ' .
             html_writer::link($iframeurl, $iframeurl));
 

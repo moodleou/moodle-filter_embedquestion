@@ -44,8 +44,15 @@ if ($token !== filter_embedquestion\token::make_iframe_token($question->id)) {
     print_error('invalidtoken', 'filter_embedquestion');
 }
 
+$category = utils::get_category_by_idnumber($coursecontext, $categoryidnumber);
+if (!$category) {
+    return $this->display_error('invalidtoken');
+}
+
+$questiondata = utils::get_question_by_idnumber($category->id, $fromform->questionidnumber);
+
 // Process options.
-$options = new filter_embedquestion\question_options($question, $courseid);
+$options = new filter_embedquestion\question_options($courseid);
 $options->set_from_request();
 $PAGE->set_url($options->get_page_url($question->id));
 

@@ -26,6 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/filter/embedquestion/filter.php');
+use filter_embedquestion\token;
 
 
 /**
@@ -38,38 +39,54 @@ require_once($CFG->dirroot . '/filter/embedquestion/filter.php');
  */
 class filter_embedquestion_testcase extends advanced_testcase {
 
-    protected $filter;
-
-    protected function setUp() {
-        parent::setUp();
-        $this->resetAfterTest(true);
-        $this->filter = new filter_embedquestion(context_system::instance(), array());
+    public function get_cases_for_test_filter() {
+        global $CFG;
+        $tokenerror = ['<div class="filter_embedquestion-error">',
+                'This question may not be embedded here.'];
+        $requiredtoken = token::make_secret_token('cat', 'q');
+        return [
+                ['Frog', 'Frog'],
+                ['{Q{x}Q}', $tokenerror],
+                ['{Q{cat/q|not-the-right-token}Q}', $tokenerror],
+                ['{Q{cat/q|' . $requiredtoken . '}Q}',
+                        '<iframe class="filter_embedquestion-iframe" src="' . $CFG->wwwroot .
+                        '/filter/embedquestion/showquestion.php?catid=cat&amp;qid=q&amp;' .
+                        'course=1&amp;token=' . token::make_iframe_token('cat', 'q') .
+                        '&amp;behaviour=interactive&amp;correctness=1&amp;marks=2&amp;markdp=2' .
+                        '&amp;feedback=1&amp;generalfeedback=1&amp;rightanswer=1&amp;history=0"></iframe>'],
+                ['{Q{cat/q|behaviour=immediatefeedback|marks=10|markdp=3|generalfeedback=0}Q}',
+                        ['<iframe class="filter_embedquestion-iframe"', '?catid=cat&amp;qid=q&amp;token=',
+                                '&amp;behaviour=interactive&amp;', '&amp;marks=10&amp;markdp=3&amp;',
+                                '&amp;generalfeedback=1&amp;']],
+            ];
     }
 
-    public function test_validate_input() {
-        $text = '{Q{cat-id-num/que-id-num|id=4131|courseid=31||behaviour=interactive|maxmark=10|markdp=3|generalfeedback=hide}Q}';
-        $actual = $this->filter->validate_input($text);
-        $expected = true;
-        $this->assertEquals($actual, $expected);
-    }
+    /**
+     * Test the behaviour of the filter.
+     *
+     * @param string $input the content to be filtered
+     * @param string|array $expectedoutput if a string, this is the exact expected output. If an array,
+     *      all array elements must be present and substrings of the actual output.
+     *
+     * @dataProvider get_cases_for_test_filter
+     */
+    public function test_filter($input, $expectedoutput) {
+        global $PAGE;
+        $context = context_course::instance(SITEID);
+        $filter = new filter_embedquestion($context, []);
+        $filter->setup($PAGE, $context);
+        $actualoutput = $filter->filter($input);
 
-    public function test_tokenise() {
-        $text = '{Q{cat-id-num/que-id-num|id=4131|courseid=31|behaviour=interactive|maxmark=10|markdp=3|generalfeedback=hide}Q}';
-        $actual = $this->filter->tokenise($text);
-        $expected = array('id' => 4131, 'courseid' => 31, 'behaviour' => 'interactive', 'maxmark' => 10,
-                'markdp' => 3, 'generalfeedback' => 'hide', 'token' => hash('md5', 'cat-id-num/que-id-num', false));
-        $this->assertEquals($actual, $expected);
-    }
+        if (is_string($expectedoutput)) {
+            $this->assertSame($expectedoutput, $actualoutput);
 
-    public function test_filter() {
-        $text = '{Q{cat-id-num/que-id-num|id=4131|courseid=31|behaviour=interactive|maxmark=10|markdp=3|generalfeedback=hide}Q}';
-        $actual = $this->filter->filter($text);
-        // TODO: Careate a course and questions so that this test does not fail.
-        $expected = "<iframe name='filter-embedquestion' id='filter-embedquestion' width='99%' height='500px' " .
-                "src='https://mk4359.vledev3.open.ac.uk/ou-moodle2/filter/embedquestion/showquestion.php?id=4131&amp;" .
-                "course=31&amp;token=f6934f69e4c5fd3c95bb433726c7f17936a7ffa4050aafb50ad00d9c34c20662&amp;" .
-                "behaviour=interactive&amp;maxmark=1&amp;correctness=1&amp;marks=2&amp;markdp=2&amp;feedback=1&amp;" .
-                "generalfeedback=1&amp;rightanswer=1&amp;history=0' ></iframe>";
-        $this->assertEquals($actual, $expected);
+        } else if (is_array($expectedoutput)) {
+            foreach ($expectedoutput as $expectedpart) {
+                $this->assertContains($actualoutput, $expectedpart);
+            }
+
+        } else {
+            throw new coding_exception('Unexpected expected output type.');
+        }
     }
 }

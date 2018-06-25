@@ -40,8 +40,15 @@ class token {
         return hash('sha256', $categoryidnumber . '/' . $questionidnumber . '#embed#' . $secret);
     }
 
-    public static function make_iframe_token($questionid) {
+    /**
+     * Compute the security token used to validate the contents of the iframe.
+     *
+     * @param string $categoryidnumber the question category idnumber.
+     * @param string $questionidnumber the question idnumber.
+     * @return string the security token.
+     */
+    public static function make_iframe_token($categoryidnumber, $questionidnumber) {
         $secret = get_config('filter_embedquestion', 'secret');
-        return hash('sha256', "$questionid#iframe#$secret");
+        return hash('sha256', $categoryidnumber . '/' . $questionidnumber . '#iframe#' . $secret);
     }
 }

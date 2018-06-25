@@ -52,13 +52,12 @@ class question_options extends \question_display_options {
      * This creates the options with all default values. Use
      * a method like set_from_request or set_from_form to complete the setup.
      *
-     * @param \question_definition $question the question to be displayed.
      * @param int $courseid the course within which this question is being displayed.
      */
-    public function __construct(\question_definition $question, $courseid) {
+    public function __construct($courseid) {
         $this->courseid = $courseid;
-        $this->behaviour = 'iteractive';
-        $this->maxmark = $question->defaultmark;
+        $this->behaviour = 'interactive';
+        $this->maxmark = null;
         $this->variant = null;
         $this->correctness = self::VISIBLE;
         $this->marks = self::MARK_AND_MAX;
@@ -115,16 +114,36 @@ class question_options extends \question_display_options {
     }
 
     /**
+     * Set the value of any fields from the $params that came from the filter.
+     *
+     * @param array $params that came from parsing the filter embed code.
+     */
+    public function set_from_filter_options(array $params) {
+        foreach ($this->get_field_types() as $field => $type) {
+            if (array_key_exists($field, $params) && $params[$field] !== '') {
+                $this->$field = clean_param($params[$field], $type);
+            }
+        }
+        $this->numpartscorrect = $this->feedback;
+    }
+
+    /**
      * Get the URL parameters needed for starting or continuing the display of a question.
      *
-     * @param int the id of the question being shown.
+     * @param string $categoryidnumber the question category idnumber.
+     * @param string $questionidnumber the qusetion idnumber.
      * @param int $qubaid the usage id of the current attempt, if there is one.
      *
      * @return array URL parameters.
      */
-    protected function get_url_params($questionid, $qubaid = null) {
-        $token = token::make_iframe_token($questionid);
-        $params = ['id' => $questionid, 'course' => $this->courseid, 'token' => $token];
+    protected function get_url_params($categoryidnumber, $questionidnumber, $qubaid = null) {
+        $token = token::make_iframe_token($categoryidnumber, $questionidnumber);
+        $params = [
+            'catid'  => $categoryidnumber,
+            'qid'    => $questionidnumber,
+            'course' => $this->courseid,
+            'token'  => $token,
+        ];
         if ($qubaid) {
             $params['qubaid'] = $qubaid;
         }
@@ -144,24 +163,27 @@ class question_options extends \question_display_options {
     /**
      * Get the URL for starting a new view of this question.
      *
-     * @param int $questionid the question to view with these options.
+     * @param string $categoryidnumber the question category idnumber.
+     * @param string $questionidnumber the qusetion idnumber.
      * @return \moodle_url the URL.
      */
-    public function get_page_url($questionid) {
+    public function get_page_url($categoryidnumber, $questionidnumber) {
         return new \moodle_url('/filter/embedquestion/showquestion.php',
-                $this->get_url_params($questionid));
+                $this->get_url_params($categoryidnumber, $questionidnumber));
     }
 
     /**
      * Get the URL for continuing interacting with a given attempt at this question.
      *
      * @param \question_usage_by_activity $quba the usage.
-     * @param int $slot the slot number.
+     * @param string $categoryidnumber the question category idnumber.
+     * @param string $questionidnumber the qusetion idnumber.
      * @return \moodle_url the URL.
      */
-    public function get_action_url(\question_usage_by_activity $quba, $slot) {
+    public function get_action_url(\question_usage_by_activity $quba,
+            $categoryidnumber, $questionidnumber) {
         return new \moodle_url('/filter/embedquestion/showquestion.php',
-                $this->get_url_params($quba->get_question($slot)->id, $quba->get_id()));
+                $this->get_url_params($categoryidnumber, $questionidnumber, $quba->get_id()));
     }
 
     /**
@@ -187,5 +209,4 @@ class question_options extends \question_display_options {
 
         return \filter_embedquestion::STRING_PREFIX . implode('|', $parts) . \filter_embedquestion::STRING_SUFFIX;
     }
-
 }

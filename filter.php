@@ -15,14 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Embedquestion filter allows question bank questions to be used within other activities.
+ * Embed question filter allows question bank questions to be used within other activities.
  *
- * @package    filter_embedquestion
- * @copyright  2018 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   filter_embedquestion
+ * @copyright 2018 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
+use filter_embedquestion\output\embed_iframe;
+use filter_embedquestion\output\error_message;
+use filter_embedquestion\question_options;
+use filter_embedquestion\token;
 
 
 class filter_embedquestion extends moodle_text_filter {
@@ -30,96 +34,94 @@ class filter_embedquestion extends moodle_text_filter {
     const STRING_SUFFIX = '}Q}';
 
     /**
-     * @param some $text
-     * @param array $options
-     * @return some|string
-     * @throws coding_exception
+     * @var \filter_embedquestion\output\renderer the renderer.
      */
-    public function filter($text, array $options = array()) {
-        global $PAGE;
-        // TODO: Find a better way to sanity check the input stirng.
-        //if(!$this->validate_input($text)) {
-        //    return $text;
-        //}
-        if (!is_string($text) or empty($text)) {
-            return $text;
+    protected $renderer = null;
+
+    public function setup($page, $context) {
+        $this->renderer = $page->get_renderer('filter_embedquestion');
+        if ($page->requires->should_create_one_time_item_now('filter_embedquestion_scripts')) {
+            $page->requires->js_call_amd('filter_embedquestion/question', 'init');
         }
-        // Break down the text to paragraphs
-        $paragraphs = explode('</p><p>', $text);
+    }
+
+    public function filter($text, array $options = []) {
+        return preg_replace_callback('~' . preg_quote(self::STRING_PREFIX, '~') .
+                '((?:(?!' . preg_quote(self::STRING_SUFFIX, '~') . ').)*)' .
+                preg_quote(self::STRING_SUFFIX, '~') . '~', [$this, 'embed_question_callback'], $text);
+    }
+
+    /**
+     * For use by the preg_replace_callback call above.
+     *
+     * @param array $matches the parts matched by the regular expression.
+     *
+     * @return string the replacement string.
+     */
+    public function embed_question_callback($matches) {
+        return $this->embed_question($matches[1]);
+    }
+
+    /**
+     * Process the bit of the intput for embedding one question.
+     *
+     * @param string $embedcode the contents of the {Q{...}Q} delimiters.
+     *
+     * @return string HTML code for the iframe to display the question.
+     */
+    public function embed_question($embedcode) {
+
+        $parts = explode('|', $embedcode);
+
+        if (count($parts) < 2) {
+            return $this->display_error('invalidtoken');
+        }
+
+        $questioninfo = array_shift($parts);
+        $token = array_pop($parts);
+
+        if (strpos($questioninfo, '/') === false) {
+            return $this->display_error('invalidtoken');
+        }
+
+        list($categoryidnumber, $questionidnumber) = explode('/', $questioninfo, 2);
+        if ($token !== token::make_secret_token($categoryidnumber, $questionidnumber)) {
+            return $this->display_error('invalidtoken');
+        }
+
         $courseid = $this->context->get_course_context(true)->instanceid;
-        $output = '';
-        foreach ($paragraphs as $i => $p) {
-            //if(!$this->validate_input($p)) {
-            // Look for text to filter ({Q{ … 40 character token … }Q}).
-            if (!preg_match_all('~\{Q\{[a-zA-Z0-9|=\-\/]*\}Q\}~', $p, $match)) {
-                $output .= $p;
-            }
-            if (!empty($match[0])) {
-                $params = $this->tokenise($p);
-                $question = question_bank::load_question($params['id']);
-                $questionoptions = new filter_embedquestion\question_options($question, $courseid, $params['behaviour']);
-                $src = $questionoptions->get_page_url($question->id);
-                $PAGE->requires->js_call_amd('filter_embedquestion/question', 'init', array($params['id']));
-                $iframeid = 'filter-embedquestion' . $params['id'];
-                $iframe = "<iframe name='filter-embedquestion' id='$iframeid' width='99%' height='500px' src='$src' ></iframe>";
-                $output .= $iframe;
-            }
-        }
-        return $output;
+        $options = new question_options($courseid);
+        $options->set_from_filter_options($this->parse_options($parts));
+        $showquestionurl = $options->get_page_url($categoryidnumber, $questionidnumber);
+
+        return $this->renderer->render(new embed_iframe($showquestionurl));
     }
 
     /**
-     * @param $text
-     * @return bool
-     * @throws moodle_exception
-     */
-    public function validate_input($text) {
-        if (!is_string($text) or empty($text)) {
-            print("'$text' is not a valid input string");
-            return false;
-        }
-        if (strpos($text, self::STRING_PREFIX) === false) {
-            print("'$text' is not a valid input string, the string should starts with '" . self::STRING_PREFIX . "'.");
-            return false;
-        }
-        if (strpos($text, '}Q}') === false) {
-            print("'$text' is not a valid input string, the string should starts with '" . self::STRING_SUFFIX . "'.");
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Tokenise the input text, generate a temporary token and return an assossiative array.
+     * Display an error since the question cannot be displayed.
      *
-     * @param string $text
-     * @return array
+     * @param string $string the string to use for the message.
+     * @param array|\stdClass|null $a any values needed by the strings.
      */
-    public function tokenise($text) {
-        $text = $this->clean_text($text);
-        $params = preg_split('/[|]+/', $text);
-        $catandqueidnum = $params[0];
-        $keyvaluepairs = array();
-        foreach ($params as $param) {
-            if ($param === $catandqueidnum) {
-                continue;
-            }
-            $keyvaluepair = preg_split('/[=]+/', $param);
-            $keyvaluepairs[$keyvaluepair[0]] = $keyvaluepair[1];
-        }
-        // TODO: sort this out properly
-        // Add the hash token.
-        $keyvaluepairs['token'] = hash('md5', $catandqueidnum, false);
-        return $keyvaluepairs;
+    protected function display_error($string, $a = null) {
+        $this->renderer->render(new error_message($string, $a));
     }
 
     /**
-     * Chop off the prefix '{Q{', suffix '}Q}' and return the cleaned text.
+     * Process the options, verifying that they are all of the form name=value.
      *
-     * @param string $text
-     * @return string
+     * @param array $parts the individual 'name=options' strings.
+     * @return array the parsed options.
      */
-    public function clean_text($text) {
-        return str_replace(self::STRING_PREFIX, '', str_replace(self::STRING_SUFFIX, '', $text));
+    public function parse_options(array $parts) {
+        $params = [];
+        foreach ($parts as $part) {
+            if (strpos($part, '=') === false) {
+                return $this->display_error('invalidtoken');
+            }
+            list($name, $value) = explode('=', $part);
+            $params[$name] = $value;
+        }
+        return $params;
     }
 }
