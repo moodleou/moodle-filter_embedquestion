@@ -26,35 +26,41 @@
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
+use filter_embedquestion\utils;
 
 // Process required parameters.
-$id = required_param('catid', PARAM_RAW);
-$id = required_param('qid', PARAM_RAW);
+$categoryidnumber = required_param('catid', PARAM_RAW);
+$questionidnumber = required_param('qid', PARAM_RAW);
 $courseid = required_param('course', PARAM_INT);
 $token = required_param('token', PARAM_RAW);
 
-$PAGE->set_pagelayout('popup');
 require_login($courseid);
+$PAGE->set_pagelayout('embedded');
 if (isguestuser()) {
     print_error('noguests', 'filter_embedquestion');
 }
 $context = context_course::instance($courseid);
-$question = question_bank::load_question($id);
-if ($token !== filter_embedquestion\token::make_iframe_token($question->id)) {
+
+if ($token !== filter_embedquestion\token::make_iframe_token($categoryidnumber, $questionidnumber)) {
     print_error('invalidtoken', 'filter_embedquestion');
 }
 
-$category = utils::get_category_by_idnumber($coursecontext, $categoryidnumber);
+$category = utils::get_category_by_idnumber($context, $categoryidnumber);
 if (!$category) {
     return $this->display_error('invalidtoken');
 }
 
-$questiondata = utils::get_question_by_idnumber($category->id, $fromform->questionidnumber);
+$questiondata = utils::get_question_by_idnumber($category->id, $questionidnumber);
+if (!$questiondata) {
+    return $this->display_error('invalidtoken');
+}
+
+$question = question_bank::load_question($questiondata->id);
 
 // Process options.
 $options = new filter_embedquestion\question_options($courseid);
 $options->set_from_request();
-$PAGE->set_url($options->get_page_url($question->id));
+$PAGE->set_url($options->get_page_url($categoryidnumber, $questionidnumber));
 
 // Get and validate existing preview, or start a new one.
 $qubaid = optional_param('qubaid', 0, PARAM_INT);
@@ -103,7 +109,7 @@ $options->behaviour = $quba->get_preferred_behaviour();
 $options->maxmark = $quba->get_question_max_mark($slot);
 
 // Prepare a URL that is used in various places.
-$actionurl = $options->get_action_url($quba, $slot);
+$actionurl = $options->get_action_url($quba, $categoryidnumber, $questionidnumber);
 
 // Process any actions from the buttons at the bottom of the form.
 if (data_submitted() && confirm_sesskey()) {
@@ -117,7 +123,7 @@ if (data_submitted() && confirm_sesskey()) {
 
             // Not logged, because we immediately redirect to start a new attempt, which is logged.
 
-            redirect($options->get_page_url($question->id));
+            redirect($options->get_page_url($categoryidnumber, $questionidnumber));
 
         } else {
             $quba->process_all_actions();
