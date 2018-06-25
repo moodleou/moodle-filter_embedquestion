@@ -28,10 +28,10 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 
 // Process required parameters.
-$id = required_param('id', PARAM_INT);
+$id = required_param('catid', PARAM_RAW);
+$id = required_param('qid', PARAM_RAW);
 $courseid = required_param('course', PARAM_INT);
 $token = required_param('token', PARAM_RAW);
-$behaviour = optional_param('behaviour', 'interactive', PARAM_COMPONENT);
 
 $PAGE->set_pagelayout('popup');
 require_login($courseid);

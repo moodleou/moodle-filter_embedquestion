@@ -138,6 +138,8 @@ class filter_embedquestion_test_form extends moodleform {
         $questiondata = \filter_embedquestion\utils::get_question_by_idnumber($category->id, $data['questionidnumber']);
         if (!$questiondata) {
             $errors['questionidnumber'] = 'Unknown, or unsharable question.';
+        } else if (!question_has_capability_on($questiondata, 'use')) {
+            $errors['questionidnumber'] = 'You do not have permission to embed this question';
         }
 
         if ($data['variant'] !== '') {
