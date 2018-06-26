@@ -199,4 +199,5 @@ echo $quba->render_question($slot, $options, $displaynumber);
 echo html_writer::end_tag('form');
 
 $PAGE->requires->js_module('core_question_engine');
+$PAGE->requires->js_call_amd('filter_embedquestion/question', 'init');
 echo $OUTPUT->footer();

@@ -14,28 +14,51 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
- * JavaScript for question in iframe.
+ * The module resizes the iframe containing the embedded question to be
+ * just the right size for the question.
  *
- * @package filter_ebmedquestion
+ * @module    filter_ebmedquestion/question
+ * @package   filter_ebmedquestion
  * @copyright 2018 The Open University
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 define(['jquery'], function($) {
     var t = {
-        height: 0,
+        /**
+         * The
+         */
+        currentHeight: null,
 
+        /**
+         * Initialise method.
+         */
         init: function() {
-            $('.filter_embedquestion-iframe').on('load', function (e) {
-                t.setIframeHeight(e.target);
-            });
-            $('.filter_embedquestion-iframe').each(function (index, iframe) {
-                t.setIframeHeight(iframe);
-            });
+            // Prevent a vertical scroll-bar in all cases.
+            document.documentElement.style['overflow-y'] = 'hidden';
+
+            // Only initialise if we are in a frame.
+            if (!window.frameElement) {
+                return;
+            }
+
+            // Initialise.
+            t.resizeContainingFrame();
+            setInterval(t.resizeContainingFrame, 100);
         },
 
-        setIframeHeight: function(iframe) {
-            iframe.style.height = iframe.contentWindow.document.body.scrollHeight + 'px';
+        /**
+         * Set the size of the containing frame to what we need.
+         */
+        resizeContainingFrame: function() {
+            // Has the height changed significantly?
+            if (t.currentHeight === document.body.scrollHeight) {
+                return;
+            }
+
+            // Resize required. Do it.
+            t.currentHeight = document.body.scrollHeight;
+            // Extra height to allow for any horizontal scroll bar.
+            window.frameElement.style.height = (t.currentHeight + 25) + "px";
         }
     };
     return t;

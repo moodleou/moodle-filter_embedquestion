@@ -40,9 +40,6 @@ class filter_embedquestion extends moodle_text_filter {
 
     public function setup($page, $context) {
         $this->renderer = $page->get_renderer('filter_embedquestion');
-        if ($page->requires->should_create_one_time_item_now('filter_embedquestion_scripts')) {
-            $page->requires->js_call_amd('filter_embedquestion/question', 'init');
-        }
     }
 
     public function filter($text, array $options = []) {
