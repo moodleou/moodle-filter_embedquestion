@@ -18,7 +18,7 @@
  * The question viewed event.
  *
  * @package   filter_embedquestion
- * @category  task
+ * @category  event
  * @copyright 2018 the Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
