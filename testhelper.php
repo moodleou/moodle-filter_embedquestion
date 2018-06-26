@@ -77,13 +77,7 @@ class filter_embedquestion_test_form extends moodleform {
 
         $mform->addElement('header', 'attemptheader', 'Attempt options');
 
-        $allbehaviours = question_engine::get_archetypal_behaviours();
-        $behaviours = ['' => 'Default'];
-        foreach ($allbehaviours as $behaviour => $name) {
-            if (question_engine::can_questions_finish_during_the_attempt($behaviour)) {
-                $behaviours[$behaviour] = $name;
-            }
-        }
+        $behaviours = ['' => 'Default'] + utils::behaviour_choices();
         $mform->addElement('select', 'behaviour', 'Behaviour', $behaviours);
 
         // Question max mark.

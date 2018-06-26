@@ -176,4 +176,14 @@ abstract class utils {
 
         return $choices;
     }
+
+    public static function behaviour_choices() {
+        $behaviours = [];
+        foreach (\question_engine::get_archetypal_behaviours() as $behaviour => $name) {
+            if (\question_engine::can_questions_finish_during_the_attempt($behaviour)) {
+                $behaviours[$behaviour] = $name;
+            }
+        }
+        return $behaviours;
+    }
 }

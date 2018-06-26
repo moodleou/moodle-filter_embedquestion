@@ -15,19 +15,35 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Embed question filter version information.
+ * Admin settings class for embed question filter default behaviour.
  *
  * @package   filter_embedquestion
- * @copyright 2018 The Open University
+ * @category  admin
+ * @copyright 2018 the Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace filter_embedquestion\admin;
+use filter_embedquestion\utils;
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2018062600;
-$plugin->requires  = 2017110800;  // Requires this Moodle version.
-$plugin->component = 'filter_embedquestion';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0 for Moodle 3.4+';
 
-$plugin->outestssufficient = true;
+/**
+ * Admin settings class to select a questoin behaviour that can finish during the attempt.
+ *
+ * Just so we can lazy-load the choices.
+ *
+ * @copyright 2018 the Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class question_behaviour_setting extends \admin_setting_configselect {
+    public function load_choices() {
+        if (is_array($this->choices)) {
+            return true;
+        }
+
+        $this->choices = utils::behaviour_choices();
+
+        return true;
+    }
+}
