@@ -45,13 +45,8 @@ if ($ADMIN->fulltree) {
 
     // Behaviour.
     $settings->add(new filter_embedquestion\admin\question_behaviour_setting(
-            'filter_embedquestion/behaviour', get_string('howquestionsbehave', 'question'),
-            get_string('howquestionsbehave_desc', 'filter_embedquestion'), 'interactive', null));
-
-    // Decimal places in grades.
-    $settings->add(new admin_setting_configselect('filter_embedquestion/markdp',
-            get_string('decimalplaces', 'quiz'), get_string('markdp_desc', 'filter_embedquestion'),
-            2, question_engine::get_dp_options()));
+            'filter_embedquestion/behaviour', get_string('howquestionbehaves', 'filter_embedquestion'),
+            get_string('howquestionbehaves_desc', 'filter_embedquestion'), 'interactive', null));
 
     // Correctness.
     $settings->add(new admin_setting_configselect('filter_embedquestion/correctness',
@@ -63,6 +58,11 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configselect('filter_embedquestion/marks',
             get_string('marks', 'question'),
             get_string('marks_desc', 'filter_embedquestion'), 2, $marksoptions));
+
+    // Decimal places in grades.
+    $settings->add(new admin_setting_configselect('filter_embedquestion/markdp',
+            get_string('decimalplaces', 'quiz'), get_string('markdp_desc', 'filter_embedquestion'),
+            2, question_engine::get_dp_options()));
 
     // Specific feedback.
     $settings->add(new admin_setting_configselect('filter_embedquestion/feedback',

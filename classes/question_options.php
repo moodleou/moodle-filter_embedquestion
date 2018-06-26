@@ -56,17 +56,20 @@ class question_options extends \question_display_options {
      */
     public function __construct($courseid) {
         $this->courseid = $courseid;
-        $this->behaviour = 'interactive';
+
+        $defaults = get_config('filter_embedquestion');
+
+        $this->behaviour = $defaults->behaviour;
         $this->maxmark = null;
         $this->variant = null;
-        $this->correctness = self::VISIBLE;
-        $this->marks = self::MARK_AND_MAX;
-        $this->markdp = 2;
-        $this->feedback = self::VISIBLE;
-        $this->numpartscorrect = $this->feedback;
-        $this->generalfeedback = self::VISIBLE;
-        $this->rightanswer = self::VISIBLE;
-        $this->history = self::HIDDEN;
+        $this->correctness = $defaults->correctness;
+        $this->marks = $defaults->marks;
+        $this->markdp = $defaults->markdp;
+        $this->feedback = $defaults->feedback;
+        $this->numpartscorrect = $defaults->feedback;
+        $this->generalfeedback = $defaults->generalfeedback;
+        $this->rightanswer = $defaults->rightanswer;
+        $this->history = $defaults->history;
         $this->flags = self::HIDDEN;
         $this->manualcomment = self::HIDDEN;
     }
