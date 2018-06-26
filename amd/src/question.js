@@ -26,12 +26,16 @@ define(['jquery'], function($) {
         height: 0,
 
         init: function() {
-            setTimeout(function() {
-                $('.filter_embedquestion-iframe').each(function (index, iframe) {
-                    iframe.style.height = Math.min(window.innerHeight,
-                        iframe.contentWindow.document.body.scrollHeight) + 'px';
-                });
-            }, 500);
+            $('.filter_embedquestion-iframe').on('load', function (e) {
+                t.setIframeHeight(e.target);
+            });
+            $('.filter_embedquestion-iframe').each(function (index, iframe) {
+                t.setIframeHeight(iframe);
+            });
+        },
+
+        setIframeHeight: function(iframe) {
+            iframe.style.height = iframe.contentWindow.document.body.scrollHeight + 'px';
         }
     };
     return t;

@@ -2,6 +2,7 @@
     display: block;
     width: 100%;
     border: 0 none;
+    transition: height 0.3s;
 }
 
 body#page-filter-embedquestion-showquestion #region-main,
