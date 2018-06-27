@@ -22,10 +22,10 @@
  * @copyright 2018 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery'], function($) {
+define([], function() {
     var t = {
         /**
-         * The
+         * The last height we set on the iframe, so we only try to change it when it changes.
          */
         currentHeight: null,
 
@@ -33,26 +33,26 @@ define(['jquery'], function($) {
          * Initialise method.
          */
         init: function() {
-            // Prevent a vertical scroll-bar in all cases.
-            document.documentElement.style['overflow-y'] = 'hidden';
-
             // Only initialise if we are in a frame.
             if (!window.frameElement) {
                 return;
             }
 
-            // Initialise.
+            // the resize logic.
             t.resizeContainingFrame();
             setInterval(t.resizeContainingFrame, 100);
+
+            // Prevent a vertical scroll-bar in all cases.
+            document.documentElement.style['overflow-y'] = 'hidden';
         },
 
         /**
          * Set the size of the containing frame to what we need.
          */
         resizeContainingFrame: function() {
-            // Has the height changed significantly?
+            // Has the height changed?
             if (t.currentHeight === document.body.scrollHeight) {
-                return;
+                return; // No.
             }
 
             // Resize required. Do it.
