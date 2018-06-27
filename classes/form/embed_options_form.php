@@ -33,18 +33,10 @@ use filter_embedquestion\question_options;
 
 class embed_options_form extends \moodleform {
     public function definition() {
-        global $USER;
+        global $PAGE;
 
         $mform = $this->_form;
         $context = $this->_customdata['context'];
-
-        if (has_capability('moodle/question:useall', $context)) {
-            $userlimit = null;
-        } else if (has_capability('moodle/question:usemine', $context)) {
-            $userlimit = $USER->id;
-        } else {
-            throw new \coding_exception('This user is not allowed to embed questions.');
-        }
 
         $defaultoptions = new question_options($context->instanceid);
 
@@ -54,15 +46,14 @@ class embed_options_form extends \moodleform {
         $mform->addElement('header', 'questionheader', get_string('whichquestion', 'filter_embedquestion'));
 
         $mform->addElement('select', 'categoryidnumber', get_string('questioncategory', 'question'),
-                \filter_embedquestion\utils::get_categories_with_sharable_question_choices($context, $userlimit));
+                \filter_embedquestion\utils::get_categories_with_sharable_question_choices(
+                        $context, $this->get_user_retriction()));
         $mform->addRule('categoryidnumber', null, 'required', null, 'client');
 
-        $mform->addElement('text', 'questionidnumber', get_string('questionidnumber', 'filter_embedquestion'));
-        $mform->setType('questionidnumber', PARAM_RAW_TRIMMED);
+        $mform->addElement('select', 'questionidnumber', get_string('question'), []);
         $mform->addRule('questionidnumber', null, 'required', null, 'client');
-
-        $mform->addElement('text', 'variant', get_string('questionvariant', 'question'));
-        $mform->setType('variant', PARAM_RAW_TRIMMED); // Not PARAM_INT because we need to keep blank input as ''.
+        $mform->disabledIf('questionidnumber', 'categoryidnumber', 'eq', '');
+        $PAGE->requires->js_call_amd('filter_embedquestion/questionid_choice_updater', 'init');
 
         $mform->addElement('header', 'attemptheader', get_string('attemptoptions', 'filter_embedquestion'));
 
@@ -74,6 +65,10 @@ class embed_options_form extends \moodleform {
 
         $mform->addElement('text', 'maxmark', get_string('markedoutof', 'filter_embedquestion'), ['size' => 7]);
         $mform->setType('maxmark', PARAM_RAW_TRIMMED); // Not PARAM_FLOAT because we need to keep blank input as ''.
+
+        $mform->addElement('text', 'variant', get_string('questionvariant', 'question'));
+        $mform->setType('variant', PARAM_RAW_TRIMMED); // Not PARAM_INT because we need to keep blank input as ''.
+        $mform->disabledIf('variant', 'questionidnumber', 'eq', '');
 
         $mform->addElement('header', 'reviewheader', get_string('displayoptions', 'filter_embedquestion'));
 
@@ -135,17 +130,51 @@ class embed_options_form extends \moodleform {
         return ['' => get_string('defaultx', 'filter_embedquestion', $options[$default])] + $options;
     }
 
+    public function definition_after_data() {
+        parent::definition_after_data();
+        $mform = $this->_form;
+
+        $categoryidnumber = $mform->getElementValue('categoryidnumber')[0];
+        if ($categoryidnumber === '') {
+            return;
+        }
+
+        $category = utils::get_category_by_idnumber($this->_customdata['context'], $categoryidnumber);
+        $choices = utils::get_sharable_question_choices($category->id, $this->get_user_retriction());
+
+        $mform->getElement('questionidnumber')->loadArray($choices);
+    }
+
+    /**
+     * If the current user can use any question, return null, else return their user id.
+     *
+     * Foru use with utils methods like get_sharable_question_choices.
+     *
+     * @return int|null the $userlimit option.
+     */
+    protected function get_user_retriction() {
+        global $USER;
+
+        $context = $this->_customdata['context'];
+
+        if (has_capability('moodle/question:useall', $context)) {
+            return null;
+        } else if (has_capability('moodle/question:usemine', $context)) {
+            return $USER->id;
+        } else {
+            throw new \coding_exception('This user is not allowed to embed questions.');
+        }
+    }
+
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         $context = $this->_customdata['context'];
 
         $category = \filter_embedquestion\utils::get_category_by_idnumber($context, $data['categoryidnumber']);
 
-        $questiondata = \filter_embedquestion\utils::get_question_by_idnumber($category->id, $data['questionidnumber']);
-        if (!$questiondata) {
-            $errors['questionidnumber'] = get_string('errorunknownquestion', 'filter_embedquestion');
-        } else if (!question_has_capability_on($questiondata, 'use')) {
-            $errors['questionidnumber'] = get_string('errornopermissions', 'filter_embedquestion');
+        $questiondata = false;
+        if (isset($data['questionidnumber'])) {
+            $questiondata = \filter_embedquestion\utils::get_question_by_idnumber($category->id, $data['questionidnumber']);
         }
 
         if ($data['variant'] !== '') {

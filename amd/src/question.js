@@ -17,8 +17,8 @@
  * The module resizes the iframe containing the embedded question to be
  * just the right size for the question.
  *
- * @module    filter_ebmedquestion/question
- * @package   filter_ebmedquestion
+ * @module    filter_embedquestion/question
+ * @package   filter_embedquestion
  * @copyright 2018 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

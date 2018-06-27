@@ -15,19 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Embed question filter version information.
+ * Web service declarations.
  *
  * @package   filter_embedquestion
- * @copyright 2018 The Open University
+ * @copyright 2018 the Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2018062700;
-$plugin->requires  = 2017110800;  // Requires this Moodle version.
-$plugin->component = 'filter_embedquestion';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0 for Moodle 3.4+';
-
-$plugin->outestssufficient = true;
+$functions = [
+    'filter_embedquestion_get_sharable_question_choices' => [
+        'classname' => 'filter_embedquestion\external',
+        'methodname' => 'get_sharable_question_choices',
+        'classpath' => '',
+        'description' => 'Use by form autocomplete for selecting a sharable question.',
+        'type' => 'read',
+        'ajax' => true,
+    ],
+];
