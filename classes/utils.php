@@ -34,11 +34,19 @@ defined('MOODLE_INTERNAL') || die();
  */
 abstract class utils {
 
-    public static function verify_usage($quba) {
+    /**
+     * Checks to verify that a given usage is one we should be using.
+     *
+     * @param \question_usage_by_activity $quba the usage to check.
+     */
+    public static function verify_usage(\question_usage_by_activity $quba) {
         global $USER;
 
         if ($quba->get_owning_context()->instanceid != $USER->id) {
-            throw new \moodle_exception('notyourpreview', 'question');
+            throw new \moodle_exception('notyourattempt', 'filter_embedquestion');
+        }
+        if ($quba->get_owning_component() != 'filter_embedquestion') {
+            throw new \moodle_exception('notyourattempt', 'filter_embedquestion');
         }
     }
 
@@ -180,7 +188,10 @@ abstract class utils {
     public static function behaviour_choices() {
         $behaviours = [];
         foreach (\question_engine::get_archetypal_behaviours() as $behaviour => $name) {
-            if (\question_engine::can_questions_finish_during_the_attempt($behaviour)) {
+            $unusedoptions = \question_engine::get_behaviour_unused_display_options($behaviour);
+            // Apologies for the double-negative here.
+            // A behaviour is suitable if specific feedback is relevant during the attempt.
+            if (!in_array('specificfeedback', $unusedoptions)) {
                 $behaviours[$behaviour] = $name;
             }
         }

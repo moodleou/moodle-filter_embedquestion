@@ -26,6 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/filter/embedquestion/filter.php');
+use filter_embedquestion\utils;
 
 
 /**
@@ -47,14 +48,14 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         $questiongenerator->create_question_category();
 
         $this->assertEquals($catwithidnumber->id,
-                \filter_embedquestion\utils::get_category_by_idnumber(
+                utils::get_category_by_idnumber(
                         context_system::instance(), 'abc123')->id);
     }
 
     public function test_get_category_by_idnumber_not_existing() {
 
         $this->assertSame(false,
-                \filter_embedquestion\utils::get_category_by_idnumber(
+                utils::get_category_by_idnumber(
                         context_system::instance(), 'abc123'));
     }
 
@@ -62,6 +63,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
 
         $this->resetAfterTest();
 
+        /** @var core_question_generator $questiongenerator */
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $catwithidnumber = $questiongenerator->create_question_category(
                 ['name' => 'Category with idnumber [ID:abc123]']);
@@ -71,7 +73,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
                 ['category' => $catwithidnumber->id]);
 
         $this->assertEquals($q->id,
-                \filter_embedquestion\utils::get_question_by_idnumber(
+                utils::get_question_by_idnumber(
                         $catwithidnumber->id, 'frog')->id);
     }
 
@@ -79,12 +81,13 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
 
         $this->resetAfterTest();
 
+        /** @var core_question_generator $questiongenerator */
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $catwithidnumber = $questiongenerator->create_question_category(
                 ['name' => 'Category with idnumber [ID:abc123]']);
 
         $this->assertSame(false,
-                \filter_embedquestion\utils::get_question_by_idnumber(
+                utils::get_question_by_idnumber(
                         $catwithidnumber->id, 'frog'));
     }
 
@@ -94,11 +97,11 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
 
         /** @var core_question_generator $questiongenerator */
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $catwithid1 = $questiongenerator->create_question_category(
+        $questiongenerator->create_question_category(
                 ['name' => 'Category with idnumber [ID:abc123]']);
         $catwithid2 = $questiongenerator->create_question_category(
                 ['name' => 'Second category with [ID:pqr789]']);
-        $catnoidnumber = $questiongenerator->create_question_category();
+        $questiongenerator->create_question_category();
 
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $catwithid2->id, 'name' => 'Question [ID:frog]']);
@@ -107,7 +110,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
                 '' => 'Choose...',
                 'abc123' => 'Category with idnumber [ID:abc123] (0)',
                 'pqr789' => 'Second category with [ID:pqr789] (1)'],
-                \filter_embedquestion\utils::get_categories_with_sharable_question_choices(
+                utils::get_categories_with_sharable_question_choices(
                         context_system::instance()));
     }
 
@@ -124,10 +127,10 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         $catwithid2 = $questiongenerator->create_question_category(
                 ['name' => 'Second category with [ID:pqr789]']);
 
-        $q1 = $questiongenerator->create_question('shortanswer', null,
+        $questiongenerator->create_question('shortanswer', null,
                 ['category' => $catwithid1->id, 'name' => 'Question [ID:toad]']);
         $this->setGuestUser();
-        $q2 = $questiongenerator->create_question('shortanswer', null,
+        $questiongenerator->create_question('shortanswer', null,
                 ['category' => $catwithid2->id, 'name' => 'Question [ID:frog]']);
         $this->setAdminUser();
 
@@ -135,7 +138,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
                 '' => 'Choose...',
                 'abc123' => 'Category with idnumber [ID:abc123] (1)',
                 'pqr789' => 'Second category with [ID:pqr789] (0)'],
-                \filter_embedquestion\utils::get_categories_with_sharable_question_choices(
+                utils::get_categories_with_sharable_question_choices(
                         context_system::instance(), $USER->id));
     }
 
@@ -159,7 +162,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
                 '' => 'Choose...',
                 'frog' => 'Question 1 [ID:frog]',
                 'toad' => 'Question 2 [ID:toad]'],
-                \filter_embedquestion\utils::get_sharable_question_choices(
+                utils::get_sharable_question_choices(
                         $category->id));
     }
 
@@ -185,7 +188,17 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         $this->assertEquals([
                 '' => 'Choose...',
                 'frog' => 'Question 1 [ID:frog]'],
-                \filter_embedquestion\utils::get_sharable_question_choices(
+                utils::get_sharable_question_choices(
                         $category->id, $USER->id));
+    }
+
+    public function test_behaviour_choices() {
+        // This test is wrtiten in a way that will work even if extra behaviours are installed.
+        $choices = utils::behaviour_choices();
+        $this->assertArrayHasKey('interactive', $choices);
+        $this->assertArrayHasKey('adaptive', $choices);
+        $this->assertArrayHasKey('immediatefeedback', $choices);
+        $this->assertArrayHasKey('immediatefeedbackcbm', $choices);
+        $this->assertArrayNotHasKey('deferredfeedback', $choices);
     }
 }

@@ -47,6 +47,7 @@ $string['markedoutof'] = 'Marked out of';
 $string['marks_desc'] = 'Whether numerical mark information should be shown by default in embedded questions.';
 $string['nameandcount'] = '{$a->name} ({$a->count})';
 $string['noguests'] = 'Guest users do not have permission to interact with embedded questions.';
+$string['notyourattempt'] = 'This is not your attempt.';
 $string['pluginname'] = 'Embed questions';
 $string['questionidnumber'] = 'Question id number';
 $string['responsehistory_desc'] = 'Whether the response history table should be shown by default for embedded questions.';
