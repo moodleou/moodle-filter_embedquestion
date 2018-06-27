@@ -198,7 +198,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         $this->assertArrayHasKey('interactive', $choices);
         $this->assertArrayHasKey('adaptive', $choices);
         $this->assertArrayHasKey('immediatefeedback', $choices);
-        $this->assertArrayHasKey('immediatefeedbackcbm', $choices);
+        $this->assertArrayHasKey('immediatecbm', $choices);
         $this->assertArrayNotHasKey('deferredfeedback', $choices);
     }
 }
