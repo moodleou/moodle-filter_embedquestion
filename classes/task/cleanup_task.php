@@ -24,6 +24,8 @@
  */
 namespace filter_embedquestion\task;
 use core\task\scheduled_task;
+global $CFG;
+require_once($CFG->libdir . '/questionlib.php');
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -45,7 +47,7 @@ class cleanup_task extends scheduled_task {
         $lastmodifiedcutoff = time() - self::MAX_AGE;
 
         mtrace("\n  Cleaning up old embedded question attempts...", '');
-        $oldattempts = new qubaid_join('{question_usages} quba', 'quba.id',
+        $oldattempts = new \qubaid_join('{question_usages} quba', 'quba.id',
                 'quba.component = :qubacomponent
                     AND NOT EXISTS (
                         SELECT 1
@@ -61,7 +63,7 @@ class cleanup_task extends scheduled_task {
                 array('qubacomponent' => 'filter_embedquestion', 'qubacomponent2' => 'filter_embedquestion',
                         'qamodifiedcutoff' => $lastmodifiedcutoff, 'stepcreatedcutoff' => $lastmodifiedcutoff));
 
-        question_engine::delete_questions_usage_by_activities($oldattempts);
+        \question_engine::delete_questions_usage_by_activities($oldattempts);
         mtrace('done.');
     }
 }
