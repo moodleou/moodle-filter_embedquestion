@@ -161,7 +161,7 @@ abstract class utils {
                  WHERE q.category = ?
                    AND " . $DB->sql_like('q.name', '?') . "
                    $creatortest
- 
+
               ORDER BY q.name
                 ", $params);
 

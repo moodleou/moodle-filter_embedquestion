@@ -39,8 +39,10 @@ How to embed a question
 =======================
 
 There will evenutally be an Atto editor plugin to help with this.
-Until then, only users with capability mdl/site:config can
-generate the necessary embed codes using the helper script.
+Until then, only users with capability moodle/question:useall
+(to embed any question) or moodle/question:usemine (to
+embed questions they created) can generate the necessary embed
+codes using the helper script.
 
 1. To generate the code, you have to use the script
    .../filter/embedquestion/testhelper.php?courseid=NNN

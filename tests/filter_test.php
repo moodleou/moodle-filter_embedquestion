@@ -53,7 +53,7 @@ class filter_embedquestion_testcase extends advanced_testcase {
                         '/filter/embedquestion/showquestion.php?catid=cat&amp;qid=q&amp;' .
                         'course=' . SITEID . '&amp;token=' . token::make_iframe_token('cat', 'q') .
                         '&amp;behaviour=interactive&amp;correctness=1&amp;marks=2&amp;markdp=2' .
-                        '&amp;feedback=1&amp;generalfeedback=1&amp;rightanswer=1&amp;history=0"></iframe>'],
+                        '&amp;feedback=1&amp;generalfeedback=1&amp;rightanswer=0&amp;history=0"></iframe>'],
                 ['{Q{cat/q|behaviour=immediatefeedback|marks=10|markdp=3|generalfeedback=0|' . $requiredtoken . '}Q}',
                         ['<iframe class="filter_embedquestion-iframe"',
                                 '?catid=cat&amp;qid=q&amp;course=' . SITEID . '&amp;token=',

@@ -58,8 +58,7 @@ class embed_options_form extends \moodleform {
         $mform->addElement('header', 'attemptheader', get_string('attemptoptions', 'filter_embedquestion'));
 
         $behaviours = ['' => get_string('defaultx', 'filter_embedquestion',
-                        \question_engine::get_behaviour_name($defaultoptions->behaviour))] +
-                utils::behaviour_choices();
+                \question_engine::get_behaviour_name($defaultoptions->behaviour))] + utils::behaviour_choices();
         $mform->addElement('select', 'behaviour', get_string('howquestionbehaves', 'filter_embedquestion'),
                 $behaviours);
 
@@ -135,7 +134,7 @@ class embed_options_form extends \moodleform {
         $mform = $this->_form;
 
         $categoryidnumber = $mform->getElementValue('categoryidnumber')[0];
-        if ($categoryidnumber === '') {
+        if ($categoryidnumber === '' || $categoryidnumber === null) {
             return;
         }
 

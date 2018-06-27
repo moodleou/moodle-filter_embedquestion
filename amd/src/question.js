@@ -38,7 +38,7 @@ define([], function() {
                 return;
             }
 
-            // the resize logic.
+            // Initialise the resize logic.
             t.resizeContainingFrame();
             setInterval(t.resizeContainingFrame, 100);
 

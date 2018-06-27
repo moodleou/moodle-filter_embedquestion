@@ -59,6 +59,10 @@ if ($fromform = $form->get_data()) {
     $embedcode = $options->get_embed_from_form_options($fromform);
     echo html_writer::tag('p', 'Code to embed the question: ' . $embedcode);
 
+    // Log this.
+    \filter_embedquestion\event\token_created::create(
+            ['context' => $context, 'objectid' => $question->id])->trigger();
+
     echo format_text('The embedded question: ' . $embedcode, FORMAT_HTML, ['context' => $context]);
 }
 
