@@ -24,6 +24,8 @@
 
 namespace filter_embedquestion;
 defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->libdir . '/externallib.php');
 
 
 /**
@@ -65,9 +67,9 @@ class external extends \external_api {
     }
 
     /**
-     * Gets status information for all items shown to user.
+     * Get the list of sharable questions in a category.
      *
-     * @return \stdClass
+     * @return array of arrays with two elements, keys value and label.
      */
     public static function get_sharable_question_choices($courseid, $categoryidnumber) {
         global $USER;
@@ -87,6 +89,9 @@ class external extends \external_api {
         }
 
         $category = utils::get_category_by_idnumber($context, $categoryidnumber);
+        if (!$category) {
+            throw new \coding_exception('Unknown question category.');
+        }
         $choices = utils::get_sharable_question_choices($category->id, $userlimit);
 
         $out = [];
