@@ -24,6 +24,7 @@
 
 namespace filter_embedquestion;
 defined('MOODLE_INTERNAL') || die();
+use filter_embedquestion\output\error_message;
 
 
 /**
@@ -48,6 +49,21 @@ abstract class utils {
                 echo $OUTPUT->notification(get_string('warningfilteroffhere', 'filter_embedquestion'));
             }
         }
+    }
+
+    /**
+     * Display an error inside the filter iframe. Does not return.
+     *
+     * @param $string language string key for the message to display.
+     */
+    public static function filter_error($string) {
+        global $PAGE;
+        $renderer = $PAGE->get_renderer('filter_embedquestion');
+        echo $renderer->header();
+        echo $renderer->render(new error_message('invalidtoken'));
+        echo $renderer->footer();
+        die;
+
     }
 
     /**
@@ -201,6 +217,11 @@ abstract class utils {
         return $choices;
     }
 
+    /**
+     * Get the behaviours that can be used with this filter.
+     *
+     * @return array behaviour name => lang string for this behaviour name.
+     */
     public static function behaviour_choices() {
         $behaviours = [];
         foreach (\question_engine::get_archetypal_behaviours() as $behaviour => $name) {

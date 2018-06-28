@@ -9,7 +9,10 @@ body#page-filter-embedquestion-showquestion {
     height: auto;
     background-color: #fff;
 }
-
+body#page-filter-embedquestion-showquestion .filter_embedquestion-error {
+    background-color: #f0f0f1;
+    padding: 5px 10px;
+}
 body#page-filter-embedquestion-showquestion #region-main,
 body#page-filter-embedquestion-showquestion #osep-mainwrapper {
     padding: 0;

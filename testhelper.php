@@ -26,6 +26,7 @@
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
+use filter_embedquestion\question_options;
 use filter_embedquestion\utils;
 use filter_embedquestion\form\embed_options_form;
 
@@ -53,12 +54,9 @@ if ($fromform = $form->get_data()) {
     $questiondata = utils::get_question_by_idnumber($category->id, $fromform->questionidnumber);
     $question = question_bank::load_question($questiondata->id);
 
-    $options = new filter_embedquestion\question_options($courseid);
-    $options->set_from_form($fromform);
-
     echo $OUTPUT->heading('Information for embedding question ' . format_string($question->name));
 
-    $embedcode = $options->get_embed_from_form_options($fromform);
+    $embedcode = question_options::get_embed_from_form_options($fromform);
     echo html_writer::tag('p', 'Code to embed the question: ' . $embedcode);
 
     // Log this.
@@ -68,7 +66,7 @@ if ($fromform = $form->get_data()) {
     echo format_text('The embedded question: ' . $embedcode, FORMAT_HTML, ['context' => $context]);
 }
 
-echo $OUTPUT->heading('Generate code an links for embedding a question.');
+echo $OUTPUT->heading('Generate the code to embed a question.');
 echo $form->render();
 
 echo $OUTPUT->footer();

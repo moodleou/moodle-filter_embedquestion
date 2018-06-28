@@ -36,16 +36,35 @@ class filter_embedquestion extends moodle_text_filter {
     /**
      * @var \filter_embedquestion\output\renderer the renderer.
      */
-    protected $renderer = null;
+    protected $renderer;
+
+    /**
+     * @var int the course id, derived from $this->context.
+     */
+    protected $courseid;
 
     public function setup($page, $context) {
         $this->renderer = $page->get_renderer('filter_embedquestion');
+        $coursecontext = $this->context->get_course_context(false);
+        if ($coursecontext) {
+            $this->courseid = $coursecontext->instanceid;
+        } else {
+            $this->courseid = SITEID;
+        }
+    }
+
+    /**
+     * Get the regexp needed to extract embed codes from within some text.
+     */
+    public static function get_filter_regexp() {
+        return '~' . preg_quote(self::STRING_PREFIX, '~') .
+                '((?:(?!' . preg_quote(self::STRING_SUFFIX, '~') . ').)*)' .
+                preg_quote(self::STRING_SUFFIX, '~') . '~';
     }
 
     public function filter($text, array $options = []) {
-        return preg_replace_callback('~' . preg_quote(self::STRING_PREFIX, '~') .
-                '((?:(?!' . preg_quote(self::STRING_SUFFIX, '~') . ').)*)' .
-                preg_quote(self::STRING_SUFFIX, '~') . '~', [$this, 'embed_question_callback'], $text);
+        return preg_replace_callback(self::get_filter_regexp(),
+                [$this, 'embed_question_callback'], $text);
     }
 
     /**
@@ -90,8 +109,7 @@ class filter_embedquestion extends moodle_text_filter {
             return $this->display_error('invalidtoken');
         }
 
-        $courseid = $this->context->get_course_context(true)->instanceid;
-        $options = new question_options($courseid);
+        $options = new question_options($this->courseid);
         $options->set_from_filter_options($this->parse_options($parts));
         $showquestionurl = $options->get_page_url($categoryidnumber, $questionidnumber);
 

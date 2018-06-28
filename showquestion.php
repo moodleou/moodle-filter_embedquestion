@@ -27,6 +27,7 @@
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 use filter_embedquestion\utils;
+use filter_embedquestion\output\error_message;
 
 // Process required parameters.
 $categoryidnumber = required_param('catid', PARAM_RAW);
@@ -36,6 +37,7 @@ $token = required_param('token', PARAM_RAW);
 
 require_login($courseid);
 $PAGE->set_pagelayout('embedded');
+
 if (isguestuser()) {
     print_error('noguests', 'filter_embedquestion');
 }
@@ -45,22 +47,24 @@ if ($token !== filter_embedquestion\token::make_iframe_token($categoryidnumber, 
     print_error('invalidtoken', 'filter_embedquestion');
 }
 
-$category = utils::get_category_by_idnumber($context, $categoryidnumber);
-if (!$category) {
-    return $this->display_error('invalidtoken');
-}
-
-$questiondata = utils::get_question_by_idnumber($category->id, $questionidnumber);
-if (!$questiondata) {
-    return $this->display_error('invalidtoken');
-}
-
-$question = question_bank::load_question($questiondata->id);
-
 // Process options.
 $options = new filter_embedquestion\question_options($courseid);
 $options->set_from_request();
 $PAGE->set_url($options->get_page_url($categoryidnumber, $questionidnumber));
+$PAGE->requires->js_call_amd('filter_embedquestion/question', 'init');
+
+// Locate which question we should show.
+$category = utils::get_category_by_idnumber($context, $categoryidnumber);
+if (!$category) {
+    utils::filter_error('invalidtoken');
+}
+
+$questiondata = utils::get_question_by_idnumber($category->id, $questionidnumber);
+if (!$questiondata) {
+    utils::filter_error('invalidtoken');
+}
+
+$question = question_bank::load_question($questiondata->id);
 
 // Get and validate existing preview, or start a new one.
 $qubaid = optional_param('qubaid', 0, PARAM_INT);
@@ -199,5 +203,4 @@ echo $quba->render_question($slot, $options, $displaynumber);
 echo html_writer::end_tag('form');
 
 $PAGE->requires->js_module('core_question_engine');
-$PAGE->requires->js_call_amd('filter_embedquestion/question', 'init');
 echo $OUTPUT->footer();

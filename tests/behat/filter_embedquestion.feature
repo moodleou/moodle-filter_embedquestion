@@ -22,11 +22,7 @@ Feature: Add an activity and embed a question inside that activity
     And the following "questions" exist:
       | questioncategory          | qtype     | name                      |
       | Test questions [ID:embed] | truefalse | First question [ID:test1] |
-    And I log in as "admin"
-    And I navigate to "Manage filters" node in "Site administration > Plugins > Filters"
-    And I should see "Embed question"
-    And I click on "On" "option" in the "Embed question" "table_row"
-    And I log out
+    And the "embedquestion" filter is "on"
     And I log in as "teacher"
 
   @javascript

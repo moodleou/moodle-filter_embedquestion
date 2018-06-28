@@ -24,6 +24,9 @@
 
 namespace filter_embedquestion;
 defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->libdir . '/questionlib.php');
+require_once($CFG->dirroot . '/filter/embedquestion/filter.php');
 
 
 /**
@@ -77,7 +80,7 @@ class question_options extends \question_display_options {
     /**
      * @return array names and param types of the options we read from the request.
      */
-    protected function get_field_types() {
+    public static function get_field_types() {
         return array(
             'behaviour' => PARAM_ALPHA,
             'maxmark' => PARAM_FLOAT,
@@ -96,22 +99,8 @@ class question_options extends \question_display_options {
      * Set the value of any fields included in the request.
      */
     public function set_from_request() {
-        foreach ($this->get_field_types() as $field => $type) {
+        foreach (self::get_field_types() as $field => $type) {
             $this->$field = optional_param($field, $this->$field, $type);
-        }
-        $this->numpartscorrect = $this->feedback;
-    }
-
-    /**
-     * Set the value of any fields included in the request.
-     *
-     * @param \stdClass $fromform data from the form.
-     */
-    public function set_from_form($fromform) {
-        foreach ($this->get_field_types() as $field => $notused) {
-            if ($fromform->$field !== '') {
-                $this->$field = $fromform->$field;
-            }
         }
         $this->numpartscorrect = $this->feedback;
     }
@@ -122,7 +111,7 @@ class question_options extends \question_display_options {
      * @param array $params that came from parsing the filter embed code.
      */
     public function set_from_filter_options(array $params) {
-        foreach ($this->get_field_types() as $field => $type) {
+        foreach (self::get_field_types() as $field => $type) {
             if (array_key_exists($field, $params) && $params[$field] !== '') {
                 $this->$field = clean_param($params[$field], $type);
             }
@@ -151,7 +140,7 @@ class question_options extends \question_display_options {
             $params['qubaid'] = $qubaid;
         }
 
-        foreach ($this->get_field_types() as $field => $notused) {
+        foreach (self::get_field_types() as $field => $notused) {
             if (is_null($this->$field)) {
                 continue;
             }
@@ -198,11 +187,11 @@ class question_options extends \question_display_options {
      *
      * @return string the code that the filter will process to show this question.
      */
-    public function get_embed_from_form_options($fromform) {
+    public static function get_embed_from_form_options($fromform) {
 
         $parts = [$fromform->categoryidnumber . '/' . $fromform->questionidnumber];
-        foreach ($this->get_field_types() as $field => $type) {
-            if ($fromform->$field === '') {
+        foreach (self::get_field_types() as $field => $type) {
+            if (!isset($fromform->$field) || $fromform->$field === '') {
                 continue;
             }
 

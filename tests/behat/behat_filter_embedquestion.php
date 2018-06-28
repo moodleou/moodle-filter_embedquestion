@@ -33,7 +33,7 @@ use Behat\Mink\Exception\ExpectationException as ExpectationException,
  * Behat steps for filter_embedquestion.
  *
  * @package mod_oucontent
- * @copyright 2014 The Open University
+ * @copyright 2018 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class behat_filter_embedquestion extends behat_base {
@@ -49,5 +49,34 @@ class behat_filter_embedquestion extends behat_base {
         $course = $DB->get_record('course', array('fullname' => $coursefullname), 'id', MUST_EXIST);
         $url = new moodle_url('/filter/embedquestion/testhelper.php', ['courseid' => $course->id]);
         $this->getSession()->visit($this->locate_path($url->out_as_local_url(false)));
+    }
+
+    /**
+     * Set the global filter configuration.
+     *
+     * WARNING: this is just here until the equivalent step gets integrated into core.
+     * Once MDL-62834 is integrated, this code will cause a
+     * duplicate step definitino error, and then this should be deleted.
+     *
+     * @Given /^the "(?P<filter_name>(?:[^"]|\\")*)" filter is "(on|off|disabled)"$/
+     *
+     * @param string $filtername the name of a filter, e.g. 'glossary'.
+     * @param string $statename 'on', 'off' or 'disabled'.
+     */
+    public function the_filter_is($filtername, $statename) {
+        switch ($statename) {
+            case 'on':
+                $state = TEXTFILTER_ON;
+                break;
+            case 'off':
+                $state = TEXTFILTER_OFF;
+                break;
+            case 'disabled':
+                $state = TEXTFILTER_DISABLED;
+                break;
+            default:
+                throw new coding_exception('Unknown filter state: ' . $statename);
+        }
+        filter_set_global_state($filtername, $state);
     }
 }
