@@ -23,11 +23,11 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace filter_embedquestion\task;
-use core\task\scheduled_task;
+defined('MOODLE_INTERNAL') || die();
+
 global $CFG;
 require_once($CFG->libdir . '/questionlib.php');
-
-defined('MOODLE_INTERNAL') || die();
+use core\task\scheduled_task;
 
 
 /**

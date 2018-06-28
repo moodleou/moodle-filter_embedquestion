@@ -46,6 +46,8 @@ $form = new embed_options_form(null, ['context' => $context]);
 
 echo $OUTPUT->header();
 
+utils::warn_if_filter_disabled($context);
+
 if ($fromform = $form->get_data()) {
     $category = utils::get_category_by_idnumber($context, $fromform->categoryidnumber);
     $questiondata = utils::get_question_by_idnumber($category->id, $fromform->questionidnumber);

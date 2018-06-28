@@ -34,12 +34,11 @@ Feature: Add an activity and embed a question inside that activity
     When I am on the filter test page for "Course 1"
     And I set the field "Question category" to "Test questions [ID:embed] (1)"
     And I set the field "id_questionidnumber" to "First question [ID:test1]"
-    And I press "id_submitbutton"
-# After this step (pressing the 'Embed question' button), The page keep gowing in height it must be some js interval causing it.
-
-#    And I switch to "iframe" iframe
-#    And I click on "True" "radio" in the "The answer is true." "question"
-#    And I press "Check"
-#    Then I should see "Correct"
-#    And I press "Start again"
-#    And I should not see "Correct"
+    And I press "Embed question"
+#    And I press "id_submitbutton"
+    And I switch to "filter_embedquestion-iframe" iframe
+    And I click on "True" "radio" in the "The answer is true." "question"
+    And I press "Check"
+    Then I should see "Correct"
+    And I press "Start again"
+    And I should not see "Correct"

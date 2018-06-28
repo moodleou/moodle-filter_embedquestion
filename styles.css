@@ -5,6 +5,11 @@
     border: 0 none;
 }
 
+body#page-filter-embedquestion-showquestion {
+    height: auto;
+    background-color: #fff;
+}
+
 body#page-filter-embedquestion-showquestion #region-main,
 body#page-filter-embedquestion-showquestion #osep-mainwrapper {
     padding: 0;

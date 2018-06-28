@@ -43,11 +43,17 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 return;
             }
 
+            M.util.js_pending('filter_embedquestion-get_questions');
             t.lastCategory = $('select#id_categoryidnumber').val();
-            Ajax.call([{
-                methodname: 'filter_embedquestion_get_sharable_question_choices',
-                args: {courseid: $('input[name=courseid]').val(), categoryidnumber: t.lastCategory}
-            }])[0].done(t.updateChoices);
+
+            if (t.lastCategory === '') {
+                t.updateChoices([]);
+            } else {
+                Ajax.call([{
+                    methodname: 'filter_embedquestion_get_sharable_question_choices',
+                    args: {courseid: $('input[name=courseid]').val(), categoryidnumber: t.lastCategory}
+                }])[0].done(t.updateChoices);
+            }
         },
 
         /**
@@ -60,6 +66,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             $(response).each(function (index, option) {
                 select.append('<option value="' + option.value + '">' + option.label + '</option>');
             });
+            M.util.js_complete('filter_embedquestion-get_questions');
         }
     };
     return t;

@@ -35,6 +35,22 @@ defined('MOODLE_INTERNAL') || die();
 abstract class utils {
 
     /**
+     * Display a warning notification if the filter is not enabled in this context.
+     * @param \context $context the context to check.
+     */
+    public static function warn_if_filter_disabled(\context $context) {
+        global $OUTPUT;
+        if (!filter_is_enabled('embedquestion')) {
+            echo $OUTPUT->notification(get_string('warningfilteroffglobally', 'filter_embedquestion'));
+        } else {
+            $activefilters = filter_get_active_in_context($context);
+            if (!isset($activefilters['embedquestion'])) {
+                echo $OUTPUT->notification(get_string('warningfilteroffhere', 'filter_embedquestion'));
+            }
+        }
+    }
+
+    /**
      * Checks to verify that a given usage is one we should be using.
      *
      * @param \question_usage_by_activity $quba the usage to check.

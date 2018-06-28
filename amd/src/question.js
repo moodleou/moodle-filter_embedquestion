@@ -43,7 +43,10 @@ define([], function() {
             setInterval(t.resizeContainingFrame, 100);
 
             // Prevent a vertical scroll-bar in all cases.
+            // We can't do this in the CSS, because there is no suitable class on
+            // the <html> tag.
             document.documentElement.style['overflow-y'] = 'hidden';
+            document.documentElement.style['height'] = 'auto';
         },
 
         /**

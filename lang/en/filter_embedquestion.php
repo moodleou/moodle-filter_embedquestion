@@ -55,5 +55,7 @@ $string['restart'] = 'Start again';
 $string['rightanswer_desc'] = 'Whether the automatically generated display of the right answer is shown by default for embedded questions. We recommend that you do not used this, but instead encoruage question authors to explain the right answer in the general feedback.';
 $string['specificfeedback_desc'] = 'Whether the feedback specific to the student\'s response should be shown by default in embedded questions.';
 $string['taskcleanup'] = 'Clean up old embedded question attempts';
+$string['warningfilteroffglobally'] = 'Warning: the embed question filter is disabled in the site-wide filter settings.';
+$string['warningfilteroffhere'] = 'Warning: the the embed question filter is turned off in this course.';
 $string['whethercorrect_desc'] = 'Whether students should be given indications of whether their response was correct in embedded questions. This covers both the textual description \'Correct\', \'Partially correct\' or \'Incorrect\', and any coloured highlighting that conveys the same information.';
 $string['whichquestion'] = 'Which question';
