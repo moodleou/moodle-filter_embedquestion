@@ -3,15 +3,18 @@
     width: 100%;
     height: 250px;
     border: 0 none;
+    background: transparent;
 }
 
 body#page-filter-embedquestion-showquestion {
     height: auto;
-    background-color: #fff;
+    background: transparent;
 }
-body#page-filter-embedquestion-showquestion .filter_embedquestion-error {
-    background-color: #f0f0f1;
-    padding: 5px 10px;
+body#page-filter-embedquestion-showquestion #ou-site-body,
+body#page-filter-embedquestion-showquestion #osep-pagewrapper,
+body#page-filter-embedquestion-showquestion #page-content,
+body#page-filter-embedquestion-showquestion #page {
+    background: transparent;
 }
 body#page-filter-embedquestion-showquestion #region-main,
 body#page-filter-embedquestion-showquestion #osep-mainwrapper {
@@ -24,4 +27,10 @@ body#page-filter-embedquestion-showquestion #osep-bottomclearer {
 body#page-filter-embedquestion-showquestion .que {
     margin: 0;
     border-top: none;
+}
+
+/* This needs to work both inside and outside the iframe. */
+.filter_embedquestion-error {
+    background-color: #f0f0f1;
+    padding: 5px 10px;
 }
