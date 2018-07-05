@@ -8,6 +8,7 @@
 
 body#page-filter-embedquestion-showquestion {
     height: auto;
+    overflow-y: hidden;
     background: transparent;
 }
 body#page-filter-embedquestion-showquestion #ou-site-body,

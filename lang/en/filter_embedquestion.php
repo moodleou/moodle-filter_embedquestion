@@ -49,6 +49,7 @@ $string['nameandcount'] = '{$a->name} ({$a->count})';
 $string['noguests'] = 'Guest users do not have permission to interact with embedded questions.';
 $string['notyourattempt'] = 'This is not your attempt.';
 $string['pluginname'] = 'Embed questions';
+$string['privacy:metadata'] = 'The Embed questions filter does not store any personal data.';
 $string['questionidnumber'] = 'Question id number';
 $string['responsehistory_desc'] = 'Whether the response history table should be shown by default for embedded questions.';
 $string['restart'] = 'Start again';
