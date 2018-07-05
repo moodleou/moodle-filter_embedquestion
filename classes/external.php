@@ -100,4 +100,83 @@ class external extends \external_api {
         }
         return $out;
     }
+
+    /**
+     * Returns relevant form elements.
+     *
+     * @return \external_function_parameters Parameters
+     */
+    public static function get_embed_code_parameters() {
+        return new \external_function_parameters([
+                'courseid' => new \external_value(PARAM_INT, 'Course id.'),
+                'categoryidnumber' => new \external_value(PARAM_RAW, 'Idnumber of the question category.'),
+                'questionidnumber' => new \external_value(PARAM_RAW, 'Idnumber of the question.'),
+                'behaviour' => new \external_value(PARAM_RAW, 'Question behaviour.'),
+                'maxmark' => new \external_value(PARAM_RAW_TRIMMED, 'Question maximum mark.'),
+                'variant' => new \external_value(PARAM_RAW_TRIMMED, 'Question variant.'),
+                'correctness' => new \external_value(PARAM_RAW, 'Question correctness (show/hide).'),
+                'marks' => new \external_value(PARAM_RAW, 'Question marks (hide/show mark & max, max only).'),
+                'markdp' => new \external_value(PARAM_INT, 'Decimal places in grades.'),
+                'feedback' => new \external_value(PARAM_RAW, 'Specific feedback.'),
+                'generalfeedback' => new \external_value(PARAM_RAW, 'Genaral feedback.'),
+                'rightanswer' => new \external_value(PARAM_RAW, 'Right answer (show/hide).'),
+                'history' => new \external_value(PARAM_RAW, 'Question response hidtory(show/hide).'),
+        ]);
+    }
+
+    /**
+     * Returns result type for get_status function.
+     *
+     * @return \external_description Result type
+     */
+    public static function get_embed_code_returns() {
+        return new \external_multiple_structure(
+                new \external_single_structure([
+                        'value' => new \external_value(PARAM_RAW, 'Choice value to return from the form.'),
+                        'label' => new \external_value(PARAM_RAW, 'Choice name, to display to users.'),
+                ]));
+    }
+
+    /**
+     * Confirms that the get_status function is allowed from AJAX.
+     *
+     * @return bool True
+     */
+    public static function get_embed_code_is_allowed_from_ajax() {
+        return true;
+    }
+
+    /**
+     * Get the list of sharable questions in a category.
+     *
+     * @return array of arrays with two elements, keys value and label.
+     */
+    public static function get_embed_code($courseid, $categoryidnumber, $questionidnumber, $behaviour,
+            $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history) {
+        global $USER;
+
+        self::validate_parameters(self::get_embed_code_parameters(),
+                array('courseid' => $courseid, 'categoryidnumber' => $categoryidnumber, 'questionidnumber' => $questionidnumber,
+                        'behaviour' => $behaviour, 'maxmark' => $maxmark, 'variant' => $variant, 'correctness' => $correctness,
+                        'marks' => $marks, 'markdp' => $markdp, 'feedback' => $feedback, 'generalfeedback' => $generalfeedback,
+                        'rightanswer' => $rightanswer, 'history' => $history,
+                ));
+        $context = \context_course::instance($courseid);
+        self::validate_context($context);
+        $return = '{Q{' . $categoryidnumber . '/' . $questionidnumber . '|';
+        $return .= $behaviour ? 'behaviour=' . $behaviour . '|' : '';
+        $return .= $maxmark ? 'maxmark=' . $maxmark . '|' : '';
+        $return .= $variant ? 'variant=' . $variant . '|' : '';
+        $return .= $correctness ? 'correctness=' . $correctness . '|' : '';
+        $return .= $marks ? 'marks=' . $marks . '|' : '';
+        $return .= $markdp ? 'markdp=' . $markdp . '|' : '';
+        $return .= $feedback ? 'feedback=' . $feedback . '|' : '';
+        $return .= $generalfeedback ? 'generalfeedback=' . $generalfeedback . '|' : '';
+        $return .= $rightanswer ? 'rightanswer=' . $rightanswer . '|' : '';
+        $return .= $history ? 'history=' . $history . '|' : '';
+
+        $token = token::make_secret_token($categoryidnumber, $questionidnumber);
+        
+        return $return . $token . '}Q}';
+    }
 }
