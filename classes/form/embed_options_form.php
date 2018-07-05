@@ -36,6 +36,14 @@ class embed_options_form extends \moodleform {
         global $PAGE;
 
         $mform = $this->_form;
+
+        if (!empty($this->_customdata['nosubmitbutton'])) {
+            // This expands all sections of this form so avoiding issues with expand all javascript.
+            $mform->setDisableShortforms();
+            // This may be required, was on another form already used in a popup.
+            //$mform->disable_form_change_checker();
+        }
+
         $context = $this->_customdata['context'];
 
         $defaultoptions = new question_options($context->instanceid);
@@ -95,7 +103,9 @@ class embed_options_form extends \moodleform {
         $mform->addElement('select', 'history', get_string('responsehistory', 'question'),
                 $this->get_show_hide_options($defaultoptions->history));
 
-        $this->add_action_buttons(false, get_string('embedquestion', 'filter_embedquestion'));
+        if (empty($this->_customdata['nosubmitbutton'])) {
+            $this->add_action_buttons(false, get_string('embedquestion', 'filter_embedquestion'));
+        }
     }
 
     /**

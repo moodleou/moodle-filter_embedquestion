@@ -28,6 +28,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
          */
         init: function() {
             $('select#id_categoryidnumber').on('change', t.categoryChanged);
+            t.lastCategory = null;
         },
 
         /**
