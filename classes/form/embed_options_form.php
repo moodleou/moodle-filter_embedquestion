@@ -36,13 +36,10 @@ class embed_options_form extends \moodleform {
         global $PAGE;
 
         $mform = $this->_form;
-
-        if (!empty($this->_customdata['nosubmitbutton'])) {
-            // This expands all sections of this form so avoiding issues with expand all javascript.
-            $mform->setDisableShortforms();
-            // This may be required, was on another form already used in a popup.
-            //$mform->disable_form_change_checker();
-        }
+        // The default form id ('mform1') is also highly likely to be the same as the
+        // id of the form in the background when we are shown in an atto editor pop-up.
+        // Therefore, set something different.
+        $mform->updateAttributes(['id' => 'embedqform']);
 
         $context = $this->_customdata['context'];
 
