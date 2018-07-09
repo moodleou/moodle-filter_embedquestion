@@ -164,7 +164,7 @@ if (data_submitted() && confirm_sesskey()) {
 }
 
 if ($question->length) {
-    $displaynumber = '1';
+    $displaynumber = "\u{00a0}";
 } else {
     $displaynumber = 'i';
 }
