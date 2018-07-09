@@ -103,4 +103,51 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
                 external::get_sharable_question_choices($course->id, 'abc123'));
     }
 
+    public function test_get_embed_code_working() {
+
+        $this->resetAfterTest();
+
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        /** @var core_question_generator $questiongenerator */
+        $questiongenerator = $generator->get_plugin_generator('core_question');
+        $category = $questiongenerator->create_question_category(
+                ['name' => 'Category with idnumber [ID:abc123]',
+                        'contextid' => context_course::instance($course->id)->id]);
+
+        $questiongenerator->create_question('shortanswer', null,
+                ['category' => $category->id, 'name' => 'Question 2 [ID:toad]']);
+        $questiongenerator->create_question('shortanswer', null,
+                ['category' => $category->id, 'name' => 'Question 1 [ID:frog]']);
+        $questiongenerator->create_question('shortanswer', null,
+                ['category' => $category->id]);
+
+        $categoryidnumber = 'abc123';
+        $questionidnumber = 'toad';
+        $behaviour = '';
+        $maxmark = '';
+        $variant = '';
+        $correctness = '';
+        $marks = '';
+        $markdp = null;
+        $feedback = '';
+        $generalfeedback = '';
+        $rightanswer = '';
+        $history = '';
+
+        $token = external::get_token($categoryidnumber, $questionidnumber);
+        $expected = ['embedcode' => '{Q{' . $categoryidnumber . '/' . $questionidnumber . '|' . $token .'}Q}'];
+        $actual = external::get_embed_code($course->id, $categoryidnumber, $questionidnumber, $behaviour,
+                $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);
+
+        $this->assertEquals($expected, $actual);
+
+        $behaviour = 'immediatefeedback';
+        $expected = ['embedcode' => '{Q{' . $categoryidnumber . '/' . $questionidnumber . '|behaviour=' . $behaviour .'|' . $token .'}Q}'];
+        $actual = external::get_embed_code($course->id, $categoryidnumber, $questionidnumber, $behaviour,
+                $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);
+
+        $this->assertEquals($expected, $actual);
+    }
 }

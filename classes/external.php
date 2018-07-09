@@ -130,11 +130,9 @@ class external extends \external_api {
      * @return \external_description Result type
      */
     public static function get_embed_code_returns() {
-        return new \external_multiple_structure(
-                new \external_single_structure([
-                        'value' => new \external_value(PARAM_RAW, 'Choice value to return from the form.'),
-                        'label' => new \external_value(PARAM_RAW, 'Choice name, to display to users.'),
-                ]));
+        return new \external_single_structure([
+                'embedcode' => new \external_value(PARAM_RAW, 'Embedcode to return from the form')
+        ]);
     }
 
     /**
@@ -161,22 +159,30 @@ class external extends \external_api {
                         'marks' => $marks, 'markdp' => $markdp, 'feedback' => $feedback, 'generalfeedback' => $generalfeedback,
                         'rightanswer' => $rightanswer, 'history' => $history,
                 ));
+
         $context = \context_course::instance($courseid);
         self::validate_context($context);
-        $return = '{Q{' . $categoryidnumber . '/' . $questionidnumber . '|';
-        $return .= $behaviour ? 'behaviour=' . $behaviour . '|' : '';
-        $return .= $maxmark ? 'maxmark=' . $maxmark . '|' : '';
-        $return .= $variant ? 'variant=' . $variant . '|' : '';
-        $return .= $correctness ? 'correctness=' . $correctness . '|' : '';
-        $return .= $marks ? 'marks=' . $marks . '|' : '';
-        $return .= $markdp ? 'markdp=' . $markdp . '|' : '';
-        $return .= $feedback ? 'feedback=' . $feedback . '|' : '';
-        $return .= $generalfeedback ? 'generalfeedback=' . $generalfeedback . '|' : '';
-        $return .= $rightanswer ? 'rightanswer=' . $rightanswer . '|' : '';
-        $return .= $history ? 'history=' . $history . '|' : '';
 
-        $token = token::make_secret_token($categoryidnumber, $questionidnumber);
-        
-        return $return . $token . '}Q}';
+        $fromform = new \stdClass();
+        $fromform->courseid = $courseid;
+        $fromform->categoryidnumber = $categoryidnumber;
+        $fromform->questionidnumber = $questionidnumber;
+        $fromform->behaviour = $behaviour;
+        $fromform->maxmark = $maxmark;
+        $fromform->variant = $variant;
+        $fromform->correctness = $correctness;
+        $fromform->marks = $marks;
+        $fromform->markdp = $markdp;
+        $fromform->feedback = $feedback;
+        $fromform->generalfeedback = $generalfeedback;
+        $fromform->rightanswer = $rightanswer;
+        $fromform->history = $history;
+
+        $embedcode = question_options::get_embed_from_form_options($fromform);
+        return ['embedcode' => $embedcode];
+    }
+
+    public static function get_token($categoryidnumber, $questionidnumber) {
+        return token::make_secret_token($categoryidnumber, $questionidnumber);
     }
 }
