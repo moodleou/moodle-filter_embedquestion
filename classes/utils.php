@@ -83,6 +83,24 @@ abstract class utils {
     }
 
     /**
+     * Given any context, find the associated course from which to embed questions.
+     *
+     * Anywhere inside a course, that is the id of that course. Outside of
+     * a particular course, it is the front page course id.
+     *
+     * @param \context $context the current context.
+     * @return int the course id to use the question bank of.
+     */
+    public static function get_relevant_courseid(\context $context) {
+        $coursecontext = $context->get_course_context(false);
+        if ($coursecontext) {
+            return $coursecontext->instanceid;
+        } else {
+            return SITEID;
+        }
+    }
+
+    /**
      * Find a category with a given idnumber in a given context.
      *
      * @param \context $context a context.

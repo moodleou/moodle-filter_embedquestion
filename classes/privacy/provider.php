@@ -17,9 +17,9 @@
 /**
  * Privacy Subsystem implementation for filter_embedquestion.
  *
- * @package    filter_embedquestion
- * @copyright  2018 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   filter_embedquestion
+ * @copyright 2018 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace filter_embedquestion\privacy;

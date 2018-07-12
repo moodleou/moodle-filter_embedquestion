@@ -27,6 +27,7 @@ use filter_embedquestion\output\embed_iframe;
 use filter_embedquestion\output\error_message;
 use filter_embedquestion\question_options;
 use filter_embedquestion\token;
+use filter_embedquestion\utils;
 
 
 class filter_embedquestion extends moodle_text_filter {
@@ -45,12 +46,7 @@ class filter_embedquestion extends moodle_text_filter {
 
     public function setup($page, $context) {
         $this->renderer = $page->get_renderer('filter_embedquestion');
-        $coursecontext = $this->context->get_course_context(false);
-        if ($coursecontext) {
-            $this->courseid = $coursecontext->instanceid;
-        } else {
-            $this->courseid = SITEID;
-        }
+        $this->courseid = utils::get_relevant_courseid($this->context);
     }
 
     /**
@@ -110,7 +106,11 @@ class filter_embedquestion extends moodle_text_filter {
         }
 
         $options = new question_options($this->courseid);
-        $options->set_from_filter_options($this->parse_options($parts));
+        $params = $this->parse_options($parts);
+        if (is_string($params)) {
+            return $params; // Actually an error message in this case.
+        }
+        $options->set_from_filter_options($params);
         $showquestionurl = $options->get_page_url($categoryidnumber, $questionidnumber);
 
         return $this->renderer->render(new embed_iframe($showquestionurl));
@@ -121,6 +121,8 @@ class filter_embedquestion extends moodle_text_filter {
      *
      * @param string $string the string to use for the message.
      * @param array|\stdClass|null $a any values needed by the strings.
+     *
+     * @return string HTML for the error.
      */
     protected function display_error($string, $a = null) {
         return $this->renderer->render(new error_message($string, $a));
@@ -130,7 +132,7 @@ class filter_embedquestion extends moodle_text_filter {
      * Process the options, verifying that they are all of the form name=value.
      *
      * @param array $parts the individual 'name=options' strings.
-     * @return array the parsed options.
+     * @return string|array the parsed options.
      */
     public function parse_options(array $parts) {
         $params = [];
