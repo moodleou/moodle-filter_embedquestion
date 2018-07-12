@@ -100,9 +100,7 @@ class embed_options_form extends \moodleform {
         $mform->addElement('select', 'history', get_string('responsehistory', 'question'),
                 $this->get_show_hide_options($defaultoptions->history));
 
-        if (empty($this->_customdata['nosubmitbutton'])) {
-            $this->add_action_buttons(false, get_string('embedquestion', 'filter_embedquestion'));
-        }
+        $this->add_action_buttons(false, get_string('embedquestion', 'filter_embedquestion'));
     }
 
     /**

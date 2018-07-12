@@ -116,7 +116,7 @@ class external extends \external_api {
                 'variant' => new \external_value(PARAM_RAW_TRIMMED, 'Question variant.'),
                 'correctness' => new \external_value(PARAM_RAW, 'Question correctness (show/hide).'),
                 'marks' => new \external_value(PARAM_RAW, 'Question marks (hide/show mark & max, max only).'),
-                'markdp' => new \external_value(PARAM_INT, 'Decimal places in grades.'),
+                'markdp' => new \external_value(PARAM_RAW, 'Decimal places in grades.'),
                 'feedback' => new \external_value(PARAM_RAW, 'Specific feedback.'),
                 'generalfeedback' => new \external_value(PARAM_RAW, 'Genaral feedback.'),
                 'rightanswer' => new \external_value(PARAM_RAW, 'Right answer (show/hide).'),
