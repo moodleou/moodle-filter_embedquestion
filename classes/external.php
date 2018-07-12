@@ -102,7 +102,7 @@ class external extends \external_api {
     }
 
     /**
-     * Returns relevant form elements.
+     * Returns parameter types for get_embed_code function.
      *
      * @return \external_function_parameters Parameters
      */
@@ -125,18 +125,16 @@ class external extends \external_api {
     }
 
     /**
-     * Returns result type for get_status function.
+     * Returns result type for for get_embed_code function.
      *
      * @return \external_description Result type
      */
     public static function get_embed_code_returns() {
-        return new \external_single_structure([
-                'embedcode' => new \external_value(PARAM_RAW, 'Embedcode to return from the form')
-        ]);
+        return new \external_value(PARAM_RAW, 'Embed code to show this question with those options.');
     }
 
     /**
-     * Confirms that the get_status function is allowed from AJAX.
+     * Confirms that the get_embed_code function is allowed from AJAX.
      *
      * @return bool True
      */
@@ -145,13 +143,14 @@ class external extends \external_api {
     }
 
     /**
-     * Get the list of sharable questions in a category.
+     * Given the course id, category and question idnumbers, and any display options,
+     * return the {Q{...}Q} code needed to embed this question.
      *
-     * @return array of arrays with two elements, keys value and label.
+     * @return string the embed code.
      */
     public static function get_embed_code($courseid, $categoryidnumber, $questionidnumber, $behaviour,
             $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history) {
-        global $USER;
+        global $CFG;
 
         self::validate_parameters(self::get_embed_code_parameters(),
                 array('courseid' => $courseid, 'categoryidnumber' => $categoryidnumber, 'questionidnumber' => $questionidnumber,
@@ -162,6 +161,13 @@ class external extends \external_api {
 
         $context = \context_course::instance($courseid);
         self::validate_context($context);
+
+        // Check permissions.
+        require_once($CFG->libdir . '/questionlib.php');
+        $category = utils::get_category_by_idnumber($context, $categoryidnumber);
+        $questiondata = utils::get_question_by_idnumber($category->id, $questionidnumber);
+        $question = \question_bank::load_question($questiondata->id);
+        question_require_capability_on($question, 'use');
 
         $fromform = new \stdClass();
         $fromform->courseid = $courseid;
@@ -178,11 +184,10 @@ class external extends \external_api {
         $fromform->rightanswer = $rightanswer;
         $fromform->history = $history;
 
-        $embedcode = question_options::get_embed_from_form_options($fromform);
-        return ['embedcode' => $embedcode];
-    }
+        // Log this.
+        \filter_embedquestion\event\token_created::create(
+                ['context' => $context, 'objectid' => $question->id])->trigger();
 
-    public static function get_token($categoryidnumber, $questionidnumber) {
-        return token::make_secret_token($categoryidnumber, $questionidnumber);
+        return question_options::get_embed_from_form_options($fromform);
     }
 }

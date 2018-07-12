@@ -17,14 +17,15 @@
 /**
  * Unit test for the external functions.
  *
- * @package    filter_embedquestion
- * @copyright  2018 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   filter_embedquestion
+ * @copyright 2018 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 use filter_embedquestion\external;
+use filter_embedquestion\token;
 
 
 /**
@@ -136,7 +137,8 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $rightanswer = '';
         $history = '';
 
-        $token = external::get_token($categoryidnumber, $questionidnumber);
+
+        $token = token::make_secret_token($categoryidnumber, $questionidnumber);
         $expected = ['embedcode' => '{Q{' . $categoryidnumber . '/' . $questionidnumber . '|' . $token .'}Q}'];
         $actual = external::get_embed_code($course->id, $categoryidnumber, $questionidnumber, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);

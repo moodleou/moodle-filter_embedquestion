@@ -25,20 +25,21 @@
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
-        'filter_embedquestion_get_sharable_question_choices' => [
-                'classname' => 'filter_embedquestion\external',
-                'methodname' => 'get_sharable_question_choices',
-                'classpath' => '',
-                'description' => 'Use by form autocomplete for selecting a sharable question.',
-                'type' => 'read',
-                'ajax' => true,
-        ],
-        'filter_embedquestion_get_embed_code' => [
-                'classname' => 'filter_embedquestion\external',
-                'methodname' => 'get_embed_code',
-                'classpath' => '',
-                'description' => 'Use by atto-editer embedquestion button.',
-                'type' => 'read',
-                'ajax' => true,
-        ],
+    'filter_embedquestion_get_sharable_question_choices' => [
+        'classname' => 'filter_embedquestion\external',
+        'methodname' => 'get_sharable_question_choices',
+        'classpath' => '',
+        'description' => 'Use by form autocomplete for selecting a sharable question.',
+        'type' => 'read',
+        'ajax' => true,
+    ],
+
+    'filter_embedquestion_get_embed_code' => [
+        'classname' => 'filter_embedquestion\external',
+        'methodname' => 'get_embed_code',
+        'classpath' => '',
+        'description' => 'Use by atto-editer embedquestion button.',
+        'type' => 'read',
+        'ajax' => true,
+    ],
 ];
