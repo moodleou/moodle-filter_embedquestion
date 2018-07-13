@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/*
+/**
  * Install code for filter_embedquestion.
  *
  * @package   filter_embedquestion
@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-/*
+/**
  * Install code for filter_embedquestion.
  */
 function xmldb_filter_embedquestion_install() {

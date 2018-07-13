@@ -60,7 +60,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         /**
          * Update the contents of the Question select with the results of the AJAX call.
          *
-         * @param response array of options, each has fields value and label.
+         * @param {Array} response - array of options, each has fields value and label.
          */
         updateChoices: function(response) {
             var select = $('select#id_questionidnumber');

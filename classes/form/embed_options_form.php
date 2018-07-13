@@ -31,6 +31,12 @@ use filter_embedquestion\utils;
 use filter_embedquestion\question_options;
 
 
+/**
+ * Form to let users edit all the options for embedding a question.
+ *
+ * @copyright 2018 The Open University - based on question/preview.php
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class embed_options_form extends \moodleform {
     public function definition() {
         global $PAGE;
