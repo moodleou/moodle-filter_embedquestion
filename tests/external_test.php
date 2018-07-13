@@ -137,16 +137,15 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $rightanswer = '';
         $history = '';
 
-
         $token = token::make_secret_token($categoryidnumber, $questionidnumber);
-        $expected = ['embedcode' => '{Q{' . $categoryidnumber . '/' . $questionidnumber . '|' . $token .'}Q}'];
+        $expected = '{Q{' . $categoryidnumber . '/' . $questionidnumber . '|' . $token .'}Q}';
         $actual = external::get_embed_code($course->id, $categoryidnumber, $questionidnumber, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);
 
         $this->assertEquals($expected, $actual);
 
         $behaviour = 'immediatefeedback';
-        $expected = ['embedcode' => '{Q{' . $categoryidnumber . '/' . $questionidnumber . '|behaviour=' . $behaviour .'|' . $token .'}Q}'];
+        $expected = '{Q{' . $categoryidnumber . '/' . $questionidnumber . '|behaviour=' . $behaviour .'|' . $token .'}Q}';
         $actual = external::get_embed_code($course->id, $categoryidnumber, $questionidnumber, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);
 
