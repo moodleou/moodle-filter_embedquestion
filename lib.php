@@ -37,8 +37,7 @@ defined('MOODLE_INTERNAL') || die();
  * @param int $slot the relevant slot within the usage.
  * @param array $args the remaining bits of the file path.
  * @param bool $forcedownload whether the user must be forced to download the file.
- * @param array $options additional options affecting the file serving
- * @return bool false if file not found, does not return if found - justsend the file
+ * @param array $fileoptions additional options affecting the file serving
  */
 function filter_embedquestion_question_pluginfile($course, $context, $component,
         $filearea, $qubaid, $slot, $args, $forcedownload, $fileoptions) {

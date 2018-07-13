@@ -24,6 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+/*
+ * Install code for filter_embedquestion.
+ */
 function xmldb_filter_embedquestion_install() {
     // Create a random secret to use as the basis of token security.
     set_config('secret', random_string(40), 'filter_embedquestion');

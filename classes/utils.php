@@ -54,7 +54,7 @@ abstract class utils {
     /**
      * Display an error inside the filter iframe. Does not return.
      *
-     * @param $string language string key for the message to display.
+     * @param string $string language string key for the message to display.
      */
     public static function filter_error($string) {
         global $PAGE;

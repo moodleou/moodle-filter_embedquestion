@@ -30,8 +30,7 @@ require_once($CFG->dirroot . '/filter/embedquestion/filter.php');
 
 
 /**
- * Displays question preview options as default and set the options
- * Setting default, getting and setting user preferences in question preview options.
+ * Class for handling the options for how the question is displayed.
  *
  * @copyright  2010 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -78,6 +77,8 @@ class question_options extends \question_display_options {
     }
 
     /**
+     * Single source of truth for what options exist and their types.
+     *
      * @return array names and param types of the options we read from the request.
      */
     public static function get_field_types() {
@@ -195,7 +196,8 @@ class question_options extends \question_display_options {
                 continue;
             }
 
-            $parts[] = $field . '=' . $fromform->$field;
+            $value = clean_param($fromform->$field, $type);
+            $parts[] = $field . '=' . $value;
         }
         $parts[] = token::make_secret_token($fromform->categoryidnumber, $fromform->questionidnumber);
 

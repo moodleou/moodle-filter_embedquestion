@@ -30,6 +30,9 @@ require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External API for AJAX calls.
+ *
+ * @copyright 2018 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class external extends \external_api {
     /**
@@ -69,6 +72,9 @@ class external extends \external_api {
     /**
      * Get the list of sharable questions in a category.
      *
+     * @param int $courseid the course whose question bank we are sharing from.
+     * @param string $categoryidnumber the idnumber of the question category.
+     *
      * @return array of arrays with two elements, keys value and label.
      */
     public static function get_sharable_question_choices($courseid, $categoryidnumber) {
@@ -107,20 +113,22 @@ class external extends \external_api {
      * @return \external_function_parameters Parameters
      */
     public static function get_embed_code_parameters() {
+        // We can't use things like PARAM_INT for things like variant, because it is
+        // and int of '' for not set.
         return new \external_function_parameters([
                 'courseid' => new \external_value(PARAM_INT, 'Course id.'),
-                'categoryidnumber' => new \external_value(PARAM_RAW, 'Idnumber of the question category.'),
-                'questionidnumber' => new \external_value(PARAM_RAW, 'Idnumber of the question.'),
+                'categoryidnumber' => new \external_value(PARAM_RAW, 'Id number of the question category.'),
+                'questionidnumber' => new \external_value(PARAM_RAW, 'Id number of the question.'),
                 'behaviour' => new \external_value(PARAM_RAW, 'Question behaviour.'),
-                'maxmark' => new \external_value(PARAM_RAW_TRIMMED, 'Question maximum mark.'),
-                'variant' => new \external_value(PARAM_RAW_TRIMMED, 'Question variant.'),
-                'correctness' => new \external_value(PARAM_RAW, 'Question correctness (show/hide).'),
-                'marks' => new \external_value(PARAM_RAW, 'Question marks (hide/show mark & max, max only).'),
-                'markdp' => new \external_value(PARAM_RAW, 'Decimal places in grades.'),
-                'feedback' => new \external_value(PARAM_RAW, 'Specific feedback.'),
-                'generalfeedback' => new \external_value(PARAM_RAW, 'Genaral feedback.'),
-                'rightanswer' => new \external_value(PARAM_RAW, 'Right answer (show/hide).'),
-                'history' => new \external_value(PARAM_RAW, 'Question response hidtory(show/hide).'),
+                'maxmark' => new \external_value(PARAM_RAW_TRIMMED, 'Question maximum mark (float or "").'),
+                'variant' => new \external_value(PARAM_RAW_TRIMMED, 'Question variant (int or "").'),
+                'correctness' => new \external_value(PARAM_RAW_TRIMMED, 'Whether to show question correctness (1/0/"") for show, hide or default.'),
+                'marks' => new \external_value(PARAM_RAW_TRIMMED, 'Wheter to show mark information (0/1/2/"") for hide, show max only, show mark and max or default.'),
+                'markdp' => new \external_value(PARAM_RAW_TRIMMED, 'Decimal places to use when outputting grades.'),
+                'feedback' => new \external_value(PARAM_RAW_TRIMMED, 'Whether to show specific feedback (1/0/"") for show, hide or default.'),
+                'generalfeedback' => new \external_value(PARAM_RAW_TRIMMED, 'Whether to show general feedback (1/0/"") for show, hide or default.'),
+                'rightanswer' => new \external_value(PARAM_RAW_TRIMMED, 'Whether to show the automatically generated right answer display (1/0/"") for show, hide or default.'),
+                'history' => new \external_value(PARAM_RAW_TRIMMED, 'Whether to show the response history (1/0/"") for show, hide or default.'),
         ]);
     }
 
@@ -145,6 +153,20 @@ class external extends \external_api {
     /**
      * Given the course id, category and question idnumbers, and any display options,
      * return the {Q{...}Q} code needed to embed this question.
+     *
+     * @param int $courseid the id of the course we are embedding questions from.
+     * @param string $categoryidnumber the idnumber of the question category.
+     * @param string $questionidnumber the idnumber of the question to be embedded.
+     * @param string $behaviour which question behaviour to use.
+     * @param string $maxmark float value or ''.
+     * @param string $variant int value or ''.
+     * @param string $correctness 0, 1 or ''.
+     * @param string $marks 0, 1, 2 or ''.
+     * @param string $markdp 0-7 or ''.
+     * @param string $feedback 0, 1 or ''.
+     * @param string $generalfeedback 0, 1 or ''.
+     * @param string $rightanswer 0, 1 or ''.
+     * @param string $history 0, 1 or ''.
      *
      * @return string the embed code.
      */

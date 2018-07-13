@@ -46,7 +46,7 @@ define([], function() {
             // We can't do this in the CSS, because there is no suitable class on
             // the <html> tag.
             document.documentElement.style['overflow-y'] = 'hidden';
-            document.documentElement.style['height'] = 'auto';
+            document.documentElement.style.height = 'auto';
         },
 
         /**

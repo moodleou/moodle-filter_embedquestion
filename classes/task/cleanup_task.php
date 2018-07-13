@@ -32,6 +32,9 @@ use core\task\scheduled_task;
 
 /**
  * A scheduled task to ensure that old attempt data is cleaned up.
+ *
+ * @copyright 2018 the Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cleanup_task extends scheduled_task {
     /**

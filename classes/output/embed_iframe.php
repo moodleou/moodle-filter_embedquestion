@@ -31,8 +31,12 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Represents the iframe that embeds a question.
+ *
+ * @copyright 2018 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class embed_iframe implements \renderable, \templatable {
+    /** @var \moodle_url for the iframe src attribute. */
     private $showquestionurl;
 
     /**

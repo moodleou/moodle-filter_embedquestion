@@ -39,6 +39,10 @@ use filter_embedquestion\token;
  */
 class filter_embedquestion_testcase extends advanced_testcase {
 
+    /**
+     * Data provider for {@link test_filter()}.
+     * @return array the test cases.
+     */
     public function get_cases_for_test_filter() {
         global $CFG;
         $tokenerror = ['<div class="filter_embedquestion-error">',

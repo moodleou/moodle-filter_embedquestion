@@ -31,8 +31,12 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Represents an error that is shown if the question cannot be.
+ *
+ * @package   filter_embedquestion
+ * @copyright 2018 The Open University
  */
 class error_message implements \renderable, \templatable {
+    /** @var string the error message text. */
     private $message;
 
     /**

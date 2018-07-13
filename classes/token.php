@@ -26,6 +26,12 @@ namespace filter_embedquestion;
 defined('MOODLE_INTERNAL') || die();
 
 
+/**
+ * Helper methods for getting the secure tokens.
+ *
+ * @copyright 2018 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class token {
 
     /**

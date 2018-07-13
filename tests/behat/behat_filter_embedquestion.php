@@ -32,7 +32,6 @@ use Behat\Mink\Exception\ExpectationException as ExpectationException,
 /**
  * Behat steps for filter_embedquestion.
  *
- * @package mod_oucontent
  * @copyright 2018 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

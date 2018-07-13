@@ -29,9 +29,20 @@ use filter_embedquestion\question_options;
 use filter_embedquestion\token;
 use filter_embedquestion\utils;
 
-
+/**
+ * The filter implementation.
+ *
+ * @copyright 2018 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class filter_embedquestion extends moodle_text_filter {
+    /**
+     * @var string Closing part of the embed token wrapper.
+     */
     const STRING_PREFIX = '{Q{';
+    /**
+     * @var string Closing part of the embed token wrapper.
+     */
     const STRING_SUFFIX = '}Q}';
 
     /**
