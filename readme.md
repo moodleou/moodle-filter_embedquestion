@@ -26,8 +26,8 @@ Install from the Moodle plugins database
 
 Or you can install using git. Type this commands in the root of your Moodle install
 
-    git clone https://github.com/moodleou/moodle-filter_embedquestion.git /filter/embedquestion/
-    git clone https://github.com/moodleou/moodle-atto_embedquestion.git /lib/editor/atto/plugins/embedquestion/
+    git clone https://github.com/moodleou/moodle-filter_embedquestion.git filter/embedquestion/
+    git clone https://github.com/moodleou/moodle-atto_embedquestion.git lib/editor/atto/plugins/embedquestion/
     echo '/filter/embedquestion/' >> .git/info/exclude
     echo '/lib/editor/atto/plugins/embedquestion/' >> .git/info/exclude
 
