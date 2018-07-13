@@ -87,29 +87,14 @@ class filter_embedquestion extends moodle_text_filter {
             return $this->display_error('noguests');
         }
 
-        $parts = explode('|', $embedcode);
+        list($categoryidnumber, $questionidnumber, $params) =
+                self::parse_embed_code($embedcode);
 
-        if (count($parts) < 2) {
-            return $this->display_error('invalidtoken');
-        }
-
-        $questioninfo = array_shift($parts);
-        $token = array_pop($parts);
-
-        if (strpos($questioninfo, '/') === false) {
-            return $this->display_error('invalidtoken');
-        }
-
-        list($categoryidnumber, $questionidnumber) = explode('/', $questioninfo, 2);
-        if ($token !== token::make_secret_token($categoryidnumber, $questionidnumber)) {
+        if ($categoryidnumber === false) {
             return $this->display_error('invalidtoken');
         }
 
         $options = new question_options($this->courseid);
-        $params = $this->parse_options($parts);
-        if (is_string($params)) {
-            return $params; // Actually an error message in this case.
-        }
         $options->set_from_filter_options($params);
         $showquestionurl = $options->get_page_url($categoryidnumber, $questionidnumber);
 
@@ -129,16 +114,49 @@ class filter_embedquestion extends moodle_text_filter {
     }
 
     /**
+     * Parse an embed code, validate the token, and return the idnumbers and any options.
+     * @param string $embedcode the embed code.
+     * @return array an array with three elements: $categoryidnumber, $questionidnumber
+     *      and $params. If the code is invalid, all elements are false.
+     */
+    public static function parse_embed_code($embedcode) {
+        $parts = explode('|', $embedcode);
+
+        if (count($parts) < 2) {
+            return [false, false, false];
+        }
+
+        $questioninfo = array_shift($parts);
+        $token = array_pop($parts);
+
+        if (strpos($questioninfo, '/') === false) {
+            return [false, false, false];
+        }
+
+        list($categoryidnumber, $questionidnumber) = explode('/', $questioninfo, 2);
+        if ($token !== \filter_embedquestion\token::make_secret_token($categoryidnumber, $questionidnumber)) {
+            return [false, false, false];
+        }
+
+        $params = self::parse_options($parts);
+        if (!is_array($params)) {
+            return [false, false, false];
+        }
+
+        return [$categoryidnumber, $questionidnumber, $params];
+    }
+
+    /**
      * Process the options, verifying that they are all of the form name=value.
      *
      * @param array $parts the individual 'name=options' strings.
-     * @return string|array the parsed options.
+     * @return array|false the parsed options, or false if they were malformed.
      */
-    public function parse_options(array $parts) {
+    public static function parse_options(array $parts) {
         $params = [];
         foreach ($parts as $part) {
             if (strpos($part, '=') === false) {
-                return $this->display_error('invalidtoken');
+                return false;
             }
             list($name, $value) = explode('=', $part);
             $params[$name] = $value;
