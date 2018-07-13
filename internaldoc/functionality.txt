@@ -18,6 +18,11 @@ The admin will need to
   and review the default options for embedded questions. No needs to
   be changed, but you may have different preferences for your site.
 
+3. The Atto editor need to be configured to show the new button. Go to
+   Site administration > Plugins > Text editors > Atto HTML editor > Atto toolbar settings
+   and in the Toolbar config field, find the line that starts 'insert =',
+   and add 'embedquestion' to the list.
+
 
 Before you can embed a question
 ===============================
@@ -38,39 +43,58 @@ with id 2.
 How to embed a question
 =======================
 
-There will evenutally be an Atto editor plugin to help with this.
-Until then, only users with capability moodle/question:useall
-(to embed any question) or moodle/question:usemine (to
-embed questions they created) can generate the necessary embed
-codes using the helper script.
+Go to anywhere where you can input HTML. For example, start adding a Page
+to a course, or start writing a forum post.
 
-1. To generate the code, you have to use the script
-   .../filter/embedquestion/testhelper.php?courseid=NNN
-   in your Moodle site. (E.g. NNN = 2 for the example above.)
+1. In the editor toobar, click the insert question button.
 
 2. Select a question category (e.g. 'Embeddable questions [ID:embeddable]').
 
-3. Enter a question idnumber (e.g. 'test').
+3. Select a question (e.g. 'Test question [ID:test]').
 
 4. All the other options can be left as default, or changed as you wish.
    Note that it is only possible to select question behaviours that
-   allow the question to finish without the equivalent of the
-   whole quiz attempt being submitted.
+   allow the user to interact with the question without the equivalent
+   of the whole quiz attempt being submitted.
 
-5. Click the Generate information button.
+5. Click the Embed question button. A cryptic code will be inserted into the editor.
 
-6. You will see a preview of the embedded questions, which can be used to
-   check it is working the way you want. If not you can change the options
-   and regenerate.
+When you save the page, you will see that the cryptic code has been replaced by
+the question, embedded in the middle of the page.
 
-7. Once you are happy, copy the '{Q{...}Q}' bit from where it says
-   'Code to embed the question:'. This can be pasted into any HTML editor
-   in the same Moodle course, for example into a page resource or a forum post.
-
-You will notice that the embed code ends with a 40-character hex string.
+You will notice that the cryptic code ends with a 40-character hex string.
 This (along with the requirement for questions and categories to have
 idnumbers) is how we prevent unauthorised users from being able to guess
 the embed code for a question that they should not be allowed to see.
+
+As is normal for editor plugins (e.g. equation or image buttons work
+the same way) if the input point or selection is in the middle of an
+embed code when you click the button, you will edit the existing code,
+otherwise, you will insert a new one.
+
+
+How to embed a question without using Atto
+==========================================
+
+Normally you would use the Atto editor plugin for this as above, but
+there is a stand-alone script that can help with testing. Only users
+with the capability moodle/question:useall (to embed any question) or
+moodle/question:usemine (to embed questions they created) can generate
+the necessary embed codes using the helper script.
+
+1. The only way to get to this script is to type the URL
+   .../filter/embedquestion/testhelper.php?courseid=NNN
+   in your Moodle site. (E.g. NNN = 2 for the example above.)
+
+2. This shows exactly the same form that is shown inside the editor popup.
+
+3. When you click the button, you will see a preview of the embedded questions,
+   which can be used to check it is working the way you want. If not you can
+   change the options and regenerate.
+
+4. Once you are happy, copy the '{Q{...}Q}' bit from where it says
+   'Code to embed the question:'. This can be pasted into any HTML editor
+   in the same Moodle course, for example into a page resource or a forum post.
 
 
 Interacting with an embedded question
@@ -81,7 +105,9 @@ just appear inline in the page.
 
 Technically the question is embedded in an iframe, but this
 should be invisible to users. The iframe should be automatically
-sized to just fit the question.
+sized to just fit the question. Also, if embedded question is in
+a region of the page that has a background colour, the contents
+of the iframe should have the same background colour.
 
 The question should work exactly as it would in a quiz
 attempt, if the quiz was set up with the same
