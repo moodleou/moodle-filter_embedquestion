@@ -114,15 +114,11 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         /** @var core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
         $category = $questiongenerator->create_question_category(
-                ['name' => 'Category with idnumber [ID:abc123]',
+                ['name' => 'Category [ID:abc123]',
                         'contextid' => context_course::instance($course->id)->id]);
 
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $category->id, 'name' => 'Question 2 [ID:toad]']);
-        $questiongenerator->create_question('shortanswer', null,
-                ['category' => $category->id, 'name' => 'Question 1 [ID:frog]']);
-        $questiongenerator->create_question('shortanswer', null,
-                ['category' => $category->id]);
+                ['category' => $category->id, 'name' => 'Question [ID:toad]']);
 
         $categoryidnumber = 'abc123';
         $questionidnumber = 'toad';
