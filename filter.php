@@ -55,9 +55,13 @@ class filter_embedquestion extends moodle_text_filter {
      */
     protected $courseid;
 
+    /**
+     * @var \moodle_page page object
+     */
+    protected $page;
+
     public function setup($page, $context) {
-        $this->renderer = $page->get_renderer('filter_embedquestion');
-        $this->courseid = utils::get_relevant_courseid($this->context);
+        $this->page = $page;
     }
 
     /**
@@ -80,6 +84,7 @@ class filter_embedquestion extends moodle_text_filter {
      * @param array $matches the parts matched by the regular expression.
      *
      * @return string the replacement string.
+     * @throws \moodle_exception
      */
     public function embed_question_callback($matches) {
         return $this->embed_question($matches[1]);
@@ -91,9 +96,15 @@ class filter_embedquestion extends moodle_text_filter {
      * @param string $embedcode the contents of the {Q{...}Q} delimiters.
      *
      * @return string HTML code for the iframe to display the question.
+     * @throws \moodle_exception
      */
     public function embed_question($embedcode) {
-
+        if ($this->renderer === null) {
+            $this->renderer = $this->page->get_renderer('filter_embedquestion');
+        }
+        if ($this->courseid === null) {
+            $this->courseid = utils::get_relevant_courseid($this->context);
+        }
         if (isguestuser()) {
             return $this->display_error('noguests');
         }
