@@ -53,13 +53,17 @@ define([], function() {
          * Set the size of the containing frame to what we need.
          */
         resizeContainingFrame: function() {
+            // It seems sensible to use scrollHeight in this function, but that is
+            // buggy in Safari. https://bugs.webkit.org/show_bug.cgi?id=25240 has
+            // a useful table showing that body.offsetHeight is reliable.
+
             // Has the height changed?
-            if (t.currentHeight === document.body.scrollHeight) {
+            if (t.currentHeight === document.body.offsetHeight) {
                 return; // No.
             }
 
             // Resize required. Do it.
-            t.currentHeight = document.body.scrollHeight;
+            t.currentHeight = document.body.offsetHeight;
             // Extra height to allow for any horizontal scroll bar.
             window.frameElement.style.height = (t.currentHeight + 25) + "px";
         }
