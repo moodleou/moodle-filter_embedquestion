@@ -40,7 +40,14 @@ define([], function() {
 
             // Initialise the resize logic.
             t.resizeContainingFrame();
-            setInterval(t.resizeContainingFrame, 100);
+
+            // If something like an error causes junk to be output before the open <html> tag,
+            // then that puts the document into BackCompat rendering mode, and the iframe keeps
+            // getting bigger and bigger. So, only do the continual resize logic if the browser
+            // is in standards compliant rendering mode.
+            if (typeof document.compatMode !== 'undefined' && document.compatMode !== "BackCompat") {
+                setInterval(t.resizeContainingFrame, 100);
+            }
 
             // Prevent a vertical scroll-bar in all cases.
             // We can't do this in the CSS, because there is no suitable class on
