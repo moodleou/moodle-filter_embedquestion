@@ -126,7 +126,7 @@ abstract class utils {
         global $DB;
 
         return $DB->get_record_select('question',
-                'category = ? AND ' . $DB->sql_like('name', '?'),
+                'category = ? AND ' . $DB->sql_like('name', '?') . ' AND hidden = 0 AND parent = 0',
                 [$categoryid, '%[ID:' . $DB->sql_like_escape($idnumber) . ']%']);
     }
 
@@ -164,6 +164,8 @@ abstract class utils {
              LEFT JOIN {question} q ON q.category = qc.id
                                     AND " . $DB->sql_like('q.name', '?') . "
                                     $creatortest
+                                    AND q.hidden = 0
+                                    AND q.parent = 0
 
                  WHERE qc.contextid = ?
                    AND " . $DB->sql_like('qc.name', '?') . "
@@ -219,6 +221,8 @@ abstract class utils {
                  WHERE q.category = ?
                    AND " . $DB->sql_like('q.name', '?') . "
                    $creatortest
+                   AND q.hidden = 0
+                   AND q.parent = 0
 
               ORDER BY q.name
                 ", $params);

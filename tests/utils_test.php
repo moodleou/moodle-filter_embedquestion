@@ -192,6 +192,124 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
                         $category->id, $USER->id));
     }
 
+    public function test_get_sharable_question_choices_should_not_include_random() {
+
+        $this->resetAfterTest();
+
+        /** @var core_question_generator $questiongenerator */
+        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $category = $questiongenerator->create_question_category(
+                ['name' => 'Category with idnumber [ID:abc123]']);
+
+        $questiongenerator->create_question('shortanswer', null,
+                ['category' => $category->id, 'name' => 'Question 1 [ID:frog]']);
+        $questiongenerator->create_question('shortanswer', null,
+                ['category' => $category->id]);
+
+        // Now create a random question in that category.
+        $form = new stdClass();
+        $form->category = $category->id . ',' . $category->contextid;
+        $form->includesubcategories = false;
+        $form->defaultmark = 1;
+        $form->hidden = 1;
+        $form->stamp = make_unique_id_code(); // Set the unique code (not to be changed).
+        $question = new stdClass();
+        $question->qtype = 'random';
+        question_bank::get_qtype('random')->save_question($question, $form);
+
+        // The random question should not appear in the list.
+        $this->assertEquals([
+                '' => 'Choose...',
+                'frog' => 'Question 1 [ID:frog]'],
+                utils::get_sharable_question_choices(
+                        $category->id));
+    }
+
+    public function test_get_categories_with_sharable_question_choices_should_not_include_random() {
+
+        $this->resetAfterTest();
+
+        /** @var core_question_generator $questiongenerator */
+        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $questiongenerator->create_question_category(
+                ['name' => 'Category with idnumber [ID:abc123]']);
+        $catwithid2 = $questiongenerator->create_question_category(
+                ['name' => 'Second category with [ID:pqr789]']);
+        $questiongenerator->create_question_category();
+
+        // Now create a random question in that category.
+        $form = new stdClass();
+        $form->category = $catwithid2->id . ',' . $catwithid2->contextid;
+        $form->includesubcategories = false;
+        $form->defaultmark = 1;
+        $form->hidden = 1;
+        $form->stamp = make_unique_id_code(); // Set the unique code (not to be changed).
+        $question = new stdClass();
+        $question->qtype = 'random';
+        question_bank::get_qtype('random')->save_question($question, $form);
+
+        $questiongenerator->create_question('shortanswer', null,
+                ['category' => $catwithid2->id, 'name' => 'Question [ID:frog]']);
+
+        // The random question should not appear in the counts.
+        $this->assertEquals([
+                '' => 'Choose...',
+                'abc123' => 'Category with idnumber [ID:abc123] (0)',
+                'pqr789' => 'Second category with [ID:pqr789] (1)'],
+                utils::get_categories_with_sharable_question_choices(
+                        context_system::instance()));
+    }
+
+    public function test_get_sharable_question_choices_should_not_include_hidden() {
+        global $DB;
+        $this->resetAfterTest();
+
+        /** @var core_question_generator $questiongenerator */
+        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $category = $questiongenerator->create_question_category(
+                ['name' => 'Category with idnumber [ID:abc123]']);
+
+        $questiongenerator->create_question('shortanswer', null,
+                ['category' => $category->id, 'name' => 'Question [ID:frog]']);
+        $hiddenq = $questiongenerator->create_question('shortanswer', null,
+                ['category' => $category->id, 'name' => 'Question (hidden) [ID:toad]']);
+        $DB->set_field('question', 'hidden', 1, ['id' => $hiddenq->id]);
+
+        // The hidden question should not appear in the list.
+        $this->assertEquals([
+                '' => 'Choose...',
+                'frog' => 'Question [ID:frog]'],
+                utils::get_sharable_question_choices(
+                        $category->id));
+    }
+
+    public function test_get_categories_with_sharable_question_choices_should_not_include_hidden() {
+        global $DB;
+        $this->resetAfterTest();
+
+        /** @var core_question_generator $questiongenerator */
+        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $questiongenerator->create_question_category(
+                ['name' => 'Category with idnumber [ID:abc123]']);
+        $catwithid2 = $questiongenerator->create_question_category(
+                ['name' => 'Second category with [ID:pqr789]']);
+        $questiongenerator->create_question_category();
+
+        $questiongenerator->create_question('shortanswer', null,
+                ['category' => $catwithid2->id, 'name' => 'Question [ID:frog]']);
+        $hiddenq = $questiongenerator->create_question('shortanswer', null,
+                ['category' => $catwithid2->id, 'name' => 'Question (hidden) [ID:toad]']);
+        $DB->set_field('question', 'hidden', 1, ['id' => $hiddenq->id]);
+
+        // The hidden question should not appear in the counts.
+        $this->assertEquals([
+                '' => 'Choose...',
+                'abc123' => 'Category with idnumber [ID:abc123] (0)',
+                'pqr789' => 'Second category with [ID:pqr789] (1)'],
+                utils::get_categories_with_sharable_question_choices(
+                        context_system::instance()));
+    }
+
     public function test_behaviour_choices() {
         // This test is wrtiten in a way that will work even if extra behaviours are installed.
         $choices = utils::behaviour_choices();
