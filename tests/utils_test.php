@@ -210,6 +210,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         $form = new stdClass();
         $form->category = $category->id . ',' . $category->contextid;
         $form->includesubcategories = false;
+        $form->questiontext = ['text' => '0', 'format' => 0]; // Needed for the test to pass in Moodle 3.4.
         $form->defaultmark = 1;
         $form->hidden = 1;
         $form->stamp = make_unique_id_code(); // Set the unique code (not to be changed).
@@ -241,6 +242,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         $form = new stdClass();
         $form->category = $catwithid2->id . ',' . $catwithid2->contextid;
         $form->includesubcategories = false;
+        $form->questiontext = ['text' => '0', 'format' => 0]; // Needed for the test to pass in Moodle 3.4.
         $form->defaultmark = 1;
         $form->hidden = 1;
         $form->stamp = make_unique_id_code(); // Set the unique code (not to be changed).
