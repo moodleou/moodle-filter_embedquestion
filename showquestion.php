@@ -56,11 +56,23 @@ $PAGE->requires->js_call_amd('filter_embedquestion/question', 'init');
 // Locate which question we should show.
 $category = utils::get_category_by_idnumber($context, $categoryidnumber);
 if (!$category) {
+    if (has_capability('moodle/question:useall', $context)) {
+        $a = new stdClass();
+        $a->catid = $categoryidnumber;
+        $a->contextname = $context->get_context_name(false, true);
+        utils::filter_error('invalidcategory', $a);
+    }
     utils::filter_error('invalidtoken');
 }
 
 $questiondata = utils::get_question_by_idnumber($category->id, $questionidnumber);
 if (!$questiondata) {
+    if (has_capability('moodle/question:useall', $context)) {
+        $a = new stdClass();
+        $a->qid = $questionidnumber;
+        $a->catname = format_string($category->name);
+        utils::filter_error('invalidquestion', $a);
+    }
     utils::filter_error('invalidtoken');
 }
 

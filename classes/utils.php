@@ -55,15 +55,15 @@ abstract class utils {
      * Display an error inside the filter iframe. Does not return.
      *
      * @param string $string language string key for the message to display.
+     * @param object $a collection of variables to construct bespoke language string.
      */
-    public static function filter_error($string) {
+    public static function filter_error($string, $a = null) {
         global $PAGE;
         $renderer = $PAGE->get_renderer('filter_embedquestion');
         echo $renderer->header();
-        echo $renderer->render(new error_message('invalidtoken'));
+        echo $renderer->render(new error_message($string, $a));
         echo $renderer->footer();
         die;
-
     }
 
     /**
@@ -186,7 +186,6 @@ abstract class utils {
 
         return $choices;
     }
-
 
     /**
      * Get shareable questions from a category (those which have an idnumber set).
