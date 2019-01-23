@@ -19,19 +19,37 @@ Feature: Add an activity and embed a question inside that activity
     And the following "question categories" exist:
       | contextlevel | reference | name                      |
       | Course       | C1        | Test questions [ID:embed] |
-    And the following "questions" exist:
-      | questioncategory          | qtype     | name                      |
-      | Test questions [ID:embed] | truefalse | First question [ID:test1] |
     And the "embedquestion" filter is "on"
     And I log in as "teacher"
 
   @javascript
-  Scenario: Test using the helper script
+  Scenario: Test using the helper script - embed a specific question
+    Given the following "questions" exist:
+      | questioncategory          | qtype     | name                      |
+      | Test questions [ID:embed] | truefalse | First question [ID:test1] |
     When I am on the filter test page for "Course 1"
     And I set the field "Question category" to "Test questions [ID:embed] (1)"
     And I set the field "id_questionidnumber" to "First question [ID:test1]"
     And I press "Embed question"
-#    And I press "id_submitbutton"
+    And I switch to "filter_embedquestion-iframe" iframe
+    And I click on "True" "radio" in the "The answer is true." "question"
+    And I press "Check"
+    Then I should see "Correct"
+    And I press "Start again"
+    And I should not see "Correct"
+
+  @javascript
+  Scenario: Test using the helper script - embed a question at random
+    Given the following "questions" exist:
+      | questioncategory          | qtype     | name          |
+      | Test questions [ID:embed] | truefalse | Q1 [ID:test1] |
+      | Test questions [ID:embed] | truefalse | Q2 [ID:test2] |
+      | Test questions [ID:embed] | truefalse | Q3 [ID:test3] |
+      | Test questions [ID:embed] | truefalse | Q4 [ID:test4] |
+    When I am on the filter test page for "Course 1"
+    And I set the field "Question category" to "Test questions [ID:embed] (4)"
+    And I set the field "id_questionidnumber" to "Choose an embeddable question from this category randomly"
+    And I press "Embed question"
     And I switch to "filter_embedquestion-iframe" iframe
     And I click on "True" "radio" in the "The answer is true." "question"
     And I press "Check"

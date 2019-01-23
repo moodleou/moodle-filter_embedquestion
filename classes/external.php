@@ -88,6 +88,7 @@ class external extends \external_api {
 
         if (has_capability('moodle/question:useall', $context)) {
             $userlimit = null;
+
         } else if (has_capability('moodle/question:usemine', $context)) {
             $userlimit = $USER->id;
         } else {
@@ -169,7 +170,7 @@ class external extends \external_api {
      *
      * @param int $courseid the id of the course we are embedding questions from.
      * @param string $categoryidnumber the idnumber of the question category.
-     * @param string $questionidnumber the idnumber of the question to be embedded.
+     * @param string $questionidnumber the idnumber of the question to be embedded, or '*' to mean a question picked at random.
      * @param string $behaviour which question behaviour to use.
      * @param string $maxmark float value or ''.
      * @param string $variant int value or ''.
@@ -200,10 +201,14 @@ class external extends \external_api {
         // Check permissions.
         require_once($CFG->libdir . '/questionlib.php');
         $category = utils::get_category_by_idnumber($context, $categoryidnumber);
-        $questiondata = utils::get_question_by_idnumber($category->id, $questionidnumber);
-        $question = \question_bank::load_question($questiondata->id);
-        question_require_capability_on($question, 'use');
-
+        if ($questionidnumber === '*') {
+            $context = \context_course::instance($courseid);
+            require_capability('moodle/question:useall', $context);
+        } else {
+            $questiondata = utils::get_question_by_idnumber($category->id, $questionidnumber);
+            $question = \question_bank::load_question($questiondata->id);
+            question_require_capability_on($question, 'use');
+        }
         $fromform = new \stdClass();
         $fromform->courseid = $courseid;
         $fromform->categoryidnumber = $categoryidnumber;
@@ -220,9 +225,13 @@ class external extends \external_api {
         $fromform->history = $history;
 
         // Log this.
-        \filter_embedquestion\event\token_created::create(
-                ['context' => $context, 'objectid' => $question->id])->trigger();
-
+        if ($questionidnumber === '*') {
+            \filter_embedquestion\event\category_token_created::create(
+                    ['context' => $context, 'objectid' => $category->id])->trigger();
+        } else {
+            \filter_embedquestion\event\token_created::create(
+                    ['context' => $context, 'objectid' => $question->id])->trigger();
+        }
         return question_options::get_embed_from_form_options($fromform);
     }
 }

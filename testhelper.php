@@ -51,17 +51,26 @@ utils::warn_if_filter_disabled($context);
 
 if ($fromform = $form->get_data()) {
     $category = utils::get_category_by_idnumber($context, $fromform->categoryidnumber);
-    $questiondata = utils::get_question_by_idnumber($category->id, $fromform->questionidnumber);
-    $question = question_bank::load_question($questiondata->id);
 
-    echo $OUTPUT->heading('Information for embedding question ' . format_string($question->name));
+    if ($fromform->questionidnumber === '*') {
+        echo $OUTPUT->heading('Information for embedding question selected randomly from ' . format_string($category->name));
+
+        \filter_embedquestion\event\category_token_created::create(
+                ['context' => $context, 'objectid' => $category->id])->trigger();
+
+    } else {
+        $questiondata = utils::get_question_by_idnumber($category->id, $fromform->questionidnumber);
+        $question = question_bank::load_question($questiondata->id);
+        echo $OUTPUT->heading('Information for embedding question ' . format_string($question->name));
+
+        // Log this.
+        \filter_embedquestion\event\token_created::create(
+                ['context' => $context, 'objectid' => $question->id])->trigger();
+    }
 
     $embedcode = question_options::get_embed_from_form_options($fromform);
     echo html_writer::tag('p', 'Code to embed the question: ' . $embedcode);
 
-    // Log this.
-    \filter_embedquestion\event\token_created::create(
-            ['context' => $context, 'objectid' => $question->id])->trigger();
 
     echo format_text('The embedded question: ' . $embedcode, FORMAT_HTML, ['context' => $context]);
 }

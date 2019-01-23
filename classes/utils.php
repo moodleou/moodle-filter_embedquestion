@@ -234,7 +234,14 @@ abstract class utils {
 
             $choices[$matches[1]] = format_string($question->name);
         }
-
+        // User has the correct capability for accessing all questions.
+        if (!$userid) {
+            // When we have at least two questions in the current category, allow random choice.
+            // > 2 because of the 'Choose ...' option.
+            if (count($choices) > 2) {
+                $choices = array_merge($choices, ['*' => get_string('chooserandomly', 'filter_embedquestion')]);
+            }
+        }
         return $choices;
     }
 
@@ -254,5 +261,20 @@ abstract class utils {
             }
         }
         return $behaviours;
+    }
+
+    public static function get_idnumber_from_question($question) {
+        if (!preg_match('~\[ID:(.*)\]~', $question->name, $matches)) {
+            self::filter_error('invalidtoken');
+        }
+        return $matches[1];
+    }
+
+    /**
+     * Choose a random question from a given category and return its questionidnumber
+     * @param $categoryid, the id of the category we take question from randomly
+     * @return string, the questionidnumber of a randomly chosen question
+     */
+    public static function get_random_question_idnumber($categoryid) {
     }
 }

@@ -65,42 +65,30 @@ if (!$category) {
     utils::filter_error('invalidtoken');
 }
 
-$questiondata = utils::get_question_by_idnumber($category->id, $questionidnumber);
-if (!$questiondata) {
-    if (has_capability('moodle/question:useall', $context)) {
-        $a = new stdClass();
-        $a->qid = $questionidnumber;
-        $a->catname = format_string($category->name);
-        utils::filter_error('invalidquestion', $a);
-    }
-    utils::filter_error('invalidtoken');
-}
-
-$question = question_bank::load_question($questiondata->id);
-
 // Get and validate existing preview, or start a new one.
 $qubaid = optional_param('qubaid', 0, PARAM_INT);
-if ($qubaid) {
-    try {
-        $quba = question_engine::load_questions_usage_by_activity($qubaid);
+if (!$qubaid) {
+    if ($questionidnumber === '*') {
+        $randomloader = new \core_question\bank\random_question_loader(new qubaid_list([]));
+        $includesubcategories = false;
+        $questionid = $randomloader->get_next_question_id($category->id, $includesubcategories);
 
-    } catch (Exception $e) {
-        // This may not seem like the right error message to display, but
-        // actually from the user point of view, it makes sense.
-        print_error('submissionoutofsequencefriendlymessage', 'question', $PAGE->url, null, $e);
+    } else {
+        $questiondata = utils::get_question_by_idnumber($category->id, $questionidnumber);
+        if (!$questiondata) {
+            if (has_capability('moodle/question:useall', $context)) {
+                $a = new stdClass();
+                $a->qid = $questionidnumber;
+                $a->catname = format_string($category->name);
+                utils::filter_error('invalidquestion', $a);
+            }
+            utils::filter_error('invalidtoken');
+        }
+        $questionid = $questiondata->id;
     }
 
-    filter_embedquestion\utils::verify_usage($quba);
+    $question = question_bank::load_question($questionid);
 
-    $slot = $quba->get_first_question_number();
-    $usedquestion = $quba->get_question($slot);
-    if ($usedquestion->id != $question->id) {
-        print_error('questionidmismatch', 'question');
-    }
-    $question = $usedquestion;
-    $options->variant = $quba->get_variant($slot);
-
-} else {
     $quba = question_engine::make_questions_usage_by_activity(
             'filter_embedquestion', context_user::instance($USER->id));
     $quba->set_preferred_behaviour($options->behaviour);
@@ -120,6 +108,32 @@ if ($qubaid) {
 
     \filter_embedquestion\event\question_started::create(
             ['context' => $context, 'objectid' => $question->id])->trigger();
+} else {
+    // Here, we are continuing an existing attempt.
+    try {
+        $quba = question_engine::load_questions_usage_by_activity($qubaid);
+
+    } catch (Exception $e) {
+        // This may not seem like the right error message to display, but
+        // actually from the user point of view, it makes sense.
+        print_error('submissionoutofsequencefriendlymessage', 'question', $PAGE->url, null, $e);
+    }
+
+    filter_embedquestion\utils::verify_usage($quba);
+
+    $slot = $quba->get_first_question_number();
+    $question = $quba->get_question($slot);
+
+    if ($questionidnumber === '*') {
+        if (!filter_embedquestion\utils::get_idnumber_from_question($question) && $question->category == $category->id) {
+            print_error('questionidmismatch', 'question');
+        }
+    } else {
+        if ($questionidnumber !== filter_embedquestion\utils::get_idnumber_from_question($question)) {
+            print_error('questionidmismatch', 'question');
+        }
+    }
+    $options->variant = $quba->get_variant($slot);
 }
 $options->behaviour = $quba->get_preferred_behaviour();
 $options->maxmark = $quba->get_question_max_mark($slot);

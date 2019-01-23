@@ -161,7 +161,8 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         $this->assertEquals([
                 '' => 'Choose...',
                 'frog' => 'Question 1 [ID:frog]',
-                'toad' => 'Question 2 [ID:toad]'],
+                'toad' => 'Question 2 [ID:toad]',
+                '*' => get_string('chooserandomly','filter_embedquestion')],
                 utils::get_sharable_question_choices(
                         $category->id));
     }

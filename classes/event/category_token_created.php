@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The question viewed event.
+ * An event to record when someone makes a token to embed a question picked at random from a category.
  *
  * @package   filter_embedquestion
  * @category  event
@@ -27,29 +27,29 @@ defined('MOODLE_INTERNAL') || die();
 
 
 /**
- * An event to record when someone makes a token to embed a single question.
+ * The question viewed event.
  *
  * @property-read array $other {
  * }
  *
  * @package   filter_embedquestion
- * @copyright 2018 the Open University
+ * @copyright 2019 the Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class token_created extends \core\event\base {
+class category_token_created extends \core\event\base {
 
     protected function init() {
-        $this->data['objecttable'] = 'question';
+        $this->data['objecttable'] = 'question_categories';
         $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
     }
 
     public function get_description() {
-        return "The user with id '$this->userid' created a token for embedded question " .
-                "'$this->objectid' in course '$this->courseid'.";
+        return "The user with id '$this->userid' created a token for embedded a question " .
+                "picked at random from category '$this->objectid' in course '$this->courseid'.";
     }
 
     public static function get_objectid_mapping() {
-        return array('db' => 'question', 'restore' => 'question');
+        return array('db' => 'question_categories', 'restore' => 'question_categories');
     }
 }
