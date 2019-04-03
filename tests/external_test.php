@@ -46,20 +46,20 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         /** @var core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
         $category = $questiongenerator->create_question_category(
-                ['name' => 'Category with idnumber [ID:abc123]',
-                        'contextid' => context_course::instance($course->id)->id]);
+                ['name' => 'Category with idnumber',
+                        'contextid' => context_course::instance($course->id)->id, 'idnumber' => 'abc123']);
 
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $category->id, 'name' => 'Question 2 [ID:toad]']);
+                ['category' => $category->id, 'name' => 'Question 2', 'idnumber' => 'toad']);
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $category->id, 'name' => 'Question 1 [ID:frog]']);
+                ['category' => $category->id, 'name' => 'Question 1', 'idnumber' => 'frog']);
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $category->id]);
 
         $this->assertEquals([
                 ['value' => '', 'label' => 'Choose...'],
-                ['value' => 'frog', 'label' => 'Question 1 [ID:frog]'],
-                ['value' => 'toad', 'label' => 'Question 2 [ID:toad]'],
+                ['value' => 'frog', 'label' => 'Question 1'],
+                ['value' => 'toad', 'label' => 'Question 2'],
                 ['value' => '*', 'label' => get_string('chooserandomly', 'filter_embedquestion')]],
                 external::get_sharable_question_choices($course->id, 'abc123'));
     }
@@ -87,21 +87,21 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         /** @var core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
         $category = $questiongenerator->create_question_category(
-                ['name' => 'Category with idnumber [ID:abc123]',
+                ['name' => 'Category with idnumber', 'idnumber' => 'abc123',
                         'contextid' => context_course::instance($course->id)->id]);
 
         $this->setAdminUser();
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $category->id, 'name' => 'Question 2 [ID:toad]']);
+                ['category' => $category->id, 'name' => 'Question 2', 'idnumber' => 'toad']);
         $this->setUser($user);
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $category->id, 'name' => 'Question 1 [ID:frog]']);
+                ['category' => $category->id, 'name' => 'Question 1', 'idnumber' => 'frog']);
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $category->id]);
 
         $this->assertEquals([
                 ['value' => '', 'label' => 'Choose...'],
-                ['value' => 'frog', 'label' => 'Question 1 [ID:frog]']],
+                ['value' => 'frog', 'label' => 'Question 1']],
                 external::get_sharable_question_choices($course->id, 'abc123'));
     }
 
@@ -115,11 +115,11 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         /** @var core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
         $category = $questiongenerator->create_question_category(
-                ['name' => 'Category [ID:abc123]',
+                ['name' => 'Category', 'idnumber' => 'abc123',
                         'contextid' => context_course::instance($course->id)->id]);
 
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $category->id, 'name' => 'Question [ID:toad]']);
+                ['category' => $category->id, 'name' => 'Question', 'idnumber' => 'toad']);
 
         $categoryidnumber = 'abc123';
         $questionidnumber = 'toad';
@@ -159,13 +159,13 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         /** @var core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
         $category = $questiongenerator->create_question_category(
-                ['name' => 'Category [ID:abc123]',
+                ['name' => 'Category', 'idnumber' => 'abc123',
                         'contextid' => context_course::instance($course->id)->id]);
 
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $category->id, 'name' => 'Question1 [ID:toad]']);
+                ['category' => $category->id, 'name' => 'Question1', 'idnumber' => 'toad']);
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $category->id, 'name' => 'Question2 [ID:frog]']);
+                ['category' => $category->id, 'name' => 'Question2', 'idnumber' => 'frog']);
 
         $categoryidnumber = 'abc123';
         $questionidnumber = 'toad';

@@ -125,11 +125,11 @@ if (!$qubaid) {
     $question = $quba->get_question($slot);
 
     if ($questionidnumber === '*') {
-        if (!filter_embedquestion\utils::get_idnumber_from_question($question) && $question->category == $category->id) {
+        if (empty($question->idnumber) && $question->category == $category->id) {
             print_error('questionidmismatch', 'question');
         }
     } else {
-        if ($questionidnumber !== filter_embedquestion\utils::get_idnumber_from_question($question)) {
+        if ($questionidnumber !== $question->idnumber) {
             print_error('questionidmismatch', 'question');
         }
     }

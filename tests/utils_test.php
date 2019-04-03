@@ -44,7 +44,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         /** @var core_question_generator $questiongenerator */
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $catwithidnumber = $questiongenerator->create_question_category(
-                ['name' => 'Category with idnumber [ID:abc123]']);
+                ['name' => 'Category with idnumber', 'idnumber' => 'abc123']);
         $questiongenerator->create_question_category();
 
         $this->assertEquals($catwithidnumber->id,
@@ -66,9 +66,9 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         /** @var core_question_generator $questiongenerator */
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $catwithidnumber = $questiongenerator->create_question_category(
-                ['name' => 'Category with idnumber [ID:abc123]']);
+                ['name' => 'Category with idnumber', 'idnumber' => 'abc123']);
         $q = $questiongenerator->create_question('shortanswer', null,
-                ['category' => $catwithidnumber->id, 'name' => 'Question [ID:frog]']);
+                ['category' => $catwithidnumber->id, 'name' => 'Question', 'idnumber' => 'frog']);
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $catwithidnumber->id]);
 
@@ -84,7 +84,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         /** @var core_question_generator $questiongenerator */
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $catwithidnumber = $questiongenerator->create_question_category(
-                ['name' => 'Category with idnumber [ID:abc123]']);
+                ['name' => 'Category with idnumber', 'idnumber' => 'abc123']);
 
         $this->assertSame(false,
                 utils::get_question_by_idnumber(
@@ -98,18 +98,18 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         /** @var core_question_generator $questiongenerator */
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $questiongenerator->create_question_category(
-                ['name' => 'Category with idnumber [ID:abc123]']);
+                ['name' => 'Category with idnumber', 'idnumber' => 'abc123']);
         $catwithid2 = $questiongenerator->create_question_category(
-                ['name' => 'Second category with [ID:pqr789]']);
+                ['name' => 'Second category', 'idnumber' => 'pqr789']);
         $questiongenerator->create_question_category();
 
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $catwithid2->id, 'name' => 'Question [ID:frog]']);
+                ['category' => $catwithid2->id, 'name' => 'Question', 'idnumber' => 'frog']);
 
         $this->assertEquals([
                 '' => 'Choose...',
-                'abc123' => 'Category with idnumber [ID:abc123] (0)',
-                'pqr789' => 'Second category with [ID:pqr789] (1)'],
+                'abc123' => 'Category with idnumber (0)',
+                'pqr789' => 'Second category (1)'],
                 utils::get_categories_with_sharable_question_choices(
                         context_system::instance()));
     }
@@ -123,21 +123,21 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         /** @var core_question_generator $questiongenerator */
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $catwithid1 = $questiongenerator->create_question_category(
-                ['name' => 'Category with idnumber [ID:abc123]']);
+                ['name' => 'Category with idnumber', 'idnumber' => 'abc123']);
         $catwithid2 = $questiongenerator->create_question_category(
-                ['name' => 'Second category with [ID:pqr789]']);
+                ['name' => 'Second category with', 'idnumber' => 'pqr789']);
 
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $catwithid1->id, 'name' => 'Question [ID:toad]']);
+                ['category' => $catwithid1->id, 'name' => 'Question', 'idnumber' => 'toad']);
         $this->setGuestUser();
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $catwithid2->id, 'name' => 'Question [ID:frog]']);
+                ['category' => $catwithid2->id, 'name' => 'Question', 'idnumber' => 'frog']);
         $this->setAdminUser();
 
         $this->assertEquals([
                 '' => 'Choose...',
-                'abc123' => 'Category with idnumber [ID:abc123] (1)',
-                'pqr789' => 'Second category with [ID:pqr789] (0)'],
+                'abc123' => 'Category with idnumber (1)',
+                'pqr789' => 'Second category with (0)'],
                 utils::get_categories_with_sharable_question_choices(
                         context_system::instance(), $USER->id));
     }
@@ -149,20 +149,20 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         /** @var core_question_generator $questiongenerator */
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $category = $questiongenerator->create_question_category(
-                ['name' => 'Category with idnumber [ID:abc123]']);
+                ['name' => 'Category with idnumber', 'idnumber' => 'abc123']);
 
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $category->id, 'name' => 'Question 2 [ID:toad]']);
+                ['category' => $category->id, 'name' => 'Question 2', 'idnumber' => 'toad']);
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $category->id, 'name' => 'Question 1 [ID:frog]']);
+                ['category' => $category->id, 'name' => 'Question 1', 'idnumber' => 'frog']);
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $category->id]);
 
         $this->assertEquals([
                 '' => 'Choose...',
-                'frog' => 'Question 1 [ID:frog]',
-                'toad' => 'Question 2 [ID:toad]',
-                '*' => get_string('chooserandomly','filter_embedquestion')],
+                'frog' => 'Question 1',
+                'toad' => 'Question 2',
+                '*' => get_string('chooserandomly', 'filter_embedquestion')],
                 utils::get_sharable_question_choices(
                         $category->id));
     }
@@ -175,20 +175,20 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         /** @var core_question_generator $questiongenerator */
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $category = $questiongenerator->create_question_category(
-                ['name' => 'Category with idnumber [ID:abc123]']);
+                ['name' => 'Category with idnumber', 'idnumber' => 'abc123']);
 
         $this->setGuestUser();
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $category->id, 'name' => 'Question 2 [ID:toad]']);
+                ['category' => $category->id, 'name' => 'Question 2', 'idnumber' => 'toad']);
         $this->setAdminUser();
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $category->id, 'name' => 'Question 1 [ID:frog]']);
+                ['category' => $category->id, 'name' => 'Question 1', 'idnumber' => 'frog']);
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $category->id]);
 
         $this->assertEquals([
                 '' => 'Choose...',
-                'frog' => 'Question 1 [ID:frog]'],
+                'frog' => 'Question 1'],
                 utils::get_sharable_question_choices(
                         $category->id, $USER->id));
     }
@@ -200,10 +200,10 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         /** @var core_question_generator $questiongenerator */
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $category = $questiongenerator->create_question_category(
-                ['name' => 'Category with idnumber [ID:abc123]']);
+                ['name' => 'Category with idnumber', 'idnumber' => 'abc123']);
 
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $category->id, 'name' => 'Question 1 [ID:frog]']);
+                ['category' => $category->id, 'name' => 'Question 1', 'idnumber' => 'frog']);
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $category->id]);
 
@@ -222,7 +222,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         // The random question should not appear in the list.
         $this->assertEquals([
                 '' => 'Choose...',
-                'frog' => 'Question 1 [ID:frog]'],
+                'frog' => 'Question 1'],
                 utils::get_sharable_question_choices(
                         $category->id));
     }
@@ -234,9 +234,9 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         /** @var core_question_generator $questiongenerator */
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $questiongenerator->create_question_category(
-                ['name' => 'Category with idnumber [ID:abc123]']);
+                ['name' => 'Category with idnumber', 'idnumber' => 'abc123']);
         $catwithid2 = $questiongenerator->create_question_category(
-                ['name' => 'Second category with [ID:pqr789]']);
+                ['name' => 'Second category with', 'idnumber' => 'pqr789']);
         $questiongenerator->create_question_category();
 
         // Now create a random question in that category.
@@ -252,13 +252,13 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         question_bank::get_qtype('random')->save_question($question, $form);
 
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $catwithid2->id, 'name' => 'Question [ID:frog]']);
+                ['category' => $catwithid2->id, 'name' => 'Question', 'idnumber' => 'frog']);
 
         // The random question should not appear in the counts.
         $this->assertEquals([
                 '' => 'Choose...',
-                'abc123' => 'Category with idnumber [ID:abc123] (0)',
-                'pqr789' => 'Second category with [ID:pqr789] (1)'],
+                'abc123' => 'Category with idnumber (0)',
+                'pqr789' => 'Second category with (1)'],
                 utils::get_categories_with_sharable_question_choices(
                         context_system::instance()));
     }
@@ -270,18 +270,18 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         /** @var core_question_generator $questiongenerator */
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $category = $questiongenerator->create_question_category(
-                ['name' => 'Category with idnumber [ID:abc123]']);
+                ['name' => 'Category with idnumber', 'idnumber' => 'abc123']);
 
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $category->id, 'name' => 'Question [ID:frog]']);
+                ['category' => $category->id, 'name' => 'Question', 'idnumber' => 'frog']);
         $hiddenq = $questiongenerator->create_question('shortanswer', null,
-                ['category' => $category->id, 'name' => 'Question (hidden) [ID:toad]']);
+                ['category' => $category->id, 'name' => 'Question (hidden)', 'idnumber' => 'toad']);
         $DB->set_field('question', 'hidden', 1, ['id' => $hiddenq->id]);
 
         // The hidden question should not appear in the list.
         $this->assertEquals([
                 '' => 'Choose...',
-                'frog' => 'Question [ID:frog]'],
+                'frog' => 'Question'],
                 utils::get_sharable_question_choices(
                         $category->id));
     }
@@ -293,22 +293,22 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         /** @var core_question_generator $questiongenerator */
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $questiongenerator->create_question_category(
-                ['name' => 'Category with idnumber [ID:abc123]']);
+                ['name' => 'Category with idnumber', 'idnumber' => 'abc123']);
         $catwithid2 = $questiongenerator->create_question_category(
-                ['name' => 'Second category with [ID:pqr789]']);
+                ['name' => 'Second category with', 'idnumber' => 'pqr789']);
         $questiongenerator->create_question_category();
 
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $catwithid2->id, 'name' => 'Question [ID:frog]']);
+                ['category' => $catwithid2->id, 'name' => 'Question', 'idnumber' => 'frog']);
         $hiddenq = $questiongenerator->create_question('shortanswer', null,
-                ['category' => $catwithid2->id, 'name' => 'Question (hidden) [ID:toad]']);
+                ['category' => $catwithid2->id, 'name' => 'Question (hidden)', 'idnumber' => 'toad']);
         $DB->set_field('question', 'hidden', 1, ['id' => $hiddenq->id]);
 
         // The hidden question should not appear in the counts.
         $this->assertEquals([
                 '' => 'Choose...',
-                'abc123' => 'Category with idnumber [ID:abc123] (0)',
-                'pqr789' => 'Second category with [ID:pqr789] (1)'],
+                'abc123' => 'Category with idnumber (0)',
+                'pqr789' => 'Second category with (1)'],
                 utils::get_categories_with_sharable_question_choices(
                         context_system::instance()));
     }

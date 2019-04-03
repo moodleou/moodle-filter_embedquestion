@@ -28,16 +28,17 @@ Before you can embed a question
 ===============================
 
 Questions can only be embedded from course question banks, and they
-can only be embedded if they have and 'idnumber' set, and are in
+can only be embedded if they have an 'idnumber' set, and are in
 a cateogry with an 'idnumber'.
 
-At the moment, questions and categories in Moodle do not have
-idnumbers (until MDL-62708 has been completed), so instead you
-need to add '[ID:idnumber-goes-here]' to the question/category name.
+Since Moodle 3.6 an idnumber field has been added to the questions and
+categories forms, so when creating embeddable categories and questions:
+1. Embeddable categories need to have idnumbers
+2. Embeddable questions also need idnumbers and be in an embeddable category
 In what follows we will assume you have done this, so you have
-a category called 'Embeddable questions [ID:embeddable]' that
-contains a question called 'Test question [ID:test]' in the course
-with id 2.
+a category called 'Embeddable questions' with idnumber 'embeddable'
+that contains a question called 'Test question1' with idnumber 'test1'
+in the course with id 2.
 
 
 How to embed a question
@@ -46,11 +47,11 @@ How to embed a question
 Go to anywhere where you can input HTML. For example, start adding a Page
 to a course, or start writing a forum post.
 
-1. In the editor toobar, click the insert question button.
+1. In the editor toolbar, click the insert question button.
 
-2. Select a question category (e.g. 'Embeddable questions [ID:embeddable]').
+2. Select a question category (e.g. 'Embeddable questions').
 
-3. Select a question (e.g. 'Test question [ID:test]').
+3. Select a question (e.g. 'Test question1').
 
 4. All the other options can be left as default, or changed as you wish.
    Note that it is only possible to select question behaviours that
@@ -71,6 +72,17 @@ As is normal for editor plugins (e.g. equation or image buttons work
 the same way) if the input point or selection is in the middle of an
 embed code when you click the button, you will edit the existing code,
 otherwise, you will insert a new one.
+
+
+How to embed a random question from a category
+==============================================
+
+To embed a random question, the procedure is the same as 'How to embed a question'
+apart from step(3). In step (3) instead of selecting a question name you select
+'Choose an embeddable question from this category randomly' (This string indicates
+that you can choose a question randomly from the current category. Bear in mind,
+that this string appears at the bottom of the list of question names when there is
+at least 2 questions in that category).
 
 
 How to embed a question without using Atto

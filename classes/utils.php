@@ -111,8 +111,8 @@ abstract class utils {
         global $DB;
 
         return $DB->get_record_select('question_categories',
-                'contextid = ? AND ' . $DB->sql_like('name', '?'),
-                [$context->id, '%[ID:' . $DB->sql_like_escape($idnumber) . ']%']);
+                'contextid = ? AND idnumber = ?',
+                [$context->id, $idnumber]);
     }
 
     /**
@@ -126,8 +126,8 @@ abstract class utils {
         global $DB;
 
         return $DB->get_record_select('question',
-                'category = ? AND ' . $DB->sql_like('name', '?') . ' AND hidden = 0 AND parent = 0',
-                [$categoryid, '%[ID:' . $DB->sql_like_escape($idnumber) . ']%']);
+                "category = ? AND idnumber = ? AND hidden = 0 AND parent = 0",
+                [$categoryid, $idnumber]);
     }
 
     /**
@@ -147,7 +147,6 @@ abstract class utils {
         global $DB;
 
         $params = [];
-        $params[] = '%[ID:%]%';
 
         $creatortest = '';
         if ($userid) {
@@ -155,20 +154,19 @@ abstract class utils {
             $params[] = $userid;
         }
         $params[] = $context->id;
-        $params[] = '%[ID:%]%';
 
         $categories = $DB->get_records_sql("
-                SELECT qc.id, qc.name, COUNT(q.id) AS count
+                SELECT qc.id, qc.name, qc.idnumber, COUNT(q.id) AS count
 
                   FROM {question_categories} qc
              LEFT JOIN {question} q ON q.category = qc.id
-                                    AND " . $DB->sql_like('q.name', '?') . "
+                                    AND q.idnumber IS NOT NULL
                                     $creatortest
                                     AND q.hidden = 0
                                     AND q.parent = 0
 
                  WHERE qc.contextid = ?
-                   AND " . $DB->sql_like('qc.name', '?') . "
+                   AND qc.idnumber IS NOT NULL
 
               GROUP BY qc.id, qc.name
               ORDER BY qc.name
@@ -176,14 +174,9 @@ abstract class utils {
 
         $choices = ['' => get_string('choosedots')];
         foreach ($categories as $category) {
-            if (!preg_match('~\[ID:(.*)\]~', $category->name, $matches)) {
-                continue;
-            }
-
-            $choices[$matches[1]] = get_string('nameandcount', 'filter_embedquestion',
+            $choices[$category->idnumber] = get_string('nameandcount', 'filter_embedquestion',
                     ['name' => format_string($category->name), 'count' => $category->count]);
         }
-
         return $choices;
     }
 
@@ -204,7 +197,6 @@ abstract class utils {
 
         $params = [];
         $params[] = $categoryid;
-        $params[] = '%[ID:%]%';
 
         $creatortest = '';
         if ($userid) {
@@ -213,12 +205,12 @@ abstract class utils {
         }
 
         $questions = $DB->get_records_sql("
-                SELECT q.name
+                SELECT q.name, q.idnumber
 
                   FROM {question} q
 
                  WHERE q.category = ?
-                   AND " . $DB->sql_like('q.name', '?') . "
+                   AND q. idnumber IS NOT NULL
                    $creatortest
                    AND q.hidden = 0
                    AND q.parent = 0
@@ -228,11 +220,7 @@ abstract class utils {
 
         $choices = ['' => get_string('choosedots')];
         foreach ($questions as $question) {
-            if (!preg_match('~\[ID:(.*)\]~', $question->name, $matches)) {
-                continue;
-            }
-
-            $choices[$matches[1]] = format_string($question->name);
+            $choices[$question->idnumber] = format_string($question->name);
         }
         // User has the correct capability for accessing all questions.
         if (!$userid) {
@@ -261,20 +249,5 @@ abstract class utils {
             }
         }
         return $behaviours;
-    }
-
-    public static function get_idnumber_from_question($question) {
-        if (!preg_match('~\[ID:(.*)\]~', $question->name, $matches)) {
-            self::filter_error('invalidtoken');
-        }
-        return $matches[1];
-    }
-
-    /**
-     * Choose a random question from a given category and return its questionidnumber
-     * @param $categoryid, the id of the category we take question from randomly
-     * @return string, the questionidnumber of a randomly chosen question
-     */
-    public static function get_random_question_idnumber($categoryid) {
     }
 }

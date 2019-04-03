@@ -2,7 +2,7 @@
 Feature: Add an activity and embed a question inside that activity
   In order to encourage students interacting with ativity and learning from it
   As a teacher
-  I need to insert appropriate interactive questuins (iCMas) inside any activity modules
+  I need to insert appropriate interactive questions (iCMAs) inside any activity modules
 
   Background:
     Given the following "users" exist:
@@ -17,19 +17,19 @@ Feature: Add an activity and embed a question inside that activity
       | teacher | C1     | editingteacher |
       | student | C1     | student        |
     And the following "question categories" exist:
-      | contextlevel | reference | name                      |
-      | Course       | C1        | Test questions [ID:embed] |
+      | contextlevel | reference | name          | idnumber |
+      | Course       | C1        | Test questions| embed    |
     And the "embedquestion" filter is "on"
     And I log in as "teacher"
 
   @javascript
   Scenario: Test using the helper script - embed a specific question
     Given the following "questions" exist:
-      | questioncategory          | qtype     | name                      |
-      | Test questions [ID:embed] | truefalse | First question [ID:test1] |
+      | questioncategory | qtype     | name           | idnumber |
+      | Test questions   | truefalse | First question | test1    |
     When I am on the filter test page for "Course 1"
-    And I set the field "Question category" to "Test questions [ID:embed] (1)"
-    And I set the field "id_questionidnumber" to "First question [ID:test1]"
+    And I set the field "Question category" to "Test questions (1)"
+    And I set the field "id_questionidnumber" to "First question"
     And I press "Embed question"
     And I switch to "filter_embedquestion-iframe" iframe
     And I click on "True" "radio" in the "The answer is true." "question"
@@ -41,13 +41,13 @@ Feature: Add an activity and embed a question inside that activity
   @javascript
   Scenario: Test using the helper script - embed a question at random
     Given the following "questions" exist:
-      | questioncategory          | qtype     | name          |
-      | Test questions [ID:embed] | truefalse | Q1 [ID:test1] |
-      | Test questions [ID:embed] | truefalse | Q2 [ID:test2] |
-      | Test questions [ID:embed] | truefalse | Q3 [ID:test3] |
-      | Test questions [ID:embed] | truefalse | Q4 [ID:test4] |
+      | questioncategory | qtype     | name | idnumber |
+      | Test questions   | truefalse | Q1   | test1    |
+      | Test questions   | truefalse | Q2   | test2    |
+      | Test questions   | truefalse | Q3   | test3    |
+      | Test questions   | truefalse | Q4   | test4    |
     When I am on the filter test page for "Course 1"
-    And I set the field "Question category" to "Test questions [ID:embed] (4)"
+    And I set the field "Question category" to "Test questions (4)"
     And I set the field "id_questionidnumber" to "Choose an embeddable question from this category randomly"
     And I press "Embed question"
     And I switch to "filter_embedquestion-iframe" iframe

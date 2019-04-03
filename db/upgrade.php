@@ -15,19 +15,35 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Embed question filter version information.
+ * Upgrade script for filter_embedquestion.
  *
  * @package   filter_embedquestion
- * @copyright 2018 The Open University
+ * @copyright 2019 the Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2019032900;
-$plugin->requires  = 2017110800;
-$plugin->component = 'filter_embedquestion';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.4 for Moodle 3.4+';
+/**
+ * Embed question plugin upgrade function.
+ *
+ * @param string $oldversion the version we are upgrading from.
+ * @return bool true
+ */
+function xmldb_filter_embedquestion_upgrade($oldversion) {
 
-$plugin->outestssufficient = true;
+    // This upgrade will update the question and question_categories
+    // tables by extracting the idnumber from the name and putting it
+    // in the idnumber field.
+    $newversion = 2019032900;
+    if ($oldversion < $newversion) {
+        $updater = new filter_embedquestion\idnumber_upgrader();
+        $updater->update_question_category_idnumbers();
+        $updater->update_question_idnumbers();
+
+        // Filter_embedquestion savepoint reached.
+        upgrade_plugin_savepoint(true, $newversion, 'filter', 'embedquestion');
+    }
+
+    return true;
+}
