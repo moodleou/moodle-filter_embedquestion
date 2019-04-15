@@ -60,6 +60,7 @@ $string['rightanswer_desc'] = 'Whether the automatically generated display of th
 $string['specificfeedback_desc'] = 'Whether the feedback specific to the student\'s response should be shown by default in embedded questions.';
 $string['chooserandomly'] = 'Choose an embeddable question from this category randomly';
 $string['taskcleanup'] = 'Clean up old embedded question attempts';
+$string['title'] = 'Embedded question';
 $string['warningfilteroffglobally'] = 'Warning: the embed question filter is disabled in the site-wide filter settings.';
 $string['warningfilteroffhere'] = 'Warning: the the embed question filter is turned off in this course.';
 $string['whethercorrect_desc'] = 'Whether students should be given indications of whether their response was correct in embedded questions. This covers both the textual description \'Correct\', \'Partially correct\' or \'Incorrect\', and any coloured highlighting that conveys the same information.';
