@@ -211,7 +211,8 @@ question_engine::initialise_js();
 $quba->render_question_head_html($slot);
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
-echo $OUTPUT->header();
+$renderer = $PAGE->get_renderer('filter_embedquestion');
+echo $renderer->header();
 
 // Start the question form.
 echo html_writer::start_tag('form', array('method' => 'post', 'action' => $actionurl,
@@ -223,10 +224,10 @@ echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'scroll
 echo html_writer::end_tag('div');
 
 // Output the question.
-echo $quba->render_question($slot, $options, $displaynumber);
+echo $renderer->embedded_question($quba, $slot, $options, $displaynumber);
 
 // Finish the question form.
 echo html_writer::end_tag('form');
 
 $PAGE->requires->js_module('core_question_engine');
-echo $OUTPUT->footer();
+echo $renderer->footer();
