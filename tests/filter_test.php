@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/filter/embedquestion/filter.php');
 use filter_embedquestion\token;
+use filter_embedquestion\utils;
 
 
 /**

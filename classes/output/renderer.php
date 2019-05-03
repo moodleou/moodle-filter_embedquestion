@@ -70,38 +70,6 @@ class renderer extends plugin_renderer_base {
     public function embedded_question(\question_usage_by_activity $quba, int $slot,
             question_options $options, string $displaynumber): string {
 
-        $questionhtml = $quba->render_question($slot, $options, $displaynumber);
-
-        // We try to move the info to after the question formulation.
-        if ($displaynumber === 'i') {
-            // But not for information items.
-            return $questionhtml;
-        }
-
-        if (!preg_match('~<div class="info">.*</div>(?=<div class="content">)~', $questionhtml, $matches)) {
-            // Could not find the info div. Don't do anything.
-            return $questionhtml;
-        }
-
-        // Info found.
-        $info = $matches[0];
-
-        // Remove it from its old place.
-        $questionhtml = preg_replace('~<div class="info">.*</div>(?=<div class="content">)~', '', $questionhtml, 1);
-
-        // Do not show question title within the info.
-        $info = preg_replace('~<h3 class="no">.*<span class="qno">.*</span></h3>~', '', $info);
-
-        if (preg_match('~(?<=</div>)<div class="outcome\b[^"]*">~', $questionhtml, $matches, PREG_OFFSET_CAPTURE)) {
-            // If the outcome div is present, insert the info before it.
-            $insertpos = $matches[0][1];
-        } else {
-            // Else put at the end.
-            $insertpos = strlen($questionhtml) - strlen('</div></div>');
-        }
-
-        $questionhtml = substr($questionhtml, 0, $insertpos) . $info . substr($questionhtml, $insertpos);
-
-        return $questionhtml;
+        return $quba->render_question($slot, $options, $displaynumber);
     }
 }
