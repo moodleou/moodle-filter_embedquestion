@@ -13,8 +13,7 @@ This plugin was created by the Open University, UK. http://www.open.ac.uk/
 
 ## Installation and set-up
 
-This plugin should be compatible with Moodle 3.4+. It is best if you also install
-the associated Atto editor plugin.
+This plugin works best if you also install the associated Atto editor plugin.
 
 ### Install from the plugins database
 

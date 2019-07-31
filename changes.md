@@ -1,6 +1,20 @@
 # Change log for the embed questions filter
 
 
+## Changes in 1.5
+
+* This version works better Moodle 3.6+, where question and categories have a proper 'Id number'
+  field on the editing form ([MDL-62708](https://tracker.moodle.org/browse/MDL-62708)).
+  This is now used instead of the previous hack of putting the id in the name.
+* As part of that, there is a database upgrade script which moves any Ids added
+  following the old convention (in the name). Note, it will only do this if the idnumber
+  is not already set.
+* There is a new option to embed a question picked at random from the selected category,
+  rather than picking one specific question.
+* The rendering of the question in the ifrmame now goes through this plugin's renderer, so
+  so you can override it in your own theme, if you need to. (We did that at the OU.)
+* Fixed an accessibility bug where the question iframe did not have a title.
+
 ## Changes in 1.4
 
 * Fix a bug where random questions were shown as embeddable.
