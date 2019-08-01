@@ -181,29 +181,6 @@ class filter_embedquestion_idnumber_upgrader_testcase extends advanced_testcase 
         $cat6 = $questiongenerator->create_question_category(
                 ['name' => 'Category6', 'contextid' => $contextc2->id]);
 
-        // Do the update.
-        $updater = new filter_embedquestion\idnumber_upgrader();
-        $updater->update_question_category_idnumbers();
-
-        // Verify the result.
-        $course1categories = $DB->get_records('question_categories',
-                ['contextid' => $contextc1->id], 'name');
-        $this->assertEquals('Category1', $course1categories[$cat1->id]->name);
-        $this->assertEquals('cat1', $course1categories[$cat1->id]->idnumber);
-        $this->assertEquals('Category2', $course1categories[$cat2->id]->name);
-        $this->assertNull($course1categories[$cat2->id]->idnumber);
-        $this->assertEquals('Category3', $course1categories[$cat3->id]->name);
-        $this->assertEquals('cat3', $course1categories[$cat3->id]->idnumber);
-
-        $course2categories = $DB->get_records('question_categories',
-                ['contextid' => $contextc2->id], 'name');
-        $this->assertEquals('Category4', $course2categories[$cat4->id]->name);
-        $this->assertNull($course2categories[$cat4->id]->idnumber);
-        $this->assertEquals('Category5', $course2categories[$cat5->id]->name);
-        $this->assertEquals('cat5', $course2categories[$cat5->id]->idnumber);
-        $this->assertEquals('Category6', $course2categories[$cat6->id]->name);
-        $this->assertNull($course2categories[$cat6->id]->idnumber);
-
         // Add some questions to the category1.
         $q1 = $questiongenerator->create_question('shortanswer', null,
                         ['category' => $cat1->id, 'name' => 'Question1 [ID:que1]']);
@@ -214,6 +191,8 @@ class filter_embedquestion_idnumber_upgrader_testcase extends advanced_testcase 
         $q4 = $questiongenerator->create_question('shortanswer', null,
                         ['category' => $cat1->id, 'name' => 'Question4 [ID:que4]', 'idnumber' => 'tampered idnumber in DB']);
 
+        $updater = new filter_embedquestion\idnumber_upgrader();
+        $updater->update_question_category_idnumbers();
         $updater->update_question_idnumbers();
 
         $cat1questions = $DB->get_records('question',
