@@ -1,6 +1,10 @@
 # Change log for the embed questions filter
 
 
+## Changes in 1.6
+
+* Fix the bug where embedding random questions from a category might show non-embeddable questions.
+
 ## Changes in 1.5
 
 * This version works better Moodle 3.6+, where question and categories have a proper 'Id number'

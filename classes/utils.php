@@ -181,6 +181,43 @@ abstract class utils {
     }
 
     /**
+     * Get the ids of shareable questions from a category (those which have an idnumber set).
+     *
+     * If a userid is given, then only questions created by that user
+     * are considered.
+     *
+     * @param int $categoryid id of a question category.
+     * @param int $userid (optional) if set, only count questions created by this user.
+     * @return \stdClass[] question id => object with fields question id, name and idnumber.
+     */
+    public static function get_sharable_question_ids($categoryid, $userid = null) {
+        global $DB;
+
+        $params = [];
+        $params[] = $categoryid;
+
+        $creatortest = '';
+        if ($userid) {
+            $creatortest = 'AND q.createdby = ?';
+            $params[] = $userid;
+        }
+
+        return $DB->get_records_sql("
+                SELECT q.id, q.name, q.idnumber
+
+                  FROM {question} q
+
+                 WHERE q.category = ?
+                   AND q. idnumber IS NOT NULL
+                   $creatortest
+                   AND q.hidden = 0
+                   AND q.parent = 0
+
+              ORDER BY q.name
+                ", $params);
+    }
+
+    /**
      * Get shareable questions from a category (those which have an idnumber set).
      *
      * The list is returned in a form suitable for using in a select menu.
@@ -193,42 +230,17 @@ abstract class utils {
      * @return array question idnumber => question name.
      */
     public static function get_sharable_question_choices($categoryid, $userid = null) {
-        global $DB;
-
-        $params = [];
-        $params[] = $categoryid;
-
-        $creatortest = '';
-        if ($userid) {
-            $creatortest = 'AND q.createdby = ?';
-            $params[] = $userid;
-        }
-
-        $questions = $DB->get_records_sql("
-                SELECT q.name, q.idnumber
-
-                  FROM {question} q
-
-                 WHERE q.category = ?
-                   AND q. idnumber IS NOT NULL
-                   $creatortest
-                   AND q.hidden = 0
-                   AND q.parent = 0
-
-              ORDER BY q.name
-                ", $params);
+        $questions = self::get_sharable_question_ids($categoryid, $userid);
 
         $choices = ['' => get_string('choosedots')];
         foreach ($questions as $question) {
             $choices[$question->idnumber] = format_string($question->name);
         }
-        // User has the correct capability for accessing all questions.
-        if (!$userid) {
-            // When we have at least two questions in the current category, allow random choice.
-            // > 2 because of the 'Choose ...' option.
-            if (count($choices) > 2) {
-                $choices = array_merge($choices, ['*' => get_string('chooserandomly', 'filter_embedquestion')]);
-            }
+
+        // When we are not restricting by user, and there are at least 2 questions in the category,
+        // allow random choice. > 2 because of the 'Choose ...' option.
+        if (!$userid && count($choices) > 2) {
+            $choices = array_merge($choices, ['*' => get_string('chooserandomly', 'filter_embedquestion')]);
         }
         return $choices;
     }

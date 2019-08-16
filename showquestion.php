@@ -69,9 +69,17 @@ if (!$category) {
 $qubaid = optional_param('qubaid', 0, PARAM_INT);
 if (!$qubaid) {
     if ($questionidnumber === '*') {
-        $randomloader = new \core_question\bank\random_question_loader(new qubaid_list([]));
-        $includesubcategories = false;
-        $questionid = $randomloader->get_next_question_id($category->id, $includesubcategories);
+        $questionids = utils::get_sharable_question_ids($category->id);
+        if (empty($questionids)) {
+            if (has_capability('moodle/question:useall', $context)) {
+                $a = new stdClass();
+                $a->catname = format_string($category->name);
+                $a->contextname = $context->get_context_name(false, true);
+                utils::filter_error('invalidemptycategory', $a);
+            }
+            utils::filter_error('invalidtoken');
+        }
+        $questionid = array_rand($questionids);
 
     } else {
         $questiondata = utils::get_question_by_idnumber($category->id, $questionidnumber);

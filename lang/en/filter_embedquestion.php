@@ -42,6 +42,7 @@ $string['howquestionbehaves'] = 'How the question behaves';
 $string['howquestionbehaves_desc'] = 'The default behaviour to use for embedded questions.';
 $string['iframetitle'] = 'Embedded question';
 $string['invalidcategory'] = 'The category with idnumber "{$a->catid}" does not exist in "{$a->contextname}".';
+$string['invalidemptycategory'] = 'The category "{$a->catname}" in "{$a->contextname}" does not contain any embeddable questions.';
 $string['invalidquestion'] = 'The question with idnumber "{$a->qid}" does not exist in category "{$a->catname}".';
 $string['invalidrandomquestion'] = 'Cannot generate a random question from the question category "{$a}".';
 $string['invalidtoken'] = 'This question may not be embedded here.';

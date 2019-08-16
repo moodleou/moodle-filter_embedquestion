@@ -1,5 +1,6 @@
 language: php
 
+dist: bionic
 sudo: required
 
 services:
@@ -19,17 +20,17 @@ cache:
 
 matrix:
   include:
-#    - php: 7.2 # Master build not currently reliable following the JS build changes.
+#    - php: 7.3 # Master build not currently reliable following the JS build changes.
 #      env:
 #      - MOODLE_BRANCH=master
 #      - DB=pgsql
 
-    - php: 7.1
+    - php: 7.2
       env:
       - MOODLE_BRANCH=MOODLE_37_STABLE
       - DB=mysqli
 
-    - php: 7.0
+    - php: 7.1
       env:
       - MOODLE_BRANCH=MOODLE_36_STABLE
       - DB=pgsql
