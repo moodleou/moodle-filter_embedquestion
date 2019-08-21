@@ -27,7 +27,6 @@
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 use filter_embedquestion\utils;
-use filter_embedquestion\output\error_message;
 
 // Process required parameters.
 $categoryidnumber = required_param('catid', PARAM_RAW);
@@ -53,137 +52,46 @@ $options->set_from_request();
 $PAGE->set_url($options->get_page_url($categoryidnumber, $questionidnumber));
 $PAGE->requires->js_call_amd('filter_embedquestion/question', 'init');
 
-// Locate which question we should show.
-$category = utils::get_category_by_idnumber($context, $categoryidnumber);
-if (!$category) {
-    if (has_capability('moodle/question:useall', $context)) {
-        $a = new stdClass();
-        $a->catid = $categoryidnumber;
-        $a->contextname = $context->get_context_name(false, true);
-        utils::filter_error('invalidcategory', $a);
-    }
-    utils::filter_error('invalidtoken');
-}
-
 // Get and validate existing preview, or start a new one.
 $qubaid = optional_param('qubaid', 0, PARAM_INT);
-if (!$qubaid) {
-    if ($questionidnumber === '*') {
-        $questionids = utils::get_sharable_question_ids($category->id);
-        if (empty($questionids)) {
-            if (has_capability('moodle/question:useall', $context)) {
-                $a = new stdClass();
-                $a->catname = format_string($category->name);
-                $a->contextname = $context->get_context_name(false, true);
-                utils::filter_error('invalidemptycategory', $a);
-            }
-            utils::filter_error('invalidtoken');
-        }
-        $questionid = array_rand($questionids);
-
-    } else {
-        $questiondata = utils::get_question_by_idnumber($category->id, $questionidnumber);
-        if (!$questiondata) {
-            if (has_capability('moodle/question:useall', $context)) {
-                $a = new stdClass();
-                $a->qid = $questionidnumber;
-                $a->catname = format_string($category->name);
-                utils::filter_error('invalidquestion', $a);
-            }
-            utils::filter_error('invalidtoken');
-        }
-        $questionid = $questiondata->id;
-    }
-
-    $question = question_bank::load_question($questionid);
-
-    $quba = question_engine::make_questions_usage_by_activity(
-            'filter_embedquestion', context_user::instance($USER->id));
-    $quba->set_preferred_behaviour($options->behaviour);
-    $slot = $quba->add_question($question, $options->maxmark);
-
-    if ($options->variant) {
-        $options->variant = min($question->get_num_variants(), max(1, $options->variant));
-    } else {
-        $options->variant = rand(1, $question->get_num_variants());
-    }
-
-    $quba->start_question($slot, $options->variant);
-
-    $transaction = $DB->start_delegated_transaction();
-    question_engine::save_questions_usage_by_activity($quba);
-    $transaction->allow_commit();
-
-    \filter_embedquestion\event\question_started::create(
-            ['context' => $context, 'objectid' => $question->id])->trigger();
+if ($qubaid) {
+    $attempt = \filter_embedquestion\attempt::find_continuing_attempt($categoryidnumber, $questionidnumber,
+            $courseid, $qubaid, $options);
 } else {
-    // Here, we are continuing an existing attempt.
-    try {
-        $quba = question_engine::load_questions_usage_by_activity($qubaid);
-
-    } catch (Exception $e) {
-        // This may not seem like the right error message to display, but
-        // actually from the user point of view, it makes sense.
-        print_error('submissionoutofsequencefriendlymessage', 'question', $PAGE->url, null, $e);
-    }
-
-    filter_embedquestion\utils::verify_usage($quba);
-
-    $slot = $quba->get_first_question_number();
-    $question = $quba->get_question($slot);
-
-    if ($questionidnumber === '*') {
-        if (empty($question->idnumber) && $question->category == $category->id) {
-            print_error('questionidmismatch', 'question');
-        }
-    } else {
-        if ($questionidnumber !== $question->idnumber) {
-            print_error('questionidmismatch', 'question');
-        }
-    }
-    $options->variant = $quba->get_variant($slot);
+    $attempt = \filter_embedquestion\attempt::find_new_attempt($categoryidnumber, $questionidnumber,
+            $courseid, $options);
 }
-$options->behaviour = $quba->get_preferred_behaviour();
-$options->maxmark = $quba->get_question_max_mark($slot);
 
-// Prepare a URL that is used in various places.
-$actionurl = $options->get_action_url($quba, $categoryidnumber, $questionidnumber);
+if (!$attempt->is_valid()) {
+    if (has_capability('moodle/question:useall', $context)) {
+        utils::filter_error($attempt->get_problem_description());
+    } else {
+        utils::filter_error('invalidtoken');
+    }
+}
 
 // Process any actions from the buttons at the bottom of the form.
 if (data_submitted() && confirm_sesskey()) {
 
     try {
-
         if (optional_param('restart', false, PARAM_BOOL)) {
-            $transaction = $DB->start_delegated_transaction();
-            question_engine::delete_questions_usage_by_activity($quba->get_id());
-            $transaction->allow_commit();
-
-            // Not logged, because we immediately redirect to start a new attempt, which is logged.
-
+            $attempt->prepare_to_restart();
             redirect($options->get_page_url($categoryidnumber, $questionidnumber));
 
         } else {
-            $quba->process_all_actions();
+            $attempt->process_submitted_actions();
 
-            $transaction = $DB->start_delegated_transaction();
-            question_engine::save_questions_usage_by_activity($quba);
-            $transaction->allow_commit();
-
+            $actionurl = $attempt->get_action_url($options);
             $scrollpos = optional_param('scrollpos', '', PARAM_RAW);
             if ($scrollpos !== '') {
                 $actionurl->param('scrollpos', (int) $scrollpos);
             }
-
-            // Log the submit.
-            \filter_embedquestion\event\question_attempted::create(
-                    ['context' => $context, 'objectid' => $question->id])->trigger();
-
             redirect($actionurl);
         }
 
     } catch (question_out_of_sequence_exception $e) {
-        print_error('submissionoutofsequencefriendlymessage', 'question', $actionurl);
+        print_error('submissionoutofsequencefriendlymessage', 'question',
+                $attempt->get_action_url($options));
 
     } catch (Exception $e) {
         // This sucks, if we display our own custom error message, there is no way
@@ -192,50 +100,23 @@ if (data_submitted() && confirm_sesskey()) {
         if (!empty($e->debuginfo)) {
             $debuginfo = $e->debuginfo;
         }
-        print_error('errorprocessingresponses', 'question', $actionurl,
-                $e->getMessage(), $debuginfo);
+        print_error('errorprocessingresponses', 'question',
+                $attempt->get_action_url($options), $e->getMessage(), $debuginfo);
     }
 }
 
-if ($question->length) {
-    $displaynumber = "\u{00a0}";
-} else {
-    $displaynumber = 'i';
-}
-
-if ($quba->get_question_state($slot)->is_finished()) {
-    $options->extrainfocontent = html_writer::div(html_writer::empty_tag('input', ['type' => 'submit',
-            'name' => 'restart', 'value' => get_string('restart', 'filter_embedquestion'),
-            'class' => 'btn btn-secondary']));
-}
-
 // Log the view.
-\filter_embedquestion\event\question_viewed::create(
-        ['context' => $context, 'objectid' => $question->id])->trigger();
+$attempt->log_view();
 
 // Start output.
 $title = get_string('iframetitle', 'filter_embedquestion');
 question_engine::initialise_js();
-$quba->render_question_head_html($slot);
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 $renderer = $PAGE->get_renderer('filter_embedquestion');
 echo $renderer->header();
 
-// Start the question form.
-echo html_writer::start_tag('form', array('method' => 'post', 'action' => $actionurl,
-        'enctype' => 'multipart/form-data', 'id' => 'responseform'));
-echo html_writer::start_tag('div');
-echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()));
-echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'slots', 'value' => $slot));
-echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'scrollpos', 'value' => '', 'id' => 'scrollpos'));
-echo html_writer::end_tag('div');
-
 // Output the question.
-echo $renderer->embedded_question($quba, $slot, $options, $displaynumber);
+echo $attempt->render_question($renderer, $options);
 
-// Finish the question form.
-echo html_writer::end_tag('form');
-
-$PAGE->requires->js_module('core_question_engine');
 echo $renderer->footer();

@@ -59,7 +59,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
-     * Render the question as it will appear in the iframce.
+     * Render the question as it will appear in the iframe.
      *
      * @param \question_usage_by_activity $quba containing the question to display.
      * @param int $slot slot number of the question to display.
@@ -70,6 +70,7 @@ class renderer extends plugin_renderer_base {
     public function embedded_question(\question_usage_by_activity $quba, int $slot,
             question_options $options, string $displaynumber): string {
 
+        $this->page->requires->js_module('core_question_engine');
         return $quba->render_question($slot, $options, $displaynumber);
     }
 }
