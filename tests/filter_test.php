@@ -45,29 +45,38 @@ class filter_embedquestion_testcase extends advanced_testcase {
      * Data provider for {@link test_filter()}.
      * @return array the test cases.
      */
-    public function get_cases_for_test_filter() {
+    public function get_cases_for_test_filter(): array {
         global $CFG;
         $tokenerror = ['<div class="filter_embedquestion-error">',
                 'This question may not be embedded here.'];
         $embedid = new embed_id('cat', 'q');
         $requiredtoken = token::make_secret_token($embedid);
+
+        $cases = [
+            ['Frog', 'Frog'],
+            ['{Q{x}Q}', $tokenerror],
+            ['{Q{cat/q|not-the-right-token}Q}', $tokenerror],
+        ];
+
         $title = get_string('title', 'filter_embedquestion');
-        return [
-                ['Frog', 'Frog'],
-                ['{Q{x}Q}', $tokenerror],
-                ['{Q{cat/q|not-the-right-token}Q}', $tokenerror],
-                ['{Q{cat/q|' . $requiredtoken . '}Q}',
-                        '<iframe class="filter_embedquestion-iframe" title="' . $title . '" src="' . $CFG->wwwroot .
-                        '/filter/embedquestion/showquestion.php?catid=cat&amp;qid=q&amp;' .
-                        'course=' . SITEID . '&amp;token=' . token::make_iframe_token($embedid) .
-                        '&amp;behaviour=interactive&amp;correctness=1&amp;marks=2&amp;markdp=2' .
-                        '&amp;feedback=1&amp;generalfeedback=1&amp;rightanswer=0&amp;history=0"></iframe>'],
-                ['{Q{cat/q|behaviour=immediatefeedback|marks=10|markdp=3|generalfeedback=0|' . $requiredtoken . '}Q}',
-                        ['<iframe class="filter_embedquestion-iframe" title="' . $title . '"',
-                                '?catid=cat&amp;qid=q&amp;course=' . SITEID . '&amp;token=',
-                                '&amp;behaviour=immediatefeedback&amp;', '&amp;marks=10&amp;markdp=3&amp;',
-                                '&amp;generalfeedback=0&amp;']],
-            ];
+
+        $expectedurl = new moodle_url('/filter/embedquestion/showquestion.php', [
+                'catid' => 'cat', 'qid' => 'q', 'contextid' => '1', 'pageurl' => '/', 'pagetitle' => '',
+                'behaviour' => 'interactive', 'correctness' => '1', 'marks' => '2', 'markdp' => '2',
+                'feedback' => '1', 'generalfeedback' => '1', 'rightanswer' => '0', 'history' => '0']);
+        token::add_iframe_token_to_url($expectedurl);
+        $cases[] = ['{Q{cat/q|' . $requiredtoken . '}Q}',
+                '<iframe class="filter_embedquestion-iframe" title="' . $title . '" src="' . $expectedurl . '"></iframe>'];
+
+        $expectedurl = new moodle_url('/filter/embedquestion/showquestion.php', [
+                'catid' => 'cat', 'qid' => 'q', 'contextid' => '1', 'pageurl' => '/', 'pagetitle' => '',
+                'behaviour' => 'immediatefeedback', 'correctness' => '1', 'marks' => '10', 'markdp' => '3',
+                'feedback' => '1', 'generalfeedback' => '0', 'rightanswer' => '0', 'history' => '0']);
+        token::add_iframe_token_to_url($expectedurl);
+        $cases[] = ['{Q{cat/q|behaviour=immediatefeedback|marks=10|markdp=3|generalfeedback=0|' . $requiredtoken . '}Q}',
+                '<iframe class="filter_embedquestion-iframe" title="' . $title . '" src="' . $expectedurl . '"></iframe>'];
+
+        return $cases;
     }
 
     /**
@@ -79,11 +88,12 @@ class filter_embedquestion_testcase extends advanced_testcase {
      *
      * @dataProvider get_cases_for_test_filter
      */
-    public function test_filter($input, $expectedoutput) {
+    public function test_filter(string $input, $expectedoutput): void {
         global $PAGE;
 
         $context = context_course::instance(SITEID);
         $filter = new filter_embedquestion($context, []);
+        $PAGE->set_url('/');
         $filter->setup($PAGE, $context);
 
         $actualoutput = $filter->filter($input);
@@ -101,7 +111,7 @@ class filter_embedquestion_testcase extends advanced_testcase {
         }
     }
 
-    public function test_no_guests() {
+    public function test_no_guests(): void {
         global $PAGE;
 
         $this->resetAfterTest();

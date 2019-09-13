@@ -46,13 +46,22 @@ class token {
     }
 
     /**
-     * Compute the security token used to validate the contents of the iframe.
+     * Helper used by @link{add_iframe_token_to_url()}.
      *
-     * @param embed_id $embedid the embed code.
+     * @param string $otherurlparams the URL params to 'sign'.
      * @return string the security token.
      */
-    public static function make_iframe_token(embed_id $embedid): string {
+    protected static function make_iframe_token(string $otherurlparams): string {
         $secret = get_config('filter_embedquestion', 'secret');
-        return hash('sha256', $embedid . '#iframe#' . $secret);
+        return hash('sha256', $otherurlparams . '#iframe#' . $secret);
+    }
+
+    /**
+     * Do not call this directly. It is expected that this will only be called by @link{utils::get_show_url()}.
+     *
+     * @param \moodle_url $url.
+     */
+    public static function add_iframe_token_to_url(\moodle_url $url): void {
+        $url->param('token', self::make_iframe_token($url->get_query_string(false)));
     }
 }

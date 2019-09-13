@@ -128,7 +128,7 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $variant = '';
         $correctness = '';
         $marks = '';
-        $markdp = null;
+        $markdp = '';
         $feedback = '';
         $generalfeedback = '';
         $rightanswer = '';
@@ -175,7 +175,7 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $variant = '';
         $correctness = '';
         $marks = '';
-        $markdp = null;
+        $markdp = '';
         $feedback = '';
         $generalfeedback = '';
         $rightanswer = '';

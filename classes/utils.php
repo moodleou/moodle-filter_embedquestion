@@ -23,6 +23,7 @@
  */
 
 namespace filter_embedquestion;
+
 defined('MOODLE_INTERNAL') || die();
 use filter_embedquestion\output\error_message;
 
@@ -33,13 +34,14 @@ use filter_embedquestion\output\error_message;
  * @copyright 2018 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class utils {
+class utils {
 
     /**
      * Display a warning notification if the filter is not enabled in this context.
+     *
      * @param \context $context the context to check.
      */
-    public static function warn_if_filter_disabled(\context $context) {
+    public static function warn_if_filter_disabled(\context $context): void {
         global $OUTPUT;
         if (!filter_is_enabled('embedquestion')) {
             echo $OUTPUT->notification(get_string('warningfilteroffglobally', 'filter_embedquestion'));
@@ -52,16 +54,34 @@ abstract class utils {
     }
 
     /**
+     * If the attempt is in an error state, report the error appropriately and die.
+     *
+     * Otherwise returns so processing can continue.
+     *
+     * @param attempt $attempt the attempt
+     * @param \context $context the context we are in.
+     */
+    public static function report_if_error(attempt $attempt, \context $context): void {
+        if ($attempt->is_valid()) {
+            return;
+        }
+        if (has_capability('moodle/question:useall', $context)) {
+            utils::filter_error($attempt->get_problem_description());
+        } else {
+            utils::filter_error(get_string('invalidtoken', 'filter_embedquestion'));
+        }
+    }
+
+    /**
      * Display an error inside the filter iframe. Does not return.
      *
-     * @param string $string language string key for the message to display.
-     * @param object $a collection of variables to construct bespoke language string.
+     * @param string $message the error message to display.
      */
-    public static function filter_error($string, $a = null) {
+    public static function filter_error(string $message): void {
         global $PAGE;
         $renderer = $PAGE->get_renderer('filter_embedquestion');
         echo $renderer->header();
-        echo $renderer->render(new error_message($string, $a));
+        echo $renderer->render(new error_message($message));
         echo $renderer->footer();
         die;
     }
@@ -75,7 +95,7 @@ abstract class utils {
      * @param \context $context the current context.
      * @return int the course id to use the question bank of.
      */
-    public static function get_relevant_courseid(\context $context) {
+    public static function get_relevant_courseid(\context $context): int {
         $coursecontext = $context->get_course_context(false);
         if ($coursecontext) {
             return $coursecontext->instanceid;
@@ -85,18 +105,40 @@ abstract class utils {
     }
 
     /**
+     * Get the URL for showing this question in the iframe.
+     *
+     * @param embed_id $embedid identifies the question being embedded.
+     * @param embed_location $embedlocation identifies where it is being embedded.
+     * @param question_options $options the options for how it is displayed.
+     * @return \moodle_url the URL to access the question.
+     */
+    public static function get_show_url(embed_id $embedid, embed_location $embedlocation,
+            question_options $options): \moodle_url {
+        $url = new \moodle_url('/filter/embedquestion/showquestion.php');
+        $embedid->add_params_to_url($url);
+        $embedlocation->add_params_to_url($url);
+        $options->add_params_to_url($url);
+        token::add_iframe_token_to_url($url);
+        return $url;
+    }
+
+    /**
      * Find a category with a given idnumber in a given context.
      *
      * @param \context $context a context.
      * @param string $idnumber the idnumber to look for.
-     * @return \stdClass|false row from the question_categories table, or false if none.
+     * @return \stdClass|null row from the question_categories table, or false if none.
      */
-    public static function get_category_by_idnumber(\context $context, $idnumber) {
+    public static function get_category_by_idnumber(\context $context, string $idnumber): ?\stdClass {
         global $DB;
 
-        return $DB->get_record_select('question_categories',
+        $category = $DB->get_record_select('question_categories',
                 'contextid = ? AND idnumber = ?',
-                [$context->id, $idnumber]);
+                [$context->id, $idnumber]) ?? null;
+        if (!$category) {
+            return null;
+        }
+        return $category;
     }
 
     /**
@@ -104,14 +146,18 @@ abstract class utils {
      *
      * @param int $categoryid id of the question category to look in.
      * @param string $idnumber the idnumber to look for.
-     * @return \stdClass|false row from the question table, or false if none.
+     * @return \stdClass|null row from the question table, or false if none.
      */
-    public static function get_question_by_idnumber($categoryid, $idnumber) {
+    public static function get_question_by_idnumber(int $categoryid, string $idnumber): ?\stdClass {
         global $DB;
 
-        return $DB->get_record_select('question',
+        $question = $DB->get_record_select('question',
                 "category = ? AND idnumber = ? AND hidden = 0 AND parent = 0",
                 [$categoryid, $idnumber]);
+        if (!$question) {
+            return null;
+        }
+        return $question;
     }
 
     /**
@@ -124,10 +170,10 @@ abstract class utils {
      * are considered.
      *
      * @param \context $context a context.
-     * @param int $userid (optional) if set, only count questions created by this user.
+     * @param int|null $userid (optional) if set, only count questions created by this user.
      * @return array category idnumber => Category name (question count).
      */
-    public static function get_categories_with_sharable_question_choices(\context $context, $userid = null) {
+    public static function get_categories_with_sharable_question_choices(\context $context, int $userid = null): array {
         global $DB;
 
         $params = [];
@@ -171,10 +217,10 @@ abstract class utils {
      * are considered.
      *
      * @param int $categoryid id of a question category.
-     * @param int $userid (optional) if set, only count questions created by this user.
+     * @param int|null $userid (optional) if set, only count questions created by this user.
      * @return \stdClass[] question id => object with fields question id, name and idnumber.
      */
-    public static function get_sharable_question_ids($categoryid, $userid = null) {
+    public static function get_sharable_question_ids(int $categoryid, int $userid = null): array {
         global $DB;
 
         $params = [];
@@ -210,10 +256,10 @@ abstract class utils {
      * are considered.
      *
      * @param int $categoryid id of a question category.
-     * @param int $userid (optional) if set, only count questions created by this user.
+     * @param int|null $userid (optional) if set, only count questions created by this user.
      * @return array question idnumber => question name.
      */
-    public static function get_sharable_question_choices($categoryid, $userid = null) {
+    public static function get_sharable_question_choices(int $categoryid, int $userid = null): array {
         $questions = self::get_sharable_question_ids($categoryid, $userid);
 
         $choices = ['' => get_string('choosedots')];
@@ -234,7 +280,7 @@ abstract class utils {
      *
      * @return array behaviour name => lang string for this behaviour name.
      */
-    public static function behaviour_choices() {
+    public static function behaviour_choices(): array {
         $behaviours = [];
         foreach (\question_engine::get_archetypal_behaviours() as $behaviour => $name) {
             $unusedoptions = \question_engine::get_behaviour_unused_display_options($behaviour);

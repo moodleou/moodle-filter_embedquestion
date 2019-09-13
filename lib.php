@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use filter_embedquestion\attempt_manager;
+use filter_embedquestion\attempt_storage;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
  * a question in a question_attempt when that attempt an embedded question.
  *
  * @category files
- * @param stdClass $course course settings object
+ * @param stdClass $givencourse course settings object
  * @param stdClass $context context object
  * @param string $component the name of the component we are serving files for.
  * @param string $filearea the name of the file area.
@@ -41,14 +41,17 @@ defined('MOODLE_INTERNAL') || die();
  * @param bool $forcedownload whether the user must be forced to download the file.
  * @param array $fileoptions additional options affecting the file serving
  */
-function filter_embedquestion_question_pluginfile($course, $context, $component,
+function filter_embedquestion_question_pluginfile($givencourse, $context, $component,
         $filearea, $qubaid, $slot, $args, $forcedownload, $fileoptions) {
 
     list($context, $course, $cm) = get_context_info_array($context->id);
+    if ($givencourse->id !== $course->id) {
+        send_file_not_found();
+    }
     require_login($course, false, $cm);
 
     $quba = question_engine::load_questions_usage_by_activity($qubaid);
-    attempt_manager::instance($context)->verify_usage($quba);
+    attempt_storage::instance()->verify_usage($quba, $context);
 
     $options = new question_display_options();
     $options->feedback = question_display_options::VISIBLE;

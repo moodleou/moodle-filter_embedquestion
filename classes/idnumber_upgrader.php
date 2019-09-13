@@ -32,7 +32,7 @@ class idnumber_upgrader {
     /**
      * Move the idnumber for all categories from the name to the idnumber field.
      */
-    public function update_question_category_idnumbers() {
+    public function update_question_category_idnumbers(): void {
         global $DB;
 
         $categories = $DB->get_records_sql("
@@ -57,7 +57,7 @@ class idnumber_upgrader {
     /**
      * Move the idnumber for all questions from the name to the idnumber field.
      */
-    public function update_question_idnumbers() {
+    public function update_question_idnumbers(): void {
         global $DB;
 
         $questions = $DB->get_records_sql("
@@ -80,16 +80,14 @@ class idnumber_upgrader {
     }
 
     /**
-     * Update the name and idnumber of an.
+     * Update the name and idnumber of something.
      *
-     * @param string $table , the db table storing the items
-     * @param array $items , array of items
+     * @param \stdClass $item the item (question/category) to update the inumber/name of.
+     * @param int $group scope within which idnumbers must be unique (context id/category id).
      * @return bool does the item need updating in the database.
      */
-    public function update_item($item, $group) {
-        global $DB;
-
-        if (!preg_match('~\[ID:(.+)\]~', $item->name, $matches)) {
+    public function update_item(\stdClass $item, int $group): bool {
+        if (!preg_match('~\[ID:(.+)]~', $item->name, $matches)) {
             // Not actually an embeddable thing.
             return false;
         }
@@ -99,7 +97,7 @@ class idnumber_upgrader {
             return false;
         }
 
-        $item->name = trim(preg_replace('~ *\[ID:' . preg_quote($matches[1]) . '\] *~',
+        $item->name = trim(preg_replace('~ *\[ID:' . preg_quote($matches[1]) . '] *~',
                 ' ' , $item->name));
         $item->idnumber = trim($matches[1]);
 

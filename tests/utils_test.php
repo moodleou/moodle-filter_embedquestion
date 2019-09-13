@@ -54,7 +54,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
 
     public function test_get_category_by_idnumber_not_existing() {
 
-        $this->assertSame(false,
+        $this->assertSame(null,
                 utils::get_category_by_idnumber(
                         context_system::instance(), 'abc123'));
     }
@@ -86,7 +86,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         $catwithidnumber = $questiongenerator->create_question_category(
                 ['name' => 'Category with idnumber', 'idnumber' => 'abc123']);
 
-        $this->assertSame(false,
+        $this->assertSame(null,
                 utils::get_question_by_idnumber(
                         $catwithidnumber->id, 'frog'));
     }

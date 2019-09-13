@@ -47,9 +47,10 @@ class embed_options_form extends \moodleform {
         // Therefore, set something different.
         $mform->updateAttributes(['id' => 'embedqform']);
 
+        /** @var \context $context */
         $context = $this->_customdata['context'];
 
-        $defaultoptions = new question_options($context->instanceid);
+        $defaultoptions = new question_options();
 
         $mform->addElement('hidden', 'courseid', $context->instanceid);
         $mform->setType('courseid', PARAM_INT);
@@ -57,7 +58,7 @@ class embed_options_form extends \moodleform {
         $mform->addElement('header', 'questionheader', get_string('whichquestion', 'filter_embedquestion'));
 
         $mform->addElement('select', 'categoryidnumber', get_string('questioncategory', 'question'),
-                \filter_embedquestion\utils::get_categories_with_sharable_question_choices(
+                utils::get_categories_with_sharable_question_choices(
                         $context, $this->get_user_retriction()));
         $mform->addRule('categoryidnumber', null, 'required', null, 'client');
 
@@ -116,7 +117,7 @@ class embed_options_form extends \moodleform {
      * @param int $default the default if a value is not set here.
      * @return array the options for the form.
      */
-    protected function get_show_hide_options($default) {
+    protected function get_show_hide_options(int $default): array {
         $options = [
             \question_display_options::HIDDEN => get_string('notshown', 'question'),
             \question_display_options::VISIBLE => get_string('shown', 'question'),
@@ -131,7 +132,7 @@ class embed_options_form extends \moodleform {
      * @param int $default the default if a value is not set here.
      * @return array the options for the form.
      */
-    protected function get_marks_options($default) {
+    protected function get_marks_options(int $default): array {
         $options = [
                 \question_display_options::HIDDEN => get_string('notshown', 'question'),
                 \question_display_options::MAX_ONLY => get_string('showmaxmarkonly', 'question'),
@@ -163,7 +164,7 @@ class embed_options_form extends \moodleform {
      *
      * @return int|null the $userlimit option.
      */
-    protected function get_user_retriction() {
+    protected function get_user_retriction(): ?int {
         global $USER;
 
         $context = $this->_customdata['context'];
@@ -181,11 +182,11 @@ class embed_options_form extends \moodleform {
         $errors = parent::validation($data, $files);
         $context = $this->_customdata['context'];
 
-        $category = \filter_embedquestion\utils::get_category_by_idnumber($context, $data['categoryidnumber']);
+        $category = utils::get_category_by_idnumber($context, $data['categoryidnumber']);
 
         $questiondata = false;
         if (isset($data['questionidnumber'])) {
-            $questiondata = \filter_embedquestion\utils::get_question_by_idnumber($category->id, $data['questionidnumber']);
+            $questiondata = utils::get_question_by_idnumber($category->id, $data['questionidnumber']);
         }
 
         if ($data['variant'] !== '') {
@@ -205,7 +206,7 @@ class embed_options_form extends \moodleform {
 
         if ($data['maxmark'] !== '') {
             $maxmark = unformat_float($data['maxmark']);
-            if ($maxmark === '.' || !preg_match('~^\d*([\.,]\d*)?$~', $data['maxmark'])) {
+            if ($maxmark === '.' || !preg_match('~^\d*([.,]\d*)?$~', $data['maxmark'])) {
                 $errors['maxmark'] = get_string('errormaxmarknumber', 'filter_embedquestion');
             }
         }

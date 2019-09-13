@@ -36,9 +36,6 @@ require_once($CFG->dirroot . '/filter/embedquestion/filter.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class question_options extends \question_display_options {
-    /** @var int the course id the qusetion is being displayed within. */
-    public $courseid;
-
     /** @var string the behaviour to use for this preview. */
     public $behaviour;
 
@@ -53,12 +50,8 @@ class question_options extends \question_display_options {
      *
      * This creates the options with all default values. Use
      * a method like set_from_request or set_from_form to complete the setup.
-     *
-     * @param int $courseid the course within which this question is being displayed.
      */
-    public function __construct($courseid) {
-        $this->courseid = $courseid;
-
+    public function __construct() {
         $defaults = get_config('filter_embedquestion');
 
         $this->behaviour = $defaults->behaviour;
@@ -81,7 +74,7 @@ class question_options extends \question_display_options {
      *
      * @return array names and param types of the options we read from the request.
      */
-    public static function get_field_types() {
+    public static function get_field_types(): array {
         return array(
             'behaviour' => PARAM_ALPHA,
             'maxmark' => PARAM_FLOAT,
@@ -99,7 +92,7 @@ class question_options extends \question_display_options {
     /**
      * Set the value of any fields included in the request.
      */
-    public function set_from_request() {
+    public function set_from_request(): void {
         foreach (self::get_field_types() as $field => $type) {
             $this->$field = optional_param($field, $this->$field, $type);
         }
@@ -111,7 +104,7 @@ class question_options extends \question_display_options {
      *
      * @param array $params that came from parsing the filter embed code.
      */
-    public function set_from_filter_options(array $params) {
+    public function set_from_filter_options(array $params): void {
         foreach (self::get_field_types() as $field => $type) {
             if (array_key_exists($field, $params) && $params[$field] !== '') {
                 $this->$field = clean_param($params[$field], $type);
@@ -121,58 +114,17 @@ class question_options extends \question_display_options {
     }
 
     /**
-     * Get the URL parameters needed for starting or continuing the display of a question.
+     * Add parameters representing this location to a URL.
      *
-     * @param embed_id $embedid embed code for the question.
-     * @param int $qubaid the usage id of the current attempt, if there is one.
-     *
-     * @return array URL parameters.
+     * @param \moodle_url $url the URL to add to.
      */
-    protected function get_url_params(embed_id $embedid, $qubaid = null) {
-        $token = token::make_iframe_token($embedid);
-        $params = [
-            'catid'  => $embedid->categoryidnumber,
-            'qid'    => $embedid->questionidnumber,
-            'course' => $this->courseid,
-            'token'  => $token,
-        ];
-        if ($qubaid) {
-            $params['qubaid'] = $qubaid;
-        }
-
+    public function add_params_to_url(\moodle_url $url): void {
         foreach (self::get_field_types() as $field => $notused) {
             if (is_null($this->$field)) {
                 continue;
             }
-            if ($qubaid && ($field == 'behaviour' || $field == 'maxmark')) {
-                continue;
-            }
-            $params[$field] = $this->$field;
+            $url->param($field, $this->$field);
         }
-        return $params;
-    }
-
-    /**
-     * Get the URL for starting a new view of this question.
-     *
-     * @param embed_id $embedid embed code for the question.
-     * @return \moodle_url the URL.
-     */
-    public function get_page_url(embed_id $embedid) {
-        return new \moodle_url('/filter/embedquestion/showquestion.php',
-                $this->get_url_params($embedid));
-    }
-
-    /**
-     * Get the URL for continuing interacting with a given attempt at this question.
-     *
-     * @param \question_usage_by_activity $quba the usage.
-     * @param embed_id $embedid embed code for the question.
-     * @return \moodle_url the URL.
-     */
-    public function get_action_url(\question_usage_by_activity $quba, embed_id $embedid) {
-        return new \moodle_url('/filter/embedquestion/showquestion.php',
-                $this->get_url_params($embedid, $quba->get_id()));
     }
 
     /**
@@ -184,7 +136,7 @@ class question_options extends \question_display_options {
      *
      * @return string the code that the filter will process to show this question.
      */
-    public static function get_embed_from_form_options($fromform) {
+    public static function get_embed_from_form_options(\stdClass $fromform): string {
 
         $embedid = new embed_id($fromform->categoryidnumber, $fromform->questionidnumber);
         $parts = [(string) $embedid];

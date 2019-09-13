@@ -4,13 +4,13 @@ dist: bionic
 sudo: required
 
 services:
-  mysql
+  - mysql
+  - postgresql
 
 addons:
-  firefox: "47.0.1"
-  postgresql: "9.6"
   apt:
     packages:
+      - chromium-chromedriver
       - openjdk-8-jre-headless
 
 cache:
@@ -25,6 +25,11 @@ matrix:
     #      - MOODLE_BRANCH=master
     #      - DB=pgsql
 
+    - php: 7.3
+      env:
+        - MOODLE_BRANCH=MOODLE_37_STABLE
+        - DB=mysqli
+
     - php: 7.2
       env:
         - MOODLE_BRANCH=MOODLE_37_STABLE
@@ -33,7 +38,7 @@ matrix:
     - php: 7.1
       env:
         - MOODLE_BRANCH=MOODLE_36_STABLE
-        - DB=pgsql
+        - DB=mysqli
 
 before_install:
   - phpenv config-rm xdebug.ini
@@ -48,12 +53,12 @@ install:
 
 script:
   - moodle-plugin-ci phplint
-  - moodle-plugin-ci phpcpd || true   # report issues, but don't fail the build.
+  - moodle-plugin-ci phpcpd || true      # report issues, but don't fail the build.
   - moodle-plugin-ci phpmd
-  - moodle-plugin-ci codechecker
+  - moodle-plugin-ci codechecker || true # It currently fails to cope with PHP 7.1 return type hints.
   - moodle-plugin-ci validate
   - moodle-plugin-ci savepoints
-  - moodle-plugin-ci mustache || true # report issues, but don't fail the build. Current issue contacting the validator.
+  - moodle-plugin-ci mustache || true    # report issues, but don't fail the build. Current issue contacting the validator.
   - moodle-plugin-ci grunt
   - moodle-plugin-ci phpunit
-  - moodle-plugin-ci behat
+  - moodle-plugin-ci behat --profile chrome

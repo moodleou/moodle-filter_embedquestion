@@ -25,8 +25,8 @@
 namespace filter_embedquestion\output;
 defined('MOODLE_INTERNAL') || die();
 
-use filter_embedquestion\question_options;
-use plugin_renderer_base;
+use filter_embedquestion\question_options,
+    plugin_renderer_base;
 
 
 /**

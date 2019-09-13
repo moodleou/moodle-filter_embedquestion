@@ -42,11 +42,10 @@ class error_message implements \renderable, \templatable {
     /**
      * The error_message constructor.
      *
-     * @param string $string the string to use for the message.
-     * @param array|\stdClass|null $a any values needed by the strings.
+     * @param string $message the error message to display.
      */
-    public function __construct($string, $a = null) {
-        $this->message = get_string($string, 'filter_embedquestion', $a);
+    public function __construct(string $message) {
+        $this->message = $message;
     }
 
     public function export_for_template(renderer_base $output) {

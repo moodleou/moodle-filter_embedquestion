@@ -25,6 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 use filter_embedquestion\embed_id;
+use filter_embedquestion\embed_location;
 use filter_embedquestion\output\embed_iframe;
 use filter_embedquestion\output\error_message;
 use filter_embedquestion\question_options;
@@ -68,8 +69,10 @@ class filter_embedquestion extends moodle_text_filter {
 
     /**
      * Get the regexp needed to extract embed codes from within some text.
+     *
+     * @return string the regular expression.
      */
-    public static function get_filter_regexp() {
+    public static function get_filter_regexp(): string {
         return '~' . preg_quote(self::STRING_PREFIX, '~') .
                 '((?:(?!' . preg_quote(self::STRING_SUFFIX, '~') . ').)*)' .
                 preg_quote(self::STRING_SUFFIX, '~') . '~';
@@ -87,7 +90,7 @@ class filter_embedquestion extends moodle_text_filter {
      *
      * @return string the replacement string.
      */
-    public function embed_question_callback($matches) {
+    public function embed_question_callback(array $matches): string {
         return $this->embed_question($matches[1]);
     }
 
@@ -98,7 +101,7 @@ class filter_embedquestion extends moodle_text_filter {
      *
      * @return string HTML code for the iframe to display the question.
      */
-    public function embed_question(string $embedcode) {
+    public function embed_question(string $embedcode): string {
         if ($this->renderer === null) {
             $this->renderer = $this->page->get_renderer('filter_embedquestion');
         }
@@ -109,17 +112,17 @@ class filter_embedquestion extends moodle_text_filter {
             return $this->display_error('noguests');
         }
 
-        list($embedid, $params) =
-                self::parse_embed_code($embedcode);
-
+        list($embedid, $params) = self::parse_embed_code($embedcode);
         if ($embedid === null) {
             return $this->display_error('invalidtoken');
         }
 
-        $options = new question_options($this->courseid);
+        $options = new question_options();
         $options->set_from_filter_options($params);
-        $showquestionurl = $options->get_page_url($embedid);
 
+        $embedlocation = embed_location::make_from_page($this->page);
+
+        $showquestionurl = utils::get_show_url($embedid, $embedlocation, $options);
         return $this->renderer->render(new embed_iframe($showquestionurl));
     }
 
@@ -127,11 +130,11 @@ class filter_embedquestion extends moodle_text_filter {
      * Display an error since the question cannot be displayed.
      *
      * @param string $string the string to use for the message.
-     * @param array|stdClass|null $a any values needed by the strings.
+     * @param array|null $a any values needed by the strings.
      *
      * @return string HTML for the error.
      */
-    protected function display_error($string, $a = null) {
+    protected function display_error(string $string, array $a = null): string {
         return $this->renderer->render(new error_message($string, $a));
     }
 
@@ -141,7 +144,7 @@ class filter_embedquestion extends moodle_text_filter {
      * @return array an array with two elements: $embedid and $params.
      *      If the code is invalid, all elements are null.
      */
-    public static function parse_embed_code(string $embedcode) {
+    public static function parse_embed_code(string $embedcode): array {
         $parts = explode('|', $embedcode);
 
         if (count($parts) < 2) {
@@ -174,13 +177,13 @@ class filter_embedquestion extends moodle_text_filter {
      * Process the options, verifying that they are all of the form name=value.
      *
      * @param array $parts the individual 'name=options' strings.
-     * @return array|false the parsed options, or false if they were malformed.
+     * @return array|null the parsed options, or false if they were malformed.
      */
-    public static function parse_options(array $parts) {
+    public static function parse_options(array $parts): ?array {
         $params = [];
         foreach ($parts as $part) {
             if (strpos($part, '=') === false) {
-                return false;
+                return null;
             }
             list($name, $value) = explode('=', $part);
             $params[$name] = $value;

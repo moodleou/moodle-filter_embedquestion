@@ -1,6 +1,11 @@
 # Change log for the embed questions filter
 
 
+## Changes in 1.7
+
+* Rewrite of the internals to support the new report_embedquestions which stores
+  users' interactions with embedded questions so they can be reviewed later.
+
 ## Changes in 1.6
 
 * Fix the bug where embedding random questions from a category might show non-embeddable questions.

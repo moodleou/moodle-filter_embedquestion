@@ -1,0 +1,122 @@
+Overview of the code in the Embed question plugins
+==================================================
+
+There are three related plugins:
+
+
+filter_embedquestion
+--------------------
+
+This is the core plugin. It has the key responsibility of displaying the embedded question in
+place of an embed code in content, and making it work.
+
+Since this is the core plugin, other things being equal, library code lives here. We will return
+to the details below, after summarising the other plugins.
+
+
+atto_embedquestion
+------------------
+
+This is an Atto editor plugin, which makes it easy for teachers to embed questions.
+
+It shows the embed_options_form from filter_embedquestion in an Atto editor pop-up when
+the corresponding toolbar button is clicked, then calls the filter_embedquestion_get_embed_code
+web service to get the embed code to insert when the form is submitted.
+
+Key code in this plugin:
+* yui/src/button/ - standard implementation of an Atto toolbar button. We try to minimise the code here,
+  and instead put as much as possible in ...
+* amd/src/dialogue_manager.js - manages the contents of the popup that appears when the toolbar button is clicked.
+* lib.php - implements the necessary hooks:
+  + atto_embedquestion_params_for_js and atto_embedquestion_params_for_js are standard hooks for an Atto plugin.
+  + atto_embedquestion_output_fragment_questionselector is part of using Moodle's Fragment API to show the form.
+* lang/en/atto_embedquestion.php - standard lang file.
+* pix/icon.svg - button icon
+* classes/privacy/provider.php - standard null privacy provider.
+* tests/ - just one simple behat test.
+* remaining files are just the standard metadata and readmes.
+
+
+report_embedquestion
+--------------------
+
+When this optional plugin is installed student's interaction with embedded questions is stored
+longer-term, rather than being thrown away immediately. This can then be reviewed by the students
+themselves, and teachers.
+
+Data has to be stored by a report plugin, because only reports can tie into backup/restore.
+
+The data is stored by report_embedquestion\attempt_storage, which replaces the
+filter_embedquestion\attempt_storage non-long-term-saving default behaviour for the filter.
+There are then report screens to display the saved data to the user.
+
+Key code in this plugin:
+* index.php, course.php - displays the report for course context and activity context respectively. Uses:
+* classes/output/ - rederable, templateable objects representing the various report views.
+* templates/ - correspoinding templates to display the reports.
+* lib.php implements the necessary hooks:
+  + report_embedquestion_extend_navigation_course, report_embedquestion_extend_navigation_module
+    get the report into the navigation.
+  + report_embedquestion_page_type_list - hook required by the blocks UI.
+* classes/event/ - log events, for when the various report screens are viewed.
+* classes/attempt_storage.php - works with the filter to save the data while questions are attempted.
+* backup/ - standard backup/restore hooks for both course and activity level backups.
+* classes/privacy/ - privacy API implementation.
+* lang/en/report_embedquestion.php - standard lang file.
+* tests/
+  + Behat tests for student and teacher views.
+  + PHPunit tests of some of the back ends.
+* remaining files are just the standard metadata and readmes.
+
+
+filter_embedquestion (again)
+--------------------
+
+Key code in this plugin:
+
+UI for displaying an embedded question:
+* filter.php - This is the standard Moodle filter class implementation. Finds
+  {Q{questionidnumber/categoryidnumber|options}Q} and replaces it with an iframe
+  showing the question.
+* showquestion.php - the script shown in the iframe that displays a question to the user.
+* amd/src/question.js - JavaScript to ensure the iframe is always exactly the right size for the question.
+* classes/output/renderer - standard renderer.
+* classes/output/embed_iframe, classes/output/error_message - rederable, templateable
+  objects for things the renderer displays.
+* templates/ - the templates for embed_iframe and error_message.
+* styles.css - styling rules.
+* classes/event/question_* - log events for when users are interacting with questions.
+* lib.php - implements filter_embedquestion_question_pluginfile so files in questions display.
+
+UI for selecting a question to embed: (these are the bits used by the atto plugin)
+* classes/form/embed_options_form.php - the form for picking q
+* amd/src/questionid_choice_updater.js - JavaScript for updating the question choices when the category changes.
+* classes/event/{not question_*} - log events for when users generate an embed code for a question.
+* classes/external.php - defines the two web services used by the above: get_sharable_question_choices, get_embed_code.
+* testhelper.php - script for testing this plugin without the atto plugin being installed.
+
+Admin settings:
+* settings.php - config settings: lets the admin set the defaults to use when embedding.
+* classes/admin/question_behaviour_setting.php - setting class, so the behaviour choices are lazy-loaded.
+
+Back-end code to support the above:
+* classes/attempt.php - this does the back-end work for showquestion.php
+* classes/attempt_storage.php - this handles data-storage for classes/attempt.php, so report_embedquestion can override.
+* classes/embed_id.php - simple class for storing categoryidnumber/questionidnumber.
+* classes/embed_location.php - simple class for storing the information that defines where a question is embedded.
+* classes/question_options.php - subclass of question_display_options - defines how the question is embedded.
+* classes/token.php - functions for getting and checking security tokens.
+* classes/utils.php - miscellaneous utilities.
+
+Tests:
+* tests/ - Hopefully quite extensive and self-explanatory. Should cover all the above parts.
+
+Other stuff:
+* classes/task/cleanup_task.php - Scheduled task which cleans up abandoned attempts at
+  questions (those not stored by report_embedquestion).
+* db/install.php - when the plugin is installed, generate a random secret for use when generating tokens.
+* db/upgrade.php - handles the migration from ids in name to real idnumber.
+* classes/idnumber_upgrader.php - implements the logic for upgrade.php.
+* lang/en/report_embedquestion.php - standard lang file.
+* classes/privacy/provider.php - null privacy API implementation.
+* remaining files are just the standard metadata and readmes.

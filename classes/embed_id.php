@@ -62,4 +62,14 @@ class embed_id {
     public function __toString(): string {
         return $this->categoryidnumber . '/' . $this->questionidnumber;
     }
+
+    /**
+     * Add parameters representing this location to a URL.
+     *
+     * @param \moodle_url $url the URL to add to.
+     */
+    public function add_params_to_url(\moodle_url $url): void {
+        $url->param('catid', $this->categoryidnumber);
+        $url->param('qid', $this->questionidnumber);
+    }
 }

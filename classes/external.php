@@ -40,7 +40,7 @@ class external extends \external_api {
      *
      * @return \external_function_parameters Parameters
      */
-    public static function get_sharable_question_choices_parameters() {
+    public static function get_sharable_question_choices_parameters(): \external_function_parameters {
         return new \external_function_parameters([
                 'courseid' => new \external_value(PARAM_INT, 'Course id.'),
                 'categoryidnumber' => new \external_value(PARAM_RAW, 'Idnumber of the question category.'),
@@ -52,7 +52,7 @@ class external extends \external_api {
      *
      * @return \external_description Result type
      */
-    public static function get_sharable_question_choices_returns() {
+    public static function get_sharable_question_choices_returns(): \external_description {
         return new \external_multiple_structure(
             new \external_single_structure([
                     'value' => new \external_value(PARAM_RAW, 'Choice value to return from the form.'),
@@ -65,7 +65,7 @@ class external extends \external_api {
      *
      * @return bool True
      */
-    public static function get_sharable_question_choices_is_allowed_from_ajax() {
+    public static function get_sharable_question_choices_is_allowed_from_ajax(): bool {
         return true;
     }
 
@@ -77,7 +77,7 @@ class external extends \external_api {
      *
      * @return array of arrays with two elements, keys value and label.
      */
-    public static function get_sharable_question_choices($courseid, $categoryidnumber) {
+    public static function get_sharable_question_choices(int $courseid, string $categoryidnumber): array {
         global $USER;
 
         self::validate_parameters(self::get_sharable_question_choices_parameters(),
@@ -113,7 +113,7 @@ class external extends \external_api {
      *
      * @return \external_function_parameters Parameters
      */
-    public static function get_embed_code_parameters() {
+    public static function get_embed_code_parameters(): \external_function_parameters {
         // We can't use things like PARAM_INT for things like variant, because it is
         // and int of '' for not set.
         return new \external_function_parameters([
@@ -151,7 +151,7 @@ class external extends \external_api {
      *
      * @return \external_description Result type
      */
-    public static function get_embed_code_returns() {
+    public static function get_embed_code_returns(): \external_description {
         return new \external_value(PARAM_RAW, 'Embed code to show this question with those options.');
     }
 
@@ -160,7 +160,7 @@ class external extends \external_api {
      *
      * @return bool True
      */
-    public static function get_embed_code_is_allowed_from_ajax() {
+    public static function get_embed_code_is_allowed_from_ajax(): bool {
         return true;
     }
 
@@ -184,8 +184,9 @@ class external extends \external_api {
      *
      * @return string the embed code.
      */
-    public static function get_embed_code($courseid, $categoryidnumber, $questionidnumber, $behaviour,
-            $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history) {
+    public static function get_embed_code(int $courseid, string $categoryidnumber, string $questionidnumber,
+            string $behaviour, string $maxmark, string $variant, string $correctness, string $marks,
+            string $markdp, string $feedback, string $generalfeedback, string $rightanswer, string $history): string {
         global $CFG;
 
         self::validate_parameters(self::get_embed_code_parameters(),
