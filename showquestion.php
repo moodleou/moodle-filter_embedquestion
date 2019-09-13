@@ -26,6 +26,9 @@
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
+
+use filter_embedquestion\attempt_manager;
+use filter_embedquestion\embed_id;
 use filter_embedquestion\utils;
 
 // Process required parameters.
@@ -33,6 +36,8 @@ $categoryidnumber = required_param('catid', PARAM_RAW);
 $questionidnumber = required_param('qid', PARAM_RAW);
 $courseid = required_param('course', PARAM_INT);
 $token = required_param('token', PARAM_RAW);
+
+$embedid = new embed_id($categoryidnumber, $questionidnumber);
 
 require_login($courseid);
 $PAGE->set_pagelayout('embedded');
@@ -42,24 +47,25 @@ if (isguestuser()) {
 }
 $context = context_course::instance($courseid);
 
-if ($token !== filter_embedquestion\token::make_iframe_token($categoryidnumber, $questionidnumber)) {
+if ($token !== filter_embedquestion\token::make_iframe_token($embedid)) {
     print_error('invalidtoken', 'filter_embedquestion');
 }
 
 // Process options.
 $options = new filter_embedquestion\question_options($courseid);
 $options->set_from_request();
-$PAGE->set_url($options->get_page_url($categoryidnumber, $questionidnumber));
+$PAGE->set_url($options->get_page_url($embedid));
 $PAGE->requires->js_call_amd('filter_embedquestion/question', 'init');
 
 // Get and validate existing preview, or start a new one.
+$attemptmanager = attempt_manager::instance($PAGE->context);
 $qubaid = optional_param('qubaid', 0, PARAM_INT);
 if ($qubaid) {
-    $attempt = \filter_embedquestion\attempt::find_continuing_attempt($categoryidnumber, $questionidnumber,
-            $courseid, $qubaid, $options);
+    $attempt = $attemptmanager->find_continuing_attempt(
+            $embedid, $courseid, $qubaid, $options);
 } else {
-    $attempt = \filter_embedquestion\attempt::find_new_attempt($categoryidnumber, $questionidnumber,
-            $courseid, $options);
+    $attempt = $attemptmanager->find_new_attempt(
+            $embedid, $courseid, $options);
 }
 
 if (!$attempt->is_valid()) {
@@ -75,8 +81,8 @@ if (data_submitted() && confirm_sesskey()) {
 
     try {
         if (optional_param('restart', false, PARAM_BOOL)) {
-            $attempt->prepare_to_restart();
-            redirect($options->get_page_url($categoryidnumber, $questionidnumber));
+            $attemptmanager->prepare_to_restart($attempt);
+            redirect($options->get_page_url($embedid));
 
         } else {
             $attempt->process_submitted_actions();

@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use filter_embedquestion\attempt_manager;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -46,7 +48,7 @@ function filter_embedquestion_question_pluginfile($course, $context, $component,
     require_login($course, false, $cm);
 
     $quba = question_engine::load_questions_usage_by_activity($qubaid);
-    filter_embedquestion\utils::verify_usage($quba);
+    attempt_manager::instance($context)->verify_usage($quba);
 
     $options = new question_display_options();
     $options->feedback = question_display_options::VISIBLE;

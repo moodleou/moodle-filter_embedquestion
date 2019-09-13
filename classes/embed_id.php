@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Token management.
+ * Simple class to represent a categoryidnumber/questionidnumber embed code.
  *
  * @package   filter_embedquestion
- * @copyright 2018 The Open University
+ * @copyright 2019 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -27,32 +27,39 @@ defined('MOODLE_INTERNAL') || die();
 
 
 /**
- * Helper methods for getting the secure tokens.
+ * Simple class to represent a categoryidnumber/questionidnumber embed id.
  *
- * @copyright 2018 The Open University
+ * @copyright 2019 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class token {
+class embed_id {
+    /**
+     * @var string the category idnumber.
+     */
+    public $categoryidnumber;
 
     /**
-     * Compute the security token used to validate the embedding code.
-     *
-     * @param embed_id $embedid the embed code.
-     * @return string the security token.
+     * @var string the question idnumber.
      */
-    public static function make_secret_token(embed_id $embedid): string {
-        $secret = get_config('filter_embedquestion', 'secret');
-        return hash('sha256', $embedid . '#embed#' . $secret);
+    public $questionidnumber;
+
+    /**
+     * Simple embed_id constructor.
+     *
+     * @param string $categoryidnumber the category idnumber.
+     * @param string $questionidnumber the question idnumber.
+     */
+    public function __construct(string $categoryidnumber, string $questionidnumber) {
+        $this->categoryidnumber = $categoryidnumber;
+        $this->questionidnumber = $questionidnumber;
     }
 
     /**
-     * Compute the security token used to validate the contents of the iframe.
+     * To-string method.
      *
-     * @param embed_id $embedid the embed code.
-     * @return string the security token.
+     * @return string categoryidnumber/questionidnumber.
      */
-    public static function make_iframe_token(embed_id $embedid): string {
-        $secret = get_config('filter_embedquestion', 'secret');
-        return hash('sha256', $embedid . '#iframe#' . $secret);
+    public function __toString(): string {
+        return $this->categoryidnumber . '/' . $this->questionidnumber;
     }
 }

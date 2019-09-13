@@ -23,6 +23,8 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+
+use filter_embedquestion\embed_id;
 use filter_embedquestion\output\embed_iframe;
 use filter_embedquestion\output\error_message;
 use filter_embedquestion\question_options;
@@ -56,7 +58,7 @@ class filter_embedquestion extends moodle_text_filter {
     protected $courseid;
 
     /**
-     * @var \moodle_page page object
+     * @var moodle_page page object
      */
     protected $page;
 
@@ -84,7 +86,6 @@ class filter_embedquestion extends moodle_text_filter {
      * @param array $matches the parts matched by the regular expression.
      *
      * @return string the replacement string.
-     * @throws \moodle_exception
      */
     public function embed_question_callback($matches) {
         return $this->embed_question($matches[1]);
@@ -96,9 +97,8 @@ class filter_embedquestion extends moodle_text_filter {
      * @param string $embedcode the contents of the {Q{...}Q} delimiters.
      *
      * @return string HTML code for the iframe to display the question.
-     * @throws \moodle_exception
      */
-    public function embed_question($embedcode) {
+    public function embed_question(string $embedcode) {
         if ($this->renderer === null) {
             $this->renderer = $this->page->get_renderer('filter_embedquestion');
         }
@@ -109,16 +109,16 @@ class filter_embedquestion extends moodle_text_filter {
             return $this->display_error('noguests');
         }
 
-        list($categoryidnumber, $questionidnumber, $params) =
+        list($embedid, $params) =
                 self::parse_embed_code($embedcode);
 
-        if ($categoryidnumber === false) {
+        if ($embedid === null) {
             return $this->display_error('invalidtoken');
         }
 
         $options = new question_options($this->courseid);
         $options->set_from_filter_options($params);
-        $showquestionurl = $options->get_page_url($categoryidnumber, $questionidnumber);
+        $showquestionurl = $options->get_page_url($embedid);
 
         return $this->renderer->render(new embed_iframe($showquestionurl));
     }
@@ -127,7 +127,7 @@ class filter_embedquestion extends moodle_text_filter {
      * Display an error since the question cannot be displayed.
      *
      * @param string $string the string to use for the message.
-     * @param array|\stdClass|null $a any values needed by the strings.
+     * @param array|stdClass|null $a any values needed by the strings.
      *
      * @return string HTML for the error.
      */
@@ -138,34 +138,36 @@ class filter_embedquestion extends moodle_text_filter {
     /**
      * Parse an embed code, validate the token, and return the idnumbers and any options.
      * @param string $embedcode the embed code.
-     * @return array an array with three elements: $categoryidnumber, $questionidnumber
-     *      and $params. If the code is invalid, all elements are false.
+     * @return array an array with two elements: $embedid and $params.
+     *      If the code is invalid, all elements are null.
      */
-    public static function parse_embed_code($embedcode) {
+    public static function parse_embed_code(string $embedcode) {
         $parts = explode('|', $embedcode);
 
         if (count($parts) < 2) {
-            return [false, false, false];
+            return [null, null];
         }
 
         $questioninfo = array_shift($parts);
         $token = array_pop($parts);
 
         if (strpos($questioninfo, '/') === false) {
-            return [false, false, false];
+            return [null, null];
         }
 
         list($categoryidnumber, $questionidnumber) = explode('/', $questioninfo, 2);
-        if ($token !== \filter_embedquestion\token::make_secret_token($categoryidnumber, $questionidnumber)) {
-            return [false, false, false];
+        $embedid = new embed_id($categoryidnumber, $questionidnumber);
+
+        if ($token !== token::make_secret_token($embedid)) {
+            return [null, null];
         }
 
         $params = self::parse_options($parts);
         if (!is_array($params)) {
-            return [false, false, false];
+            return [null, null];
         }
 
-        return [$categoryidnumber, $questionidnumber, $params];
+        return [$embedid, $params];
     }
 
     /**

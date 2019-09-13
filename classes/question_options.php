@@ -123,17 +123,16 @@ class question_options extends \question_display_options {
     /**
      * Get the URL parameters needed for starting or continuing the display of a question.
      *
-     * @param string $categoryidnumber the question category idnumber.
-     * @param string $questionidnumber the qusetion idnumber.
+     * @param embed_id $embedid embed code for the question.
      * @param int $qubaid the usage id of the current attempt, if there is one.
      *
      * @return array URL parameters.
      */
-    protected function get_url_params($categoryidnumber, $questionidnumber, $qubaid = null) {
-        $token = token::make_iframe_token($categoryidnumber, $questionidnumber);
+    protected function get_url_params(embed_id $embedid, $qubaid = null) {
+        $token = token::make_iframe_token($embedid);
         $params = [
-            'catid'  => $categoryidnumber,
-            'qid'    => $questionidnumber,
+            'catid'  => $embedid->categoryidnumber,
+            'qid'    => $embedid->questionidnumber,
             'course' => $this->courseid,
             'token'  => $token,
         ];
@@ -156,27 +155,24 @@ class question_options extends \question_display_options {
     /**
      * Get the URL for starting a new view of this question.
      *
-     * @param string $categoryidnumber the question category idnumber.
-     * @param string $questionidnumber the qusetion idnumber.
+     * @param embed_id $embedid embed code for the question.
      * @return \moodle_url the URL.
      */
-    public function get_page_url($categoryidnumber, $questionidnumber) {
+    public function get_page_url(embed_id $embedid) {
         return new \moodle_url('/filter/embedquestion/showquestion.php',
-                $this->get_url_params($categoryidnumber, $questionidnumber));
+                $this->get_url_params($embedid));
     }
 
     /**
      * Get the URL for continuing interacting with a given attempt at this question.
      *
      * @param \question_usage_by_activity $quba the usage.
-     * @param string $categoryidnumber the question category idnumber.
-     * @param string $questionidnumber the qusetion idnumber.
+     * @param embed_id $embedid embed code for the question.
      * @return \moodle_url the URL.
      */
-    public function get_action_url(\question_usage_by_activity $quba,
-            $categoryidnumber, $questionidnumber) {
+    public function get_action_url(\question_usage_by_activity $quba, embed_id $embedid) {
         return new \moodle_url('/filter/embedquestion/showquestion.php',
-                $this->get_url_params($categoryidnumber, $questionidnumber, $quba->get_id()));
+                $this->get_url_params($embedid, $quba->get_id()));
     }
 
     /**
@@ -190,7 +186,8 @@ class question_options extends \question_display_options {
      */
     public static function get_embed_from_form_options($fromform) {
 
-        $parts = [$fromform->categoryidnumber . '/' . $fromform->questionidnumber];
+        $embedid = new embed_id($fromform->categoryidnumber, $fromform->questionidnumber);
+        $parts = [(string) $embedid];
         foreach (self::get_field_types() as $field => $type) {
             if (!isset($fromform->$field) || $fromform->$field === '') {
                 continue;
@@ -199,7 +196,7 @@ class question_options extends \question_display_options {
             $value = clean_param($fromform->$field, $type);
             $parts[] = $field . '=' . $value;
         }
-        $parts[] = token::make_secret_token($fromform->categoryidnumber, $fromform->questionidnumber);
+        $parts[] = token::make_secret_token($embedid);
 
         return \filter_embedquestion::STRING_PREFIX . implode('|', $parts) . \filter_embedquestion::STRING_SUFFIX;
     }

@@ -56,3 +56,4 @@ Feature: Add an activity and embed a question inside that activity
     Then I should see "Correct"
     And I press "Start again"
     And I should not see "Correct"
+    And I click on "True" "radio" in the "The answer is true." "question"

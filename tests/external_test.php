@@ -24,6 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use filter_embedquestion\embed_id;
 use filter_embedquestion\external;
 use filter_embedquestion\token;
 
@@ -121,8 +122,7 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $category->id, 'name' => 'Question', 'idnumber' => 'toad']);
 
-        $categoryidnumber = 'abc123';
-        $questionidnumber = 'toad';
+        $embedid = new embed_id('abc123', 'toad');
         $behaviour = '';
         $maxmark = '';
         $variant = '';
@@ -134,16 +134,18 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $rightanswer = '';
         $history = '';
 
-        $token = token::make_secret_token($categoryidnumber, $questionidnumber);
-        $expected = '{Q{' . $categoryidnumber . '/' . $questionidnumber . '|' . $token . '}Q}';
-        $actual = external::get_embed_code($course->id, $categoryidnumber, $questionidnumber, $behaviour,
+        $token = token::make_secret_token($embedid);
+        $expected = '{Q{' . $embedid . '|' . $token . '}Q}';
+        $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
+                $embedid->questionidnumber, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);
 
         $this->assertEquals($expected, $actual);
 
         $behaviour = 'immediatefeedback';
-        $expected = '{Q{' . $categoryidnumber . '/' . $questionidnumber . '|behaviour=' . $behaviour . '|' . $token . '}Q}';
-        $actual = external::get_embed_code($course->id, $categoryidnumber, $questionidnumber, $behaviour,
+        $expected = '{Q{' . $embedid . '|behaviour=' . $behaviour . '|' . $token . '}Q}';
+        $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
+                $embedid->questionidnumber, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);
 
         $this->assertEquals($expected, $actual);
@@ -167,8 +169,7 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $category->id, 'name' => 'Question2', 'idnumber' => 'frog']);
 
-        $categoryidnumber = 'abc123';
-        $questionidnumber = 'toad';
+        $embedid = new embed_id('abc123', 'toad');
         $behaviour = '';
         $maxmark = '';
         $variant = '';
@@ -180,35 +181,35 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $rightanswer = '';
         $history = '';
 
-        $token = token::make_secret_token($categoryidnumber, $questionidnumber);
-        $expected = '{Q{' . $categoryidnumber . '/' . $questionidnumber . '|' . $token .'}Q}';
-        $actual = external::get_embed_code($course->id, $categoryidnumber, $questionidnumber, $behaviour,
+        $token = token::make_secret_token($embedid);
+        $expected = '{Q{' . $embedid . '|' . $token .'}Q}';
+        $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
+                $embedid->questionidnumber, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);
         $this->assertEquals($expected, $actual);
 
-        $questionidnumber = 'frog';
-        $token = token::make_secret_token($categoryidnumber, $questionidnumber);
-        $expected = '{Q{' . $categoryidnumber . '/' . $questionidnumber . '|' . $token .'}Q}';
-        $actual = external::get_embed_code($course->id, $categoryidnumber, $questionidnumber, $behaviour,
+        $embedid = new embed_id('abc123', 'frog');
+        $token = token::make_secret_token($embedid);
+        $expected = '{Q{' . $embedid . '|' . $token .'}Q}';
+        $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
+                $embedid->questionidnumber, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);
         $this->assertEquals($expected, $actual);
 
         // Accept '*' for $questionidnumber to indicate a random question.
-        $this->assertEquals($expected, $actual);
-        $questionidnumber = '*';
-
-        $token = token::make_secret_token($categoryidnumber, $questionidnumber);
-        $expected = '{Q{' . $categoryidnumber . '/' . $questionidnumber . '|' . $token .'}Q}';
-        $actual = external::get_embed_code($course->id, $categoryidnumber, $questionidnumber, $behaviour,
+        $embedid = new embed_id('abc123', '*');
+        $token = token::make_secret_token($embedid);
+        $expected = '{Q{' . $embedid . '|' . $token .'}Q}';
+        $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
+                $embedid->questionidnumber, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);
-
         $this->assertEquals($expected, $actual);
 
         $behaviour = 'immediatefeedback';
-        $expected = '{Q{' . $categoryidnumber . '/' . $questionidnumber . '|behaviour=' . $behaviour . '|' . $token . '}Q}';
-        $actual = external::get_embed_code($course->id, $categoryidnumber, $questionidnumber, $behaviour,
+        $expected = '{Q{' . $embedid . '|behaviour=' . $behaviour . '|' . $token . '}Q}';
+        $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
+                $embedid->questionidnumber, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);
-
         $this->assertEquals($expected, $actual);
     }
 }

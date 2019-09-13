@@ -67,22 +67,6 @@ abstract class utils {
     }
 
     /**
-     * Checks to verify that a given usage is one we should be using.
-     *
-     * @param \question_usage_by_activity $quba the usage to check.
-     */
-    public static function verify_usage(\question_usage_by_activity $quba) {
-        global $USER;
-
-        if ($quba->get_owning_context()->instanceid != $USER->id) {
-            throw new \moodle_exception('notyourattempt', 'filter_embedquestion');
-        }
-        if ($quba->get_owning_component() != 'filter_embedquestion') {
-            throw new \moodle_exception('notyourattempt', 'filter_embedquestion');
-        }
-    }
-
-    /**
      * Given any context, find the associated course from which to embed questions.
      *
      * Anywhere inside a course, that is the id of that course. Outside of

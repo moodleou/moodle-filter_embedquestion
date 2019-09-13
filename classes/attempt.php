@@ -39,14 +39,14 @@ class attempt {
     protected $courseid;
 
     /**
+     * @var embed_id $embedid identifies the question to embed.
+     */
+    protected $embedid;
+
+    /**
      * @var \stdClass the question category we are in.
      */
     protected $category;
-
-    /**
-     * @var string the requested question idnumber (or * for random).
-     */
-    protected $questionidnumber;
 
     /**
      * @var \context context corresponding to $courseid.
@@ -75,119 +75,19 @@ class attempt {
     protected $problemdetails = [];
 
     /**
-     * Constructor.
+     * Do not use this constructor.
      *
-     * To create an attempt call either find_new_attempt()
-     * or find_continuing_attempt().
+     * You should use attempt_manager::instance(...)->find_new_attempt(...)
+     * or ...->find_continuing_attempt(...).
      *
      * @param int $courseid the id of the course we are in.
-     * @param string $categoryidnumber the idnumber of the category we are embedding.
+     * @param embed_id $embedid embed code for the question to embed.
      */
-    private function __construct(int $courseid, string $categoryidnumber) {
+    public function __construct(int $courseid, embed_id $embedid) {
         $this->courseid = $courseid;
         $this->coursecontext = \context_course::instance($courseid);
-        $this->category = $this->find_category($categoryidnumber);
-    }
-
-    /**
-     * Create or continue an attempt at a given question, when we come in with just the id numbers.
-     *
-     * @param string $categoryidnumber the idnumber of the category we are embedding.
-     * @param string $questionidnumber the idnumber of the question wer are embedding, or * for random.
-     * @param int $courseid the id of the course we are in.
-     * @param question_options $options options about how the attempt should function. May get updated.
-     * @return attempt the newly created attempt.
-     */
-    public static function find_new_attempt(string $categoryidnumber, string $questionidnumber,
-            int $courseid, question_options $options): attempt {
-        global $DB, $USER;
-
-        $attempt = new self($courseid, $categoryidnumber);
-        if (!$attempt->category) {
-            return $attempt;
-        }
-
-        if ($questionidnumber === '*') {
-            $questionid = $attempt->pick_random_questionid();
-        } else {
-            $questionid = $attempt->find_questionid($questionidnumber);
-        }
-
-        $question = \question_bank::load_question($questionid);
-
-        $attempt->quba = \question_engine::make_questions_usage_by_activity(
-                'filter_embedquestion', \context_user::instance($USER->id));
-        $attempt->quba->set_preferred_behaviour($options->behaviour);
-        $attempt->slot = $attempt->quba->add_question($question, $options->maxmark);
-
-        if ($options->variant) {
-            $options->variant = min($question->get_num_variants(), max(1, $options->variant));
-        } else {
-            $options->variant = rand(1, $question->get_num_variants());
-        }
-
-        $attempt->quba->start_question($attempt->slot, $options->variant);
-
-        $transaction = $DB->start_delegated_transaction();
-        \question_engine::save_questions_usage_by_activity($attempt->quba);
-        $transaction->allow_commit();
-
-        \filter_embedquestion\event\question_started::create(
-                ['context' => $attempt->coursecontext, 'objectid' => $question->id])->trigger();
-
-        $attempt->synch_options_from_loaded_quba($options);
-        return $attempt;
-    }
-
-    /**
-     * Continue the attempt at a given question when we already know the qubaid.
-     *
-     * @param string $categoryidnumber the idnumber of the category we are embedding.
-     * @param string $questionidnumber the idnumber of the question wer are embedding, or * for random.
-     * @param int $courseid the id of the course we are in.
-     * @param int $qubaid the question usage id of the attempt we are continuing.
-     * @param question_options $options options about how the attempt should function. May get updated.
-     * @return attempt the newly created attempt.
-     */
-    public static function find_continuing_attempt(string $categoryidnumber, string $questionidnumber,
-            int $courseid, int $qubaid, question_options $options): attempt {
-        global $PAGE;
-
-        $attempt = new self($courseid, $categoryidnumber);
-
-        $category = $attempt->find_category($categoryidnumber);
-        if (!$category) {
-            return $attempt;
-        }
-
-        // Here, we are continuing an existing attempt.
-        try {
-            $attempt->quba = \question_engine::load_questions_usage_by_activity($qubaid);
-
-        } catch (\Exception $e) {
-            // This may not seem like the right error message to display, but
-            // actually from the user point of view, it makes sense.
-            throw new \moodle_exception('submissionoutofsequencefriendlymessage', 'question',
-                    $PAGE->url, null, $e);
-        }
-
-        utils::verify_usage($attempt->quba);
-
-        $attempt->slot = $attempt->quba->get_first_question_number();
-        $question = $attempt->quba->get_question($attempt->slot);
-
-        if ($questionidnumber === '*') {
-            if (empty($question->idnumber) && $question->category == $category->id) {
-                print_error('questionidmismatch', 'question');
-            }
-        } else {
-            if ($questionidnumber !== $question->idnumber) {
-                print_error('questionidmismatch', 'question');
-            }
-        }
-
-        $attempt->synch_options_from_loaded_quba($options);
-        return $attempt;
+        $this->embedid = $embedid;
+        $this->category = $this->find_category($embedid->categoryidnumber);
     }
 
     /**
@@ -209,12 +109,73 @@ class attempt {
         return $category;
     }
 
+    public function setup_usage_info(\question_usage_by_activity $quba, int $slot,
+            question_options $options) {
+        $this->quba = $quba;
+        $this->slot = $slot;
+
+        $question = $this->quba->get_question($this->slot);
+
+        if ($this->embedid->questionidnumber === '*') {
+            if (empty($question->idnumber) && $question->category == $this->category->id) {
+                print_error('questionidmismatch', 'question');
+            }
+        } else {
+            if ($this->embedid->questionidnumber !== $question->idnumber) {
+                print_error('questionidmismatch', 'question');
+            }
+        }
+
+        $this->synch_options_from_loaded_quba($options);
+    }
+
+    /**
+     * @param \question_usage_by_activity $quba
+     * @param question_options $options options about how the attempt should function. May get updated.
+     */
+    public function start_new_attempt_at_question(
+            \question_usage_by_activity $quba,
+            question_options $options) {
+        global $DB;
+
+        if ($this->embedid->questionidnumber === '*') {
+            $questionid = $this->pick_random_questionid();
+        } else {
+            $questionid = $this->find_questionid($this->embedid->questionidnumber);
+        }
+        if (!$this->is_valid()) {
+            return;
+        }
+
+        $question = \question_bank::load_question($questionid);
+
+        $this->quba = $quba;
+        $this->slot = $this->quba->add_question($question, $options->maxmark);
+
+        if ($options->variant) {
+            $options->variant = min($question->get_num_variants(), max(1, $options->variant));
+        } else {
+            $options->variant = rand(1, $question->get_num_variants());
+        }
+
+        $this->quba->start_question($this->slot, $options->variant);
+
+        $transaction = $DB->start_delegated_transaction();
+        \question_engine::save_questions_usage_by_activity($this->quba);
+        $transaction->allow_commit();
+
+        \filter_embedquestion\event\question_started::create(
+                ['context' => $this->coursecontext, 'objectid' => $question->id])->trigger();
+
+        $this->synch_options_from_loaded_quba($options);
+    }
+
     /**
      * Pick a sharable questionid at random from a category.
      *
      * @return int the question id. If not 0 and problem and problemdetails are set.
      */
-    private function pick_random_questionid(): int {
+    public function pick_random_questionid(): int {
         $questionids = utils::get_sharable_question_ids($this->category->id);
         if (empty($questionids)) {
             $this->problem = 'invalidemptycategory';
@@ -233,7 +194,7 @@ class attempt {
      * @param string $questionidnumber idnumber of the question to use.
      * @return int corresponding questionid if found, else 0 and problem and problemdetails are set.
      */
-    private function find_questionid(string $questionidnumber): int {
+    public function find_questionid(string $questionidnumber): int {
         $questiondata = utils::get_question_by_idnumber($this->category->id, $questionidnumber);
         if (!$questiondata) {
             $this->problem = 'invalidemptycategory';
@@ -281,19 +242,12 @@ class attempt {
     }
 
     /**
-     * Finish the currently active attempt, so when we next call find_new_attempt(),
-     * a new attempt at this question will be started.
+     * Get the question usage id.
      *
-     * You should redirect after calling this.
+     * @return int|string the question usage id we are part of.
      */
-    public function prepare_to_restart() {
-        global $DB;
-
-        $transaction = $DB->start_delegated_transaction();
-        \question_engine::delete_questions_usage_by_activity($this->quba->get_id());
-        $transaction->allow_commit();
-
-        // Not logged, because we immediately redirect to start a new attempt, which is logged.
+    public function get_qubaid() {
+        return $this->quba->get_id();
     }
 
     /**
@@ -329,8 +283,7 @@ class attempt {
      * @return \moodle_url the URL.
      */
     public function get_action_url(question_options $options): \moodle_url {
-        return $options->get_action_url($this->quba, $this->category->idnumber,
-                $this->current_question()->idnumber);
+        return $options->get_action_url($this->quba, $this->embedid);
     }
     /**
      * Render the currently active question, including the required form.
