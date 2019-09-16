@@ -135,7 +135,8 @@ class filter_embedquestion extends moodle_text_filter {
      * @return string HTML for the error.
      */
     protected function display_error(string $string, array $a = null): string {
-        return $this->renderer->render(new error_message($string, $a));
+        return $this->renderer->render(new error_message(
+                get_string($string, 'filter_embedquestion', $a)));
     }
 
     /**

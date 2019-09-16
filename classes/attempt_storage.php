@@ -44,7 +44,8 @@ class attempt_storage {
     /**
      * Private constructor. Use {@link instance()} to get an instance.
      */
-    protected function __construct() {}
+    protected function __construct() {
+    }
 
     /**
      * Static factory: get the most appropriate attempt_manager to use.

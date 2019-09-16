@@ -206,7 +206,7 @@ class attempt {
             return 0;
         }
 
-        // Count
+        // Count.
 
         return array_rand($questionids);
     }

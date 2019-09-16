@@ -66,9 +66,9 @@ class utils {
             return;
         }
         if (has_capability('moodle/question:useall', $context)) {
-            utils::filter_error($attempt->get_problem_description());
+            self::filter_error($attempt->get_problem_description());
         } else {
-            utils::filter_error(get_string('invalidtoken', 'filter_embedquestion'));
+            self::filter_error(get_string('invalidtoken', 'filter_embedquestion'));
         }
     }
 
