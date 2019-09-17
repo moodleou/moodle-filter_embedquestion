@@ -80,7 +80,7 @@ class attempt_storage {
     /**
      * Update the timemodified time associated with this attempt.
      *
-     * @param inHt $qubaid usage id for the attempt to update.
+     * @param int $qubaid usage id for the attempt to update.
      */
     public function update_timemodified(int $qubaid): void {
     }
@@ -94,7 +94,6 @@ class attempt_storage {
      * @param embed_id $embedid identity of the question(s) being embedded in this place.
      * @param embed_location $embedlocation where the question(s) are being embedded.
      * @param \stdClass $user the user who is attempting the question (defaults to $USER).
-     * @param string $behaviour preferred behaviour to set on the new usage.
      * @return \question_usage_by_activity usage to use.
      */
     public function make_new_usage(embed_id $embedid, embed_location $embedlocation,
@@ -110,11 +109,10 @@ class attempt_storage {
      * Called after {@link make_new_usage()} and after the at least one
      * question_attempt has been added.
      *
+     * @param \question_usage_by_activity $quba the usage that has just been saved.
      * @param embed_id $embedid identity of the question(s) being embedded in this place.
      * @param embed_location $embedlocation where the question(s) are being embedded.
      * @param \stdClass $user the user who is attempting the question (defaults to $USER).
-     * @param string $behaviour preferred behaviour to set on the new usage.
-     * @return \question_usage_by_activity usage to use.
      */
     public function new_usage_saved(\question_usage_by_activity $quba,
             embed_id $embedid, embed_location $embedlocation, \stdClass $user): void {

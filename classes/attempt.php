@@ -121,6 +121,63 @@ class attempt {
     }
 
     /**
+     * Set up this attempt to continue the one stored in usage $qubaid.
+     *
+     * This checks that the user is allowed to do that, etc.
+     *
+     * @param int $qubaid the id of the usage.
+     * @param int $slot the slot number.
+     */
+    public function continue_current_attempt(int $qubaid, int $slot) {
+        global $PAGE;
+
+        try {
+            $quba = \question_engine::load_questions_usage_by_activity($qubaid);
+        } catch (\Exception $e) {
+            // This may not seem like the right error message to display, but
+            // actually from the user point of view, it makes sense.
+            throw new \moodle_exception('submissionoutofsequencefriendlymessage', 'question',
+                    $PAGE->url, null, $e);
+        }
+
+        attempt_storage::instance()->verify_usage($quba, $this->embedlocation->context);
+        $quba->get_question($slot); // Verifies that the slot exists.
+
+        $this->setup_usage_info($quba, $slot);
+    }
+
+    /**
+     * Without a $qubaid, see if we can find an appropriate attempt to continue, otherwise make a new one.
+     */
+    public function find_or_create_attempt() {
+        global $DB;
+        $attemptstorage = attempt_storage::instance();
+
+        // See of we can find an existing attempt to continue.
+        list($existingquba, $slot) = $attemptstorage->find_existing_attempt(
+                $this->embedid, $this->embedlocation, $this->user);
+
+        if ($existingquba) {
+            // Found.
+            $this->setup_usage_info($existingquba, $slot);
+
+        } else {
+            // There is not already an attempt at this question. Start one.
+            $transaction = $DB->start_delegated_transaction();
+            $quba = $attemptstorage->make_new_usage(
+                    $this->embedid, $this->embedlocation, $this->user);
+            $quba->set_preferred_behaviour($this->options->behaviour);
+            $this->start_new_attempt_at_question($quba);
+            if (!$this->is_valid()) {
+                return;
+            }
+            $attemptstorage->new_usage_saved($quba, $this->embedid,
+                    $this->embedlocation, $this->user);
+            $transaction->allow_commit();
+        }
+    }
+
+    /**
      * Called by attempt_storage when we have found the $quba and $slot that is this attempt.
      *
      * Checks that the given usage/slot matches what we are supposed to be attempting.
@@ -265,11 +322,14 @@ class attempt {
     /**
      * Finish the currently active attempt, so when we next call find_new_attempt(),
      * a new attempt at this question will be started.
+     *
+     * @param array $simulatedpostdata for testing, simulated post data (e.g. from
+     *      $quba->get_simulated_post_data_for_questions_in_usage()).
      */
-    public function process_submitted_actions() {
+    public function process_submitted_actions(array $simulatedpostdata = null) {
         global $DB;
 
-        $this->quba->process_all_actions();
+        $this->quba->process_all_actions(null, $simulatedpostdata);
 
         $transaction = $DB->start_delegated_transaction();
         \question_engine::save_questions_usage_by_activity($this->quba);
@@ -367,5 +427,23 @@ class attempt {
         $url->param('qubaid', $this->quba->get_id());
         $url->param('slot', $this->slot);
         return $url;
+    }
+
+    /**
+     * Only for testing. Get the usage that we wrap.
+     *
+     * @return \question_usage_by_activity the usage.
+     */
+    public function get_question_usage(): \question_usage_by_activity {
+        return $this->quba;
+    }
+
+    /**
+     * Only for testing. Get the slot number for the currently active question.
+     *
+     * @return int the slot number.
+     */
+    public function get_slot(): int {
+        return $this->slot;
     }
 }

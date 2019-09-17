@@ -26,7 +26,7 @@ namespace filter_embedquestion;
 
 defined('MOODLE_INTERNAL') || die();
 use filter_embedquestion\output\error_message;
-
+use filter_embedquestion\output\renderer;
 
 /**
  * Helper functions for filter_embedquestion.
@@ -79,6 +79,7 @@ class utils {
      */
     public static function filter_error(string $message): void {
         global $PAGE;
+        /** @var renderer $renderer */
         $renderer = $PAGE->get_renderer('filter_embedquestion');
         echo $renderer->header();
         echo $renderer->render(new error_message($message));

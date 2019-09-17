@@ -89,6 +89,20 @@ class embed_location {
     }
 
     /**
+     * Should only be used by test code (@link report_embedquestion_generator}.
+     *
+     * Make an instance with specific properies.
+     *
+     * @param \context $context location context.
+     * @param \moodle_url $pageurl location url.
+     * @param string $pagetitle location name.
+     * @return embed_location new instance.
+     */
+    public static function make_for_test(\context $context, \moodle_url $pageurl, string $pagetitle) {
+        return new self($context, $pageurl, $pagetitle);
+    }
+
+    /**
      * Add parameters representing this location to a URL.
      *
      * @param \moodle_url $url the URL to add to.

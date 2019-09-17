@@ -28,9 +28,9 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 
 use filter_embedquestion\attempt;
-use filter_embedquestion\attempt_storage;
 use filter_embedquestion\embed_id;
 use filter_embedquestion\embed_location;
+use filter_embedquestion\output\renderer;
 use filter_embedquestion\utils;
 
 // Check login.
@@ -65,41 +65,14 @@ if ($token !== $PAGE->url->param('token')) {
 $attempt = new attempt($embedid, $embedlocation, $USER, $options);
 utils::report_if_error($attempt, $context);
 
-$attemptstorage = attempt_storage::instance();
 $qubaid = optional_param('qubaid', 0, PARAM_INT);
 if ($qubaid) {
-    // Continuing the current attempt.
     $slot = required_param('slot', PARAM_INT);
-    try {
-        $quba = question_engine::load_questions_usage_by_activity($qubaid);
-    } catch (Exception $e) {
-        // This may not seem like the right error message to display, but
-        // actually from the user point of view, it makes sense.
-        throw new moodle_exception('submissionoutofsequencefriendlymessage', 'question',
-                $PAGE->url, null, $e);
-    }
-
-    $attemptstorage->verify_usage($quba, $context);
-    $quba->get_question($slot); // Verifies that the slot exists.
-
-    $attempt->setup_usage_info($quba, $slot);
-
+    $attempt->continue_current_attempt($qubaid, $slot);
 } else {
-    // We don't know if there is a current attempt. Find or make one.
-    list($existingquba, $slot) = $attemptstorage->find_existing_attempt($embedid, $embedlocation, $USER);
-    if ($existingquba) {
-        $attempt->setup_usage_info($existingquba, $slot);
-    } else {
-        // There is not already an attempt at this question. Start one.
-        $transaction = $DB->start_delegated_transaction();
-        $quba = $attemptstorage->make_new_usage($embedid, $embedlocation, $USER);
-        $quba->set_preferred_behaviour($options->behaviour);
-        $attempt->start_new_attempt_at_question($quba);
-        utils::report_if_error($attempt, $context);
-        $attemptstorage->new_usage_saved($quba, $embedid, $embedlocation, $USER);
-        $transaction->allow_commit();
-    }
+    $attempt->find_or_create_attempt();
 }
+utils::report_if_error($attempt, $context);
 
 // Process any actions from the buttons at the bottom of the form.
 if (data_submitted() && confirm_sesskey()) {
@@ -143,6 +116,7 @@ $title = get_string('iframetitle', 'filter_embedquestion');
 question_engine::initialise_js();
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
+/** @var renderer $renderer */
 $renderer = $PAGE->get_renderer('filter_embedquestion');
 echo $renderer->header();
 
