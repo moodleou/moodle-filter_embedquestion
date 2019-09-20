@@ -118,18 +118,46 @@ class filter_embedquestion_generator extends component_generator_base {
     }
 
     /**
+     * Get the embed code that would be used to embed a question with default options.
+     *
+     * @param stdClass $question the question to embed.
+     * @return string the embed code.
+     */
+    public function get_embed_code(stdClass $question) {
+        [$embedid] = $this->get_embed_id_and_context($question);
+
+        $fakeformdata = (object) [
+            'categoryidnumber' => $embedid->categoryidnumber,
+            'questionidnumber' => $embedid->questionidnumber,
+        ];
+        return question_options::get_embed_from_form_options($fakeformdata);
+    }
+
+    /**
      * Create an attempt at a given question by a given user.
      *
      * @param stdClass $question the question to attempt.
      * @param stdClass $user the user making the attempt.
      * @param string $response Response to submit. (Sent to the
      *      un_summarise_response method of the correspnoding question type).
+     * @param context|null $attemptcontext the context in which the attempt should be created.
      * @return attempt the newly generated attempt.
      */
     public function create_attempt_at_embedded_question(stdClass $question,
-            stdClass $user, string $response): attempt {
+            stdClass $user, string $response, context $attemptcontext = null): attempt {
 
-        [$embedid, $context] = $this->get_embed_id_and_context($question);
+        [$embedid, $coursecontext] = $this->get_embed_id_and_context($question);
+
+        if ($attemptcontext) {
+            if ($attemptcontext->id !== $coursecontext->id &&
+                    $attemptcontext->get_parent_context()->id !== $coursecontext->id) {
+                throw new coding_exception('The attempt context must either be the course ' .
+                        'context where the question is, or one of the activities in that course.');
+            }
+            $context = $attemptcontext;
+        } else {
+            $context = $coursecontext;
+        }
 
         $embedlocation = embed_location::make_for_test($context, $context->get_url(), 'Test embed location');
         $options = new question_options();
