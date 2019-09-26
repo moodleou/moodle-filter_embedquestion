@@ -38,7 +38,6 @@ use filter_embedquestion\utils;
 class filter_embedquestion_utils_testcase extends advanced_testcase {
 
     public function test_get_category_by_idnumber() {
-
         $this->resetAfterTest();
 
         /** @var core_question_generator $questiongenerator */
@@ -60,7 +59,6 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
     }
 
     public function test_get_question_by_idnumber() {
-
         $this->resetAfterTest();
 
         /** @var core_question_generator $questiongenerator */
@@ -78,7 +76,6 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
     }
 
     public function test_get_question_by_idnumber_not_existing() {
-
         $this->resetAfterTest();
 
         /** @var core_question_generator $questiongenerator */
@@ -92,7 +89,6 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
     }
 
     public function test_get_categories_with_sharable_question_choices() {
-
         $this->resetAfterTest();
 
         /** @var core_question_generator $questiongenerator */
@@ -143,7 +139,6 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
     }
 
     public function test_get_sharable_question_choices() {
-
         $this->resetAfterTest();
 
         /** @var core_question_generator $questiongenerator */
@@ -194,7 +189,6 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
     }
 
     public function test_get_sharable_question_choices_should_not_include_random() {
-
         $this->resetAfterTest();
 
         /** @var core_question_generator $questiongenerator */
@@ -228,7 +222,6 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
     }
 
     public function test_get_categories_with_sharable_question_choices_should_not_include_random() {
-
         $this->resetAfterTest();
 
         /** @var core_question_generator $questiongenerator */
@@ -314,7 +307,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
     }
 
     public function test_behaviour_choices() {
-        // This test is wrtiten in a way that will work even if extra behaviours are installed.
+        // This test is written in a way that will work even if extra behaviours are installed.
         $choices = utils::behaviour_choices();
         $this->assertArrayHasKey('interactive', $choices);
         $this->assertArrayHasKey('adaptive', $choices);

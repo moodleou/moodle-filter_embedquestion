@@ -228,13 +228,14 @@ class attempt {
         $this->slot = $this->quba->add_question($question, $this->options->maxmark);
 
         if ($this->options->variant) {
-            // Make sure variant is in range.
-            $this->options->variant = min($question->get_num_variants(), max(1, $this->options->variant));
+            // Fixed option specified in the embed options. Ensure it is in range.
+            $variant = min($question->get_num_variants(), max(1, $this->options->variant));
         } else {
-            $this->options->variant = rand(1, $question->get_num_variants());
+
+            $variant = $this->pick_random_variant($question);
         }
 
-        $this->quba->start_question($this->slot, $this->options->variant);
+        $this->quba->start_question($this->slot, $variant);
 
         $transaction = $DB->start_delegated_transaction();
         \question_engine::save_questions_usage_by_activity($this->quba);
@@ -253,8 +254,10 @@ class attempt {
      * @return int the question id. If not 0 and problem and problemdetails are set.
      */
     public function pick_random_questionid(): int {
+        // Get the list of all sharable questions in this category.
         $questionids = utils::get_sharable_question_ids($this->category->id);
         if (empty($questionids)) {
+            // Error, there aren't any.
             $this->problem = 'invalidemptycategory';
             $this->problemdetails = [
                 'catname' => format_string($this->category->name),
@@ -263,9 +266,46 @@ class attempt {
             return 0;
         }
 
-        // Count.
+        // Count how many times each one has been used. We build an array qustionid => count of times used.
+        $timesused = array_fill_keys(array_keys($questionids), 0);
+        foreach ($this->quba->get_attempt_iterator() as $qa) {
+            $timesused[$qa->get_question()->id] += 1;
+        }
 
-        return array_rand($questionids);
+        // How many times have the least-used questions been used?
+        $leastused = min($timesused);
+
+        // Find all the questions that have been used that many times.
+        $leastusedquestionids = [];
+        foreach ($timesused as $questionid => $count) {
+            if ($count == $leastused) {
+                $leastusedquestionids[$questionid] = 1;
+            }
+        }
+
+        return array_rand($leastusedquestionids);
+    }
+
+    /**
+     * Select a variant of the given question at random, from amongst
+     * those that have been used least so far.
+     *
+     * @param \question_definition $question the question.
+     * @return int variant of that question to use next.
+     */
+    public function pick_random_variant(\question_definition $question): int {
+        if (is_numeric($this->quba->get_id())) {
+            // Usage already exists, so we need to consider already used variants from it.
+            $qubaids = [$this->quba->get_id()];
+        } else {
+            // Usage just started, so there are previous questions to consider
+            // (but trying to pass in the qubaid gives an error).
+            $qubaids = [];
+        }
+        $variantstrategy = new \core_question\engine\variants\least_used_strategy(
+                $this->quba, new \qubaid_list($qubaids));
+        return $variantstrategy->choose_variant($question->get_num_variants(),
+                $question->get_variants_selection_seed());
     }
 
     /**
@@ -293,7 +333,6 @@ class attempt {
     private function synch_options_from_loaded_quba() {
         $this->options->behaviour = $this->quba->get_preferred_behaviour();
         $this->options->maxmark = $this->quba->get_question_max_mark($this->slot);
-        $this->options->variant = $this->quba->get_variant($this->slot);
     }
 
     /**
