@@ -19,6 +19,8 @@
 
     Template to display the iframe that embeds a question.
 
+    The "name" variable is only used during Behat testing.
+
     Classes required for JS:
     * 'filter_embedquestion-iframe' - to identify this iframe as one of ours.
 
@@ -28,7 +30,14 @@
     Example context (json):
     {
         "showquestionurl": "https://example.com/filter/embedquestion/showquestion.php?catid=e&amp;qid=q",
-        "name": "frame-name"
+        "name": "filter_embedquestion-iframe"
+        "embedid"
     }
 }}
-<iframe class="filter_embedquestion-iframe" title="{{#str}} title, filter_embedquestion {{/str}}" src="{{{showquestionurl}}}"{{#name}} name="{{name}}"{{/name}}></iframe>
+<iframe
+    class="filter_embedquestion-iframe"
+    title="{{#str}} title, filter_embedquestion {{/str}}"
+    src="{{{showquestionurl}}}"
+    id="{{embedid}}"
+    {{#name}}name="{{name}}"{{/name}}>
+</iframe>

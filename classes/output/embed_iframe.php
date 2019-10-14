@@ -49,7 +49,11 @@ class embed_iframe implements \renderable, \templatable {
     }
 
     public function export_for_template(renderer_base $output) {
-        $data = ['showquestionurl' => $this->showquestionurl, 'name' => null];
+        $data = [
+            'showquestionurl' => $this->showquestionurl,
+            'name' => null,
+            'embedid' => $this->showquestionurl->param('catid') . '/' . $this->showquestionurl->param('qid'),
+        ];
         if (defined('BEHAT_SITE_RUNNING')) {
             $data['name'] = 'filter_embedquestion-iframe';
         }
