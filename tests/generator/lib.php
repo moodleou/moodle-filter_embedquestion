@@ -118,6 +118,25 @@ class filter_embedquestion_generator extends component_generator_base {
     }
 
     /**
+     * Get an embeddable question from its id.
+     *
+     * @param string $embedid string like 'catid/qid'.
+     * @return stdClass $question the question object.
+     */
+    public function get_question_from_embed_id(string $embedid): stdClass {
+        global $DB;
+        $catque = explode('/', $embedid);
+        $categoryidnumber = $catque[0];
+        $questionidnumber = $catque[1];
+        return $DB->get_record_sql("
+            SELECT q.*
+            FROM {question} q
+            JOIN {question_categories} qc ON qc.id = q.category
+            WHERE q.idnumber = :questionidnumber AND qc.idnumber = :categoryidnumber",
+            ['questionidnumber' => $questionidnumber, 'categoryidnumber' => $categoryidnumber]);
+    }
+
+    /**
      * Get the embed code that would be used to embed a question with default options.
      *
      * @param stdClass $question the question to embed.
@@ -144,7 +163,7 @@ class filter_embedquestion_generator extends component_generator_base {
      * @return attempt the newly generated attempt.
      */
     public function create_attempt_at_embedded_question(stdClass $question,
-            stdClass $user, string $response, context $attemptcontext = null): attempt {
+            stdClass $user, string $response, context $attemptcontext = null, $pagename = null): attempt {
 
         [$embedid, $coursecontext] = $this->get_embed_id_and_context($question);
 
@@ -158,8 +177,20 @@ class filter_embedquestion_generator extends component_generator_base {
         } else {
             $context = $coursecontext;
         }
+        if ($pagename) {
+            $pn = explode(':', $pagename);
+            if (count($pn) !== 2) {
+                throw new coding_exception('The pagename must consist of two part in P1:P2 format: ' .
+                    'In course context: P1 is the word \'Course\' and P2 is the course full name. ' .
+                    'In activity context: P1 is the course shortname and P2 is the activity name. ');
+            }
+        }
 
-        $embedlocation = embed_location::make_for_test($context, $context->get_url(), 'Test embed location');
+        if ($pagename === null) {
+            $embedlocation = embed_location::make_for_test($context, $context->get_url(), 'Test embed location');
+        } else {
+            $embedlocation = embed_location::make_for_test($context, $context->get_url(), $pagename);
+        }
         $options = new question_options();
         $options->behaviour = 'immediatefeedback';
 
