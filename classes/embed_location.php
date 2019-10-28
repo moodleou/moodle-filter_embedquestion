@@ -71,7 +71,11 @@ class embed_location {
      * @return embed_location new instance.
      */
     public static function make_from_page(\moodle_page $page): embed_location {
-        return new self($page->context, $page->url, $page->title);
+        $title = (string) $page->title;
+        if ($title === '') {
+            $title = $page->context->get_context_name(false);
+        }
+        return new self($page->context, $page->url, $title);
     }
 
     /**
