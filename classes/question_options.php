@@ -97,6 +97,11 @@ class question_options extends \question_display_options {
             $this->$field = optional_param($field, $this->$field, $type);
         }
         $this->numpartscorrect = $this->feedback;
+
+        $contextid = optional_param('contextid', null, PARAM_INT);
+        if ($contextid) {
+            $this->context = \context_helper::instance_by_id($contextid);
+        }
     }
 
     /**
