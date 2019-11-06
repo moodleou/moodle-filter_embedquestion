@@ -61,20 +61,28 @@ class filter_embedquestion_testcase extends advanced_testcase {
         $title = get_string('title', 'filter_embedquestion');
 
         $expectedurl = new moodle_url('/filter/embedquestion/showquestion.php', [
-                'catid' => 'cat', 'qid' => 'q', 'contextid' => '1', 'pageurl' => '/', 'pagetitle' => '',
+                'catid' => 'cat', 'qid' => 'q', 'contextid' => '1', 'pageurl' => '/', 'pagetitle' => 'System',
                 'behaviour' => 'interactive', 'correctness' => '1', 'marks' => '2', 'markdp' => '2',
                 'feedback' => '1', 'generalfeedback' => '1', 'rightanswer' => '0', 'history' => '0']);
         token::add_iframe_token_to_url($expectedurl);
         $cases[] = ['{Q{cat/q|' . $requiredtoken . '}Q}',
-                '<iframe class="filter_embedquestion-iframe" title="' . $title . '" src="' . $expectedurl . '"></iframe>'];
+                '<iframe
+    class="filter_embedquestion-iframe"
+    title="' . $title . '"
+    src="' . $expectedurl . '"
+    id="cat/q"></iframe>'];
 
         $expectedurl = new moodle_url('/filter/embedquestion/showquestion.php', [
-                'catid' => 'cat', 'qid' => 'q', 'contextid' => '1', 'pageurl' => '/', 'pagetitle' => '',
+                'catid' => 'cat', 'qid' => 'q', 'contextid' => '1', 'pageurl' => '/', 'pagetitle' => 'System',
                 'behaviour' => 'immediatefeedback', 'correctness' => '1', 'marks' => '10', 'markdp' => '3',
                 'feedback' => '1', 'generalfeedback' => '0', 'rightanswer' => '0', 'history' => '0']);
         token::add_iframe_token_to_url($expectedurl);
         $cases[] = ['{Q{cat/q|behaviour=immediatefeedback|marks=10|markdp=3|generalfeedback=0|' . $requiredtoken . '}Q}',
-                '<iframe class="filter_embedquestion-iframe" title="' . $title . '" src="' . $expectedurl . '"></iframe>'];
+                '<iframe
+    class="filter_embedquestion-iframe"
+    title="' . $title . '"
+    src="' . $expectedurl . '"
+    id="cat/q"></iframe>'];
 
         return $cases;
     }
