@@ -59,8 +59,8 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
 
         $this->assertEquals([
                 ['value' => '', 'label' => 'Choose...'],
-                ['value' => 'frog', 'label' => 'Question 1'],
-                ['value' => 'toad', 'label' => 'Question 2'],
+                ['value' => 'frog', 'label' => 'Question 1 [frog]'],
+                ['value' => 'toad', 'label' => 'Question 2 [toad]'],
                 ['value' => '*', 'label' => get_string('chooserandomly', 'filter_embedquestion')]],
                 external::get_sharable_question_choices($course->id, 'abc123'));
     }
@@ -102,7 +102,7 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
 
         $this->assertEquals([
                 ['value' => '', 'label' => 'Choose...'],
-                ['value' => 'frog', 'label' => 'Question 1']],
+                ['value' => 'frog', 'label' => 'Question 1 [frog]']],
                 external::get_sharable_question_choices($course->id, 'abc123'));
     }
 

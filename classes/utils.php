@@ -190,7 +190,7 @@ class utils {
                 SELECT qc.id, qc.name, qc.idnumber, COUNT(q.id) AS count
 
                   FROM {question_categories} qc
-             LEFT JOIN {question} q ON q.category = qc.id
+                  JOIN {question} q ON q.category = qc.id
                                     AND q.idnumber IS NOT NULL
                                     $creatortest
                                     AND q.hidden = 0
@@ -200,13 +200,14 @@ class utils {
                    AND qc.idnumber IS NOT NULL
 
               GROUP BY qc.id, qc.name
+                HAVING COUNT(q.id) > 0
               ORDER BY qc.name
                 ", $params);
 
         $choices = ['' => get_string('choosedots')];
         foreach ($categories as $category) {
-            $choices[$category->idnumber] = get_string('nameandcount', 'filter_embedquestion',
-                    ['name' => format_string($category->name), 'count' => $category->count]);
+            $choices[$category->idnumber] = get_string('nameidnumberandcount', 'filter_embedquestion',
+                    ['name' => format_string($category->name), 'idnumber' => s($category->idnumber), 'count' => $category->count]);
         }
         return $choices;
     }
@@ -265,7 +266,8 @@ class utils {
 
         $choices = ['' => get_string('choosedots')];
         foreach ($questions as $question) {
-            $choices[$question->idnumber] = format_string($question->name);
+            $choices[$question->idnumber] = get_string('nameandidnumber', 'filter_embedquestion',
+                    ['name' => format_string($question->name), 'idnumber' => s($question->idnumber)]);
         }
 
         // When we are not restricting by user, and there are at least 2 questions in the category,

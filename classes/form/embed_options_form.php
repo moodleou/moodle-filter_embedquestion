@@ -152,9 +152,10 @@ class embed_options_form extends \moodleform {
         }
 
         $category = utils::get_category_by_idnumber($this->_customdata['context'], $categoryidnumber);
-        $choices = utils::get_sharable_question_choices($category->id, $this->get_user_retriction());
-
-        $mform->getElement('questionidnumber')->loadArray($choices);
+        if ($category) {
+            $choices = utils::get_sharable_question_choices($category->id, $this->get_user_retriction());
+            $mform->getElement('questionidnumber')->loadArray($choices);
+        }
     }
 
     /**

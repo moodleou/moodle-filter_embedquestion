@@ -28,7 +28,7 @@ Feature: Add an activity and embed a question inside that activity
       | questioncategory | qtype     | name           | idnumber |
       | Test questions   | truefalse | First question | test1    |
     When I am on the filter test page for "Course 1"
-    And I set the field "Question category" to "Test questions (1)"
+    And I set the field "Question category" to "Test questions [embed] (1)"
     And I set the field "id_questionidnumber" to "First question"
     And I press "Embed question"
     And I switch to "filter_embedquestion-iframe" iframe
@@ -47,7 +47,7 @@ Feature: Add an activity and embed a question inside that activity
       | Test questions   | truefalse | Q3   | test3    |
       | Test questions   | truefalse | Q4   | test4    |
     When I am on the filter test page for "Course 1"
-    And I set the field "Question category" to "Test questions (4)"
+    And I set the field "Question category" to "Test questions [embed] (4)"
     And I set the field "id_questionidnumber" to "Choose an embeddable question from this category randomly"
     And I press "Embed question"
     And I switch to "filter_embedquestion-iframe" iframe

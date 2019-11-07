@@ -104,8 +104,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
 
         $this->assertEquals([
                 '' => 'Choose...',
-                'abc123' => 'Category with idnumber (0)',
-                'pqr789' => 'Second category (1)'],
+                'pqr789' => 'Second category [pqr789] (1)'],
                 utils::get_categories_with_sharable_question_choices(
                         context_system::instance()));
     }
@@ -132,8 +131,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
 
         $this->assertEquals([
                 '' => 'Choose...',
-                'abc123' => 'Category with idnumber (1)',
-                'pqr789' => 'Second category with (0)'],
+                'abc123' => 'Category with idnumber [abc123] (1)'],
                 utils::get_categories_with_sharable_question_choices(
                         context_system::instance(), $USER->id));
     }
@@ -155,8 +153,8 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
 
         $this->assertEquals([
                 '' => 'Choose...',
-                'frog' => 'Question 1',
-                'toad' => 'Question 2',
+                'frog' => 'Question 1 [frog]',
+                'toad' => 'Question 2 [toad]',
                 '*' => get_string('chooserandomly', 'filter_embedquestion')],
                 utils::get_sharable_question_choices(
                         $category->id));
@@ -183,7 +181,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
 
         $this->assertEquals([
                 '' => 'Choose...',
-                'frog' => 'Question 1'],
+                'frog' => 'Question 1 [frog]'],
                 utils::get_sharable_question_choices(
                         $category->id, $USER->id));
     }
@@ -216,7 +214,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         // The random question should not appear in the list.
         $this->assertEquals([
                 '' => 'Choose...',
-                'frog' => 'Question 1'],
+                'frog' => 'Question 1 [frog]'],
                 utils::get_sharable_question_choices(
                         $category->id));
     }
@@ -250,8 +248,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         // The random question should not appear in the counts.
         $this->assertEquals([
                 '' => 'Choose...',
-                'abc123' => 'Category with idnumber (0)',
-                'pqr789' => 'Second category with (1)'],
+                'pqr789' => 'Second category with [pqr789] (1)'],
                 utils::get_categories_with_sharable_question_choices(
                         context_system::instance()));
     }
@@ -274,7 +271,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         // The hidden question should not appear in the list.
         $this->assertEquals([
                 '' => 'Choose...',
-                'frog' => 'Question'],
+                'frog' => 'Question [frog]'],
                 utils::get_sharable_question_choices(
                         $category->id));
     }
@@ -300,8 +297,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         // The hidden question should not appear in the counts.
         $this->assertEquals([
                 '' => 'Choose...',
-                'abc123' => 'Category with idnumber (0)',
-                'pqr789' => 'Second category with (1)'],
+                'pqr789' => 'Second category with [pqr789] (1)'],
                 utils::get_categories_with_sharable_question_choices(
                         context_system::instance()));
     }
