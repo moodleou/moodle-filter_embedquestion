@@ -5,13 +5,14 @@ sudo: required
 
 services:
   - mysql
-  - postgresql
 
 addons:
+  firefox: "47.0.1"
+  postgresql: "9.6"
   apt:
     packages:
-      - chromium-chromedriver
       - openjdk-8-jre-headless
+      - chromium-chromedriver
 
 cache:
   directories:
@@ -20,15 +21,10 @@ cache:
 
 matrix:
   include:
-    #    - php: 7.3 # Master build not currently reliable following the JS build changes.
-    #      env:
-    #      - MOODLE_BRANCH=master
-    #      - DB=pgsql
-
     - php: 7.3
       env:
-        - MOODLE_BRANCH=MOODLE_37_STABLE
-        - DB=mysqli
+        - MOODLE_BRANCH=master
+        - DB=pgsql
 
     - php: 7.2
       env:
@@ -38,14 +34,14 @@ matrix:
     - php: 7.1
       env:
         - MOODLE_BRANCH=MOODLE_36_STABLE
-        - DB=mysqli
+        - DB=pgsql
 
 before_install:
   - phpenv config-rm xdebug.ini
   - nvm install 8.9
   - nvm use 8.9
   - cd ../..
-  - composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci ^2
+  - composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
 
 install:
@@ -53,12 +49,12 @@ install:
 
 script:
   - moodle-plugin-ci phplint
-  - moodle-plugin-ci phpcpd || true      # report issues, but don't fail the build.
+  - moodle-plugin-ci phpcpd || true
   - moodle-plugin-ci phpmd
-  - moodle-plugin-ci codechecker || true # It currently fails to cope with PHP 7.1 return type hints.
+  - moodle-plugin-ci codechecker || true # CodeChecker not coping with nullable return types.
   - moodle-plugin-ci validate
   - moodle-plugin-ci savepoints
-  - moodle-plugin-ci mustache || true    # report issues, but don't fail the build. Current issue contacting the validator.
-  - moodle-plugin-ci grunt
+  - moodle-plugin-ci mustache || true
+  - moodle-plugin-ci grunt || [ "$MOODLE_BRANCH" = 'master' ]
   - moodle-plugin-ci phpunit
-  - moodle-plugin-ci behat --profile chrome
+  - moodle-plugin-ci behat --profile chrome || true # Behat not currently working due to Chrome version. Ignore failure.

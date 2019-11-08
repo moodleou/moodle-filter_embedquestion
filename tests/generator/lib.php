@@ -79,7 +79,7 @@ class filter_embedquestion_generator extends component_generator_base {
             $category = $this->questiongenerator->create_question_category($categoryrecord);
             $overrides['category'] = $category->id;
         } else if (!empty($categoryrecord)) {
-            // Both $overrides['category'] and $categoryrecord specified.
+            // Both this combination not allowed.
             throw new coding_exception('You cannot sepecify both the question category, ' .
                     'and details of a category to create.');
         }

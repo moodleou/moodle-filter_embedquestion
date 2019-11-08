@@ -52,7 +52,7 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         $category = $DB->get_record('question_categories', ['id' => $q1->category], '*', MUST_EXIST);
 
         // Start an attempt in the way that showattempt.php would.
-        [, $context] = $generator->get_embed_id_and_context($q1);
+        list(, $context) = $generator->get_embed_id_and_context($q1);
         $embedid = new embed_id($category->idnumber, '*'); // We actually want to embed a random selection.
         $embedlocation = embed_location::make_for_test($context, $context->get_url(), 'Test embed location');
         $options = new question_options();
@@ -69,7 +69,7 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         // Now start a second question attempt.
         $attempt->start_new_attempt_at_question();
 
-        // Verify that it uses the other
+        // Verify that it uses the other question.
         $secondusedquestionid = $attempt->get_question_usage()->get_question($attempt->get_slot())->id;
         $this->assertContains($secondusedquestionid, [$q1->id, $q2->id]);
         $this->assertNotEquals($firstusedquestionid, $secondusedquestionid);
@@ -108,7 +108,7 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         // Now start a second question attempt.
         $attempt->start_new_attempt_at_question();
 
-        // Verify that it uses the other
+        // Verify that it uses the other variant.
         $secondusedvariant = $attempt->get_question_usage()->get_variant($attempt->get_slot());
         $this->assertContains($secondusedvariant, [1, 2]);
         $this->assertNotEquals($firstusedvariant, $secondusedvariant);
