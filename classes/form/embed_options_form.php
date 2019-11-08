@@ -165,7 +165,7 @@ class embed_options_form extends \moodleform {
      *
      * @return int|null the $userlimit option.
      */
-    protected function get_user_retriction(): ?int {
+    protected function get_user_retriction() {
         global $USER;
 
         $context = $this->_customdata['context'];

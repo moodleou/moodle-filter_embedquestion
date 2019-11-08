@@ -106,7 +106,7 @@ class attempt {
      * @param string $categoryidnumber idnumber of the category to use.
      * @return \stdClass if the category was OK. If not null and problem and problemdetails are set.
      */
-    private function find_category(string $categoryidnumber): ?\stdClass {
+    private function find_category(string $categoryidnumber) {
         $coursecontext = \context_course::instance(utils::get_relevant_courseid($this->embedlocation->context));
         $category = utils::get_category_by_idnumber($coursecontext, $categoryidnumber);
         if (!$category) {

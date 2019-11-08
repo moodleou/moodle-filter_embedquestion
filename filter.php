@@ -180,7 +180,7 @@ class filter_embedquestion extends moodle_text_filter {
      * @param array $parts the individual 'name=options' strings.
      * @return array|null the parsed options, or false if they were malformed.
      */
-    public static function parse_options(array $parts): ?array {
+    public static function parse_options(array $parts) {
         $params = [];
         foreach ($parts as $part) {
             if (strpos($part, '=') === false) {

@@ -130,7 +130,7 @@ class utils {
      * @param string $idnumber the idnumber to look for.
      * @return \stdClass|null row from the question_categories table, or false if none.
      */
-    public static function get_category_by_idnumber(\context $context, string $idnumber): ?\stdClass {
+    public static function get_category_by_idnumber(\context $context, string $idnumber) {
         global $DB;
 
         $category = $DB->get_record_select('question_categories',
@@ -149,7 +149,7 @@ class utils {
      * @param string $idnumber the idnumber to look for.
      * @return \stdClass|null row from the question table, or false if none.
      */
-    public static function get_question_by_idnumber(int $categoryid, string $idnumber): ?\stdClass {
+    public static function get_question_by_idnumber(int $categoryid, string $idnumber) {
         global $DB;
 
         $question = $DB->get_record_select('question',
