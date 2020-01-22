@@ -1,5 +1,10 @@
 # Change log for the embed questions filter
 
+## Changes in 1.8
+
+* Uses Moodle's form-change-checker, so that you get warned if you try to leave the
+  page without saving your responses.
+* Fixed a bug with iframe sizing in Safari.
 
 ## Changes in 1.7
 

@@ -54,6 +54,10 @@ define([], function() {
             // the <html> tag.
             document.documentElement.style['overflow-y'] = 'hidden';
             document.documentElement.style.height = 'auto';
+
+            Y.use('moodle-core-formchangechecker', function() {
+                M.core_formchangechecker.init({formid: 'responseform'});
+            });
         },
 
         /**

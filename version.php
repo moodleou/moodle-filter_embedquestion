@@ -28,6 +28,6 @@ $plugin->version   = 2019091600;
 $plugin->requires  = 2018120300;
 $plugin->component = 'filter_embedquestion';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.7 for Moodle 3.6+';
+$plugin->release   = '1.8 for Moodle 3.6+';
 
 $plugin->outestssufficient = true;
