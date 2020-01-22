@@ -116,6 +116,8 @@ $title = get_string('iframetitle', 'filter_embedquestion');
 question_engine::initialise_js();
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
+// Without this class, Safari sometimes fails to get the iframe height right.
+$PAGE->add_body_class('clearfix');
 /** @var renderer $renderer */
 $renderer = $PAGE->get_renderer('filter_embedquestion');
 echo $renderer->header();
