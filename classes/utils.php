@@ -79,12 +79,19 @@ class utils {
      */
     public static function filter_error(string $message): void {
         global $PAGE;
+
         /** @var renderer $renderer */
         $renderer = $PAGE->get_renderer('filter_embedquestion');
         echo $renderer->header();
         echo $renderer->render(new error_message($message));
         echo $renderer->footer();
-        die;
+
+        // In a unit test, throw an exception instead of terminating.
+        if (defined('PHPUNIT_TEST') && PHPUNIT_TEST) {
+            throw new \coding_exception('Filter error');
+        } else {
+            die;
+        }
     }
 
     /**

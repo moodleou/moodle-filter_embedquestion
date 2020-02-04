@@ -114,6 +114,47 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         $this->assertNotEquals($firstusedvariant, $secondusedvariant);
     }
 
+    public function test_start_new_attempt_at_question_reports_errors(): void {
+        global $DB, $USER;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Create a sharable questions in a same category.
+        /** @var filter_embedquestion_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('filter_embedquestion');
+        $q = $generator->create_embeddable_question('shortanswer');
+        $sharedcategory = $DB->get_record('question_categories', ['id' => $q->category], '*', MUST_EXIST);
+
+        // Make another category.
+        /** @var core_question_generator $questiongenerator */
+        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $unsharedcategory = $questiongenerator->create_question_category(
+                ['name' => 'Not shared category', 'contextid' => $sharedcategory->contextid]);
+
+        // Start an attempt in the way that showattempt.php would.
+        list($embedid, $context) = $generator->get_embed_id_and_context($q);
+        $embedlocation = embed_location::make_for_test($context, $context->get_url(), 'Test embed location');
+        $options = new question_options();
+        $options->behaviour = 'immediatefeedback';
+        $attempt = new attempt($embedid, $embedlocation, $USER, $options);
+        $this->verify_attempt_valid($attempt);
+        $attempt->find_or_create_attempt();
+        $this->verify_attempt_valid($attempt);
+
+        // Verify that we started an attempt at one of our questions.
+        $this->assertEquals($q->id, $attempt->get_question_usage()->get_question($attempt->get_slot())->id);
+
+        // Now move the question to the other category.
+        $DB->set_field('question', 'category', $unsharedcategory->id, ['id' => $q->id]);
+        question_bank::notify_question_edited($q->id);
+
+        // And try to restart. Should give an error.
+        $this->expectOutputRegex('~The question with idnumber "embeddableq\d+" ' .
+                'does not exist in category "Test question category \d+"\.~');
+        $this->expectException(coding_exception::class);
+        $attempt->start_new_attempt_at_question();
+    }
+
     /**
      * Helper: throw an exception if attempt is not valid.
      *

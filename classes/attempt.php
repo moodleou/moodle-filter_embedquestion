@@ -221,7 +221,7 @@ class attempt {
             $questionid = $this->find_questionid($this->embedid->questionidnumber);
         }
         if (!$this->is_valid()) {
-            return;
+            utils::report_if_error($this, $this->embedlocation->context);
         }
 
         $question = \question_bank::load_question($questionid);
