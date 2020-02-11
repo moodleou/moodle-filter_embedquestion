@@ -118,7 +118,7 @@ class embed_location {
     }
 
     /**
-     * Get a discription of where we are looking for questions, for use in error messages.
+     * Get a description of where we are looking for questions, for use in error messages.
      *
      * @return string context name.
      */

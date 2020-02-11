@@ -55,7 +55,7 @@ class attempt {
     protected $category;
 
     /**
-     * @var question_options options for how the quesition behaves and is displayed.
+     * @var question_options options for how the question behaves and is displayed.
      */
     protected $options;
 
@@ -413,6 +413,12 @@ class attempt {
                             'value' => get_string('restart', 'filter_embedquestion'),
                             'class' => 'btn btn-secondary', 'data-formchangechecker-non-submit' => 1])
                 );
+        }
+
+        // Show an edit question link to those with permssions.
+        if (question_has_capability_on($this->current_question(), 'edit')) {
+            $this->options->editquestionparams = ['returnurl' => $this->embedlocation->pageurl,
+                    'courseid' => utils::get_relevant_courseid($this->embedlocation->context)];
         }
 
         // Start the question form.

@@ -55,6 +55,11 @@ define([], function() {
             document.documentElement.style['overflow-y'] = 'hidden';
             document.documentElement.style.height = 'auto';
 
+            // Make the edit question link (if present) open in the full window.
+            document.querySelectorAll('.editquestion a').forEach(function(element) {
+                element.setAttribute('target', '_top');
+            });
+
             Y.use('moodle-core-formchangechecker', function() {
                 M.core_formchangechecker.init({formid: 'responseform'});
             });

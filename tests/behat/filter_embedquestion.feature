@@ -57,3 +57,18 @@ Feature: Add an activity and embed a question inside that activity
     And I press "Start again"
     And I should not see "Correct"
     And I click on "True" "radio" in the "The answer is true." "question"
+
+  @javascript
+  Scenario: Links to and from the question bank
+    Given the following "questions" exist:
+      | questioncategory | qtype     | name           | idnumber |
+      | Test questions   | truefalse | First question | test1    |
+    When I am on the filter test page for "Course 1"
+    And I set the field "Question category" to "Test questions [embed] (1)"
+    And I set the field "id_questionidnumber" to "First question"
+    And I press "Embed question"
+    And I switch to "filter_embedquestion-iframe" iframe
+    And I follow "Edit question"
+    Then I should see "Editing a True/False question"
+    And I press "Cancel"
+    And I should see "Generate the code to embed a question"
