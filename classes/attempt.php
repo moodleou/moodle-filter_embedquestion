@@ -129,17 +129,7 @@ class attempt {
      * @param int $slot the slot number.
      */
     public function continue_current_attempt(int $qubaid, int $slot) {
-        global $PAGE;
-
-        try {
-            $quba = \question_engine::load_questions_usage_by_activity($qubaid);
-        } catch (\Exception $e) {
-            // This may not seem like the right error message to display, but
-            // actually from the user point of view, it makes sense.
-            throw new \moodle_exception('submissionoutofsequencefriendlymessage', 'question',
-                    $PAGE->url, null, $e);
-        }
-
+        $quba = \question_engine::load_questions_usage_by_activity($qubaid);
         attempt_storage::instance()->verify_usage($quba, $this->embedlocation->context);
         $quba->get_question($slot); // Verifies that the slot exists.
 
@@ -246,6 +236,31 @@ class attempt {
                 ['context' => $this->embedlocation->context, 'objectid' => $question->id])->trigger();
 
         $transaction->allow_commit();
+    }
+
+    /**
+     * This is used for error recovery, it will forcibly get rid of the current
+     * attempt (assumed broken) so restarting is possible.
+     *
+     * After calling this method, don't try to do anything else. Just redirect.
+     */
+    public function discard_broken_attempt() {
+        global $DB;
+
+        if (!empty($this->slot) && $this->slot > 1) {
+            // The corrupt attempt is part of a usage with other previous attempts
+            // that might be important. Therefore, just abandon the current
+            // attempt and start a new on.
+            $this->start_new_attempt_at_question();
+
+        } else if (!empty($this->quba)) {
+            // The usage only has this one question, so throw it all away and start again.
+            attempt_storage::instance()->delete_attempt($this->quba);
+
+        } else {
+            // It should not be possible to get here if there is not a current $quba.
+            throw new \coding_exception('Unexpected error occured when restarting embedded question.');
+        }
     }
 
     /**

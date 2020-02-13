@@ -137,4 +137,15 @@ class attempt_storage {
             throw new \moodle_exception('notyourattempt', 'filter_embedquestion');
         }
     }
+
+    /**
+     * Completely delete the attempt corresponding to this usage.
+     *
+     * This includes deleting the usage.
+     *
+     * @param \question_usage_by_activity $quba
+     */
+    public function delete_attempt(\question_usage_by_activity $quba) {
+        // Do nothing here. Use by subclasses.
+    }
 }

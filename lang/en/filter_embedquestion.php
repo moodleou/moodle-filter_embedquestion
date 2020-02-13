@@ -26,6 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 
 $string['attemptoptions'] = 'Attempt options';
+$string['corruptattempt'] = 'Your previous attempt at a question here has stopped working. If you click continue, it will be removed and a new attempt created.';
 $string['defaultsheading'] = 'Default options for embedding questions';
 $string['defaultsheading_desc'] = 'These are the defaults for the options that control how embedded questions display and function. These are the values that will be used if a particular option is not set when the question is embedded.';
 $string['defaultx'] = 'Default ({$a})';

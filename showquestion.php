@@ -65,14 +65,28 @@ if ($token !== $PAGE->url->param('token')) {
 $attempt = new attempt($embedid, $embedlocation, $USER, $options);
 utils::report_if_error($attempt, $context);
 
-$qubaid = optional_param('qubaid', 0, PARAM_INT);
-if ($qubaid) {
-    $slot = required_param('slot', PARAM_INT);
-    $attempt->continue_current_attempt($qubaid, $slot);
-} else {
-    $attempt->find_or_create_attempt();
+try {
+    $qubaid = optional_param('qubaid', 0, PARAM_INT);
+    if ($qubaid) {
+        $slot = required_param('slot', PARAM_INT);
+        $attempt->continue_current_attempt($qubaid, $slot);
+    } else {
+        $attempt->find_or_create_attempt();
+    }
+    utils::report_if_error($attempt, $context);
+
+} catch (Exception $e) {
+    // They have already seen the error once (see below), and clicked the restart button.
+    if (optional_param('forcerestart', false, PARAM_BOOL)) {
+        $attempt->discard_broken_attempt();
+        redirect($PAGE->url);
+
+    } else {
+        // First time error happened, show a nice message, with a button to get out of the mess.
+        $nexturl = new moodle_url($PAGE->url, ['forcerestart' => '1']);
+        print_error('corruptattempt', 'filter_embedquestion', $nexturl, null, $e);
+    }
 }
-utils::report_if_error($attempt, $context);
 
 // Process any actions from the buttons at the bottom of the form.
 if (data_submitted() && confirm_sesskey()) {

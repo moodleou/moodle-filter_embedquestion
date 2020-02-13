@@ -155,6 +155,87 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         $attempt->start_new_attempt_at_question();
     }
 
+    public function test_discard_broken_attempt_no_usage(): void {
+        global $USER;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Create a sharable questions in a same category.
+        /** @var filter_embedquestion_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('filter_embedquestion');
+        $q = $generator->create_embeddable_question('shortanswer');
+
+        // Create the attempt.
+        list($embedid, $context) = $generator->get_embed_id_and_context($q);
+        $embedlocation = embed_location::make_for_test($context, $context->get_url(), 'Test embed location');
+        $options = new question_options();
+        $options->behaviour = 'immediatefeedback';
+        $attempt = new attempt($embedid, $embedlocation, $USER, $options);
+
+        // Calling discard_broken_attempt now should throw an exception.
+        $this->expectException('coding_exception');
+        $attempt->discard_broken_attempt();
+    }
+
+    public function test_discard_broken_attempt_one_qa(): void {
+        global $DB, $USER;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Create a sharable questions in a same category.
+        /** @var filter_embedquestion_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('filter_embedquestion');
+        $q = $generator->create_embeddable_question('shortanswer');
+
+        // Create the attempt.
+        list($embedid, $context) = $generator->get_embed_id_and_context($q);
+        $embedlocation = embed_location::make_for_test($context, $context->get_url(), 'Test embed location');
+        $options = new question_options();
+        $options->behaviour = 'immediatefeedback';
+        $attempt = new attempt($embedid, $embedlocation, $USER, $options);
+        $this->verify_attempt_valid($attempt);
+        $attempt->find_or_create_attempt();
+        $this->verify_attempt_valid($attempt);
+
+        // Calling discard_broken_attempt should delete the attempt and $quba.
+        $qubaid = $attempt->get_question_usage()->get_id();
+        $attempt->discard_broken_attempt();
+
+        $this->assertFalse($DB->record_exists('question_usages', ['id' => $qubaid]));
+        $this->assertFalse($DB->record_exists('report_embedquestion_attempt', ['questionusageid' => $qubaid]));
+    }
+
+    public function test_discard_broken_attempt_two_qas(): void {
+        global $DB, $USER;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Create a sharable questions in a same category.
+        /** @var filter_embedquestion_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('filter_embedquestion');
+        $q = $generator->create_embeddable_question('shortanswer');
+
+        // Create the attempt with two tries at the question.
+        list($embedid, $context) = $generator->get_embed_id_and_context($q);
+        $embedlocation = embed_location::make_for_test($context, $context->get_url(), 'Test embed location');
+        $options = new question_options();
+        $options->behaviour = 'immediatefeedback';
+        $attempt = new attempt($embedid, $embedlocation, $USER, $options);
+        $this->verify_attempt_valid($attempt);
+        $attempt->find_or_create_attempt();
+        $this->verify_attempt_valid($attempt);
+        $attempt->start_new_attempt_at_question();
+
+        // Calling discard_broken_attempt should delete the attempt and $quba.
+        $qubaid = $attempt->get_question_usage()->get_id();
+        $attempt->discard_broken_attempt();
+
+        // This time we have just added a new question_attempt to the usage.
+        $this->assertTrue($DB->record_exists('question_usages', ['id' => $qubaid]));
+        $this->assertTrue($DB->record_exists('report_embedquestion_attempt', ['questionusageid' => $qubaid]));
+        $this->assertEquals(3, $DB->count_records('question_attempts', ['questionusageid' => $qubaid]));
+    }
+
     /**
      * Helper: throw an exception if attempt is not valid.
      *
