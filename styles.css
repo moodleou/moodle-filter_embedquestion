@@ -28,6 +28,7 @@ body#page-filter-embedquestion-showquestion #osep-bottomclearer {
 body#page-filter-embedquestion-showquestion .que {
     margin: 0;
     border-top: none;
+    padding-top: 0;
 }
 
 /* This needs to work both inside and outside the iframe. */
