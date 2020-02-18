@@ -280,7 +280,7 @@ class utils {
         // When we are not restricting by user, and there are at least 2 questions in the category,
         // allow random choice. > 2 because of the 'Choose ...' option.
         if (!$userid && count($choices) > 2) {
-            $choices = array_merge($choices, ['*' => get_string('chooserandomly', 'filter_embedquestion')]);
+            $choices['*'] = get_string('chooserandomly', 'filter_embedquestion');
         }
         return $choices;
     }
