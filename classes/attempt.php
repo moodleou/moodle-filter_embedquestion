@@ -411,7 +411,7 @@ class attempt {
             $this->options->extrainfocontent = \html_writer::div(
                     \html_writer::empty_tag('input', ['type' => 'submit', 'name' => 'restart',
                             'value' => get_string('restart', 'filter_embedquestion'),
-                    'class' => 'btn btn-secondary'])
+                            'class' => 'btn btn-secondary', 'data-formchangechecker-non-submit' => 1])
                 );
         }
 
