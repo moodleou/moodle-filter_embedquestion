@@ -67,7 +67,7 @@ class filter_embedquestion_testcase extends advanced_testcase {
         token::add_iframe_token_to_url($expectedurl);
         $cases[] = ['{Q{cat/q|' . $requiredtoken . '}Q}',
                 '<iframe
-    class="filter_embedquestion-iframe"
+    class="filter_embedquestion-iframe" allowfullscreen
     title="' . $title . '"
     src="' . $expectedurl . '"
     id="cat/q"></iframe>'];
@@ -79,7 +79,7 @@ class filter_embedquestion_testcase extends advanced_testcase {
         token::add_iframe_token_to_url($expectedurl);
         $cases[] = ['{Q{cat/q|behaviour=immediatefeedback|marks=10|markdp=3|generalfeedback=0|' . $requiredtoken . '}Q}',
                 '<iframe
-    class="filter_embedquestion-iframe"
+    class="filter_embedquestion-iframe" allowfullscreen
     title="' . $title . '"
     src="' . $expectedurl . '"
     id="cat/q"></iframe>'];
