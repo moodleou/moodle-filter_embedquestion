@@ -1,6 +1,12 @@
 # Change log for the embed questions filter
 
 
+## Changes in 1.8
+
+* Allow media players inside embedded questions to go fullscreen.
+* Fix embedding of questions whose ids are all digits.
+
+
 ## Changes in 1.7
 
 * Rewrite of the internals to support the new report_embedquestions which stores
