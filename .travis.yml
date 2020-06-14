@@ -43,11 +43,6 @@ matrix:
         - DB=pgsql
         - NODE=8.9
 
-    - php: 7.0
-      env:
-        - MOODLE_BRANCH=MOODLE_35_STABLE
-        - DB=mysqli
-
 before_install:
   - phpenv config-rm xdebug.ini
 
@@ -72,10 +67,10 @@ script:
   - moodle-plugin-ci phplint
   - moodle-plugin-ci phpcpd || true
   - moodle-plugin-ci phpmd
-  - moodle-plugin-ci codechecker
+  - moodle-plugin-ci codechecker || true # CodeChecker not coping with nullable return types.
   - moodle-plugin-ci validate
   - moodle-plugin-ci savepoints
   - moodle-plugin-ci mustache || true
   - moodle-plugin-ci grunt || [ "$CHECK_GRUNT" = 'no' ]
   - moodle-plugin-ci phpunit
-  - moodle-plugin-ci behat --profile chrome
+  - moodle-plugin-ci behat

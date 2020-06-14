@@ -178,7 +178,7 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
     }
 
     public function test_discard_broken_attempt_one_qa(): void {
-        global $DB, $USER;
+        global $CFG, $DB, $USER;
         $this->resetAfterTest();
         $this->setAdminUser();
 
@@ -201,12 +201,17 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         $qubaid = $attempt->get_question_usage()->get_id();
         $attempt->discard_broken_attempt();
 
-        $this->assertFalse($DB->record_exists('question_usages', ['id' => $qubaid]));
-        $this->assertFalse($DB->record_exists('report_embedquestion_attempt', ['questionusageid' => $qubaid]));
+        if (is_dir($CFG->dirroot . '/report/embedquestion/db')) {
+            $this->assertFalse($DB->record_exists('question_usages', ['id' => $qubaid]));
+            $this->assertFalse($DB->record_exists('report_embedquestion_attempt', ['questionusageid' => $qubaid]));
+        } else {
+            // Without the report installed delete not expected. A new attempt starts anyway.
+            $this->assertTrue($DB->record_exists('question_usages', ['id' => $qubaid]));
+        }
     }
 
     public function test_discard_broken_attempt_two_qas(): void {
-        global $DB, $USER;
+        global $CFG, $DB, $USER;
         $this->resetAfterTest();
         $this->setAdminUser();
 
@@ -232,8 +237,10 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
 
         // This time we have just added a new question_attempt to the usage.
         $this->assertTrue($DB->record_exists('question_usages', ['id' => $qubaid]));
-        $this->assertTrue($DB->record_exists('report_embedquestion_attempt', ['questionusageid' => $qubaid]));
         $this->assertEquals(3, $DB->count_records('question_attempts', ['questionusageid' => $qubaid]));
+        if (is_dir($CFG->dirroot . '/report/embedquestion/db')) {
+            $this->assertTrue($DB->record_exists('report_embedquestion_attempt', ['questionusageid' => $qubaid]));
+        }
     }
 
     /**
