@@ -146,7 +146,11 @@ class embed_options_form extends \moodleform {
         parent::definition_after_data();
         $mform = $this->_form;
 
-        $categoryidnumber = $mform->getElementValue('categoryidnumber')[0];
+        $categoryidnumbers = $mform->getElementValue('categoryidnumber');
+        if (is_null($categoryidnumbers)) {
+            return;
+        }
+        $categoryidnumber = $categoryidnumbers[0];
         if ($categoryidnumber === '' || $categoryidnumber === null) {
             return;
         }
