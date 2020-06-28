@@ -6,25 +6,24 @@ dist: xenial
 services:
   - mysql
   - postgresql
-
-addons:
-  firefox: "47.0.1"
-  apt:
-    packages:
-      - openjdk-8-jre-headless
-      - chromium-chromedriver
+  - docker
 
 cache:
   directories:
     - $HOME/.composer/cache
     - $HOME/.npm
 
-matrix:
+jobs:
   include:
     - php: 7.3
       env:
         - MOODLE_BRANCH=master
         - DB=mysqli
+
+    - php: 7.4
+      env:
+        - MOODLE_BRANCH=MOODLE_39_STABLE
+        - DB=pgsql
 
     - php: 7.3
       env:
@@ -59,18 +58,24 @@ before_install:
   - cd ../..
   - composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci ^2
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
+  - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
 
 install:
   - moodle-plugin-ci install
+
+  # Work-around to get Behat/Chrome to work, thanks to https://travis-ci.org/github/kabalin/moodle-qtype_stack/jobs/661027012/config
+  - export MOODLE_START_BEHAT_SERVERS=NO
+  - docker run -d -p 4444:4444 --net=host -v /dev/shm:/dev/shm -v $HOME/build/moodle:$HOME/build/moodle selenium/standalone-chrome:3
+  - php -S localhost:8000 -t $HOME/build/moodle > /dev/null 2>&1 &
 
 script:
   - moodle-plugin-ci phplint
   - moodle-plugin-ci phpcpd || true
   - moodle-plugin-ci phpmd
-  - moodle-plugin-ci codechecker || true # CodeChecker not coping with nullable return types.
+  - moodle-plugin-ci codechecker
   - moodle-plugin-ci validate
   - moodle-plugin-ci savepoints
   - moodle-plugin-ci mustache || true
   - moodle-plugin-ci grunt || [ "$CHECK_GRUNT" = 'no' ]
   - moodle-plugin-ci phpunit
-  - moodle-plugin-ci behat
+  - moodle-plugin-ci behat --profile chrome
