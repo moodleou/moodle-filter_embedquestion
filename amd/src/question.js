@@ -57,7 +57,9 @@ define([], function() {
 
             // Make the edit question link (if present) open in the full window.
             document.querySelectorAll('.editquestion a').forEach(function(element) {
-                element.setAttribute('target', '_top');
+                if (!element.hasAttribute('target')) {
+                    element.setAttribute('target', '_top');
+                }
             });
 
             Y.use('moodle-core-formchangechecker', function() {
