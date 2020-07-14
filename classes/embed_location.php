@@ -58,6 +58,11 @@ class embed_location {
      */
     private function __construct(\context $context, \moodle_url $pageurl, string $pagetitle) {
         $this->context = $context;
+
+        if (CLI_SCRIPT && empty($pageurl->out())) {
+            $pageurl = new \moodle_url('/');
+        }
+
         $this->pageurl = $pageurl;
         $this->pagetitle = $pagetitle;
     }
