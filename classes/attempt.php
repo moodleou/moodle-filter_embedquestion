@@ -149,7 +149,15 @@ class attempt {
 
         if ($existingquba) {
             // Found.
+            $desiredmaxmark = $this->options->maxmark;
             $this->setup_usage_info($existingquba, $slot);
+
+            // When we find an existing attempt, if max mark option has changed since the
+            // attempt was started, then we udpate the max mark in the quba.
+            if ($existingquba->get_question_max_mark($slot) != $desiredmaxmark) {
+                $existingquba->set_max_mark($slot, $desiredmaxmark);
+                $this->synch_options_from_loaded_quba();
+            }
 
         } else {
             // There is not already an attempt at this question. Start one.
