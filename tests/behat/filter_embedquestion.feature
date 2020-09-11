@@ -35,8 +35,15 @@ Feature: Add an activity and embed a question inside that activity
     And I click on "True" "radio" in the "The answer is true." "question"
     And I press "Check"
     Then I should see "Correct"
+    And I should see "Mark 1.00 out of 1.00"
     And I press "Start again"
     And I should not see "Correct"
+
+    # There was a bug where the score was shown wrong when an attempt was resumed. Test that.
+    And I switch to the main frame
+    And I reload the page
+    And I switch to "filter_embedquestion-iframe" iframe
+    And I should see "Marked out of 1.00"
 
   @javascript
   Scenario: Test using the helper script - embed a question at random

@@ -153,9 +153,10 @@ class attempt {
             $this->setup_usage_info($existingquba, $slot);
 
             // When we find an existing attempt, if max mark option has changed since the
-            // attempt was started, then we udpate the max mark in the quba.
-            if ($existingquba->get_question_max_mark($slot) != $desiredmaxmark) {
+            // attempt was started, then we update the max mark in the quba.
+            if ($desiredmaxmark !== null && $existingquba->get_question_max_mark($slot) != $desiredmaxmark) {
                 $existingquba->set_max_mark($slot, $desiredmaxmark);
+                \question_engine::save_questions_usage_by_activity($existingquba);
                 $this->synch_options_from_loaded_quba();
             }
 
