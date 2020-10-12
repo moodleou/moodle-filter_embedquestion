@@ -26,6 +26,8 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/filter/embedquestion/filter.php');
+
+use filter_embedquestion\attempt;
 use filter_embedquestion\utils;
 
 
@@ -310,5 +312,38 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         $this->assertArrayHasKey('immediatefeedback', $choices);
         $this->assertArrayHasKey('immediatecbm', $choices);
         $this->assertArrayNotHasKey('deferredfeedback', $choices);
+    }
+
+    /**
+     * Test create_attempt_at_embedded_question
+     *
+     */
+    public function test_create_attempt_at_embedded_question() {
+        $this->setAdminUser();
+        $this->resetAfterTest();
+
+        // Get the generators.
+        $generator = $this->getDataGenerator();
+        $attemptgenerator = $generator->get_plugin_generator('filter_embedquestion');
+
+        // Create course.
+        $course = $generator->create_course(['fullname' => 'Course 1', 'shortname' => 'C1']);
+        $coursecontext = context_course::instance($course->id);
+        // Create embed question.
+        $question = $attemptgenerator->create_embeddable_question('truefalse', null, [], ['contextid' => $coursecontext->id]);
+        // Create page page that embeds a question.
+        $page = $generator->create_module('page', ['course' => $course->id,
+                'content' => '<p>Try this question: ' . $attemptgenerator->get_embed_code($question) . '</p>']);
+        $pagecontext = context_module::instance($page->cmid);
+
+        // Create a student and enroll to the course.
+        $user = $generator->create_user();
+        $generator->enrol_user($user->id, $course->id, 'student');
+        /** @var attempt $attempt */
+        // Create attempt at that question for created student.
+        $attempt = $attemptgenerator->create_attempt_at_embedded_question($question, $user, 'True', $pagecontext);
+        // verify that the question attempt step information is correct.
+        $this->assertEquals($user->id,
+                $attempt->get_question_usage()->get_question_attempt($attempt->get_slot())->get_last_step()->get_user_id());
     }
 }

@@ -164,6 +164,7 @@ class filter_embedquestion_generator extends component_generator_base {
      */
     public function create_attempt_at_embedded_question(stdClass $question,
             stdClass $user, string $response, context $attemptcontext = null, $pagename = null): attempt {
+        global $USER;
 
         [$embedid, $coursecontext] = $this->get_embed_id_and_context($question);
 
@@ -196,12 +197,22 @@ class filter_embedquestion_generator extends component_generator_base {
 
         $attempt = new attempt($embedid, $embedlocation, $user, $options);
         $this->verify_attempt_valid($attempt);
+
+        /* Nasty hack to make the question_attempt run correctly, because question/engine/questionattempt.php->start()
+        will use the current $USER if the $userid param will not be provided. */
+        $currentuser = $USER;
+        $USER = $user;
+        // End nasty hack.
+
         $attempt->find_or_create_attempt();
         $this->verify_attempt_valid($attempt);
 
         $postdata = $this->questiongenerator->get_simulated_post_data_for_questions_in_usage(
                 $attempt->get_question_usage(), [$attempt->get_slot() => $response], true);
         $attempt->process_submitted_actions($postdata);
+
+        // Set the current user back to the original.
+        $USER = $currentuser;
 
         return $attempt;
     }
