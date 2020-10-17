@@ -72,8 +72,52 @@ class renderer extends plugin_renderer_base {
      */
     public function embedded_question(\question_usage_by_activity $quba, int $slot,
             question_options $options, string $displaynumber): string {
+        $output = '';
 
         $this->page->requires->js_module('core_question_engine');
-        return $quba->render_question($slot, $options, $displaynumber);
+        $output .= $quba->render_question($slot, $options, $displaynumber);
+        $output .= $this->render_fill_with_correct($quba, $slot);
+
+        return $output;
+    }
+
+    /**
+     * Render the Fill with correct link
+     *
+     * @param \question_usage_by_activity $quba containing the question to display.
+     * @param int $slot slot number of the question to display.
+     * @param bool $showlabel Show the Staff only label or not.
+     * @return string HTML string
+     */
+    public function render_fill_with_correct(\question_usage_by_activity $quba, int $slot, bool $showlabel = true): string {
+        $output = '';
+
+        // Show the Fill with correct link to those with permissions.
+        if (question_has_capability_on($quba->get_question($slot), 'edit') && !is_null($quba->get_correct_response($slot))) {
+            $attributes = ['type' => 'submit', 'role' => 'button', 'name' => 'fill', 'class' => 'btn btn-link fillwithcorrectbtn',
+                    'value' => get_string('fillcorrect', 'mod_quiz')];
+            if ($quba->get_question_state($slot)->is_finished()) {
+                // Disable the Fill with correct link if the question state is finished.
+                $attributes['disabled'] = 'disabled';
+            }
+            $output .= \html_writer::start_div('fillwithcorrect');
+            if ($showlabel) {
+                $output .= $this->render_staff_only_label();
+            }
+            $output .= $this->pix_icon('e/tick', get_string('fillcorrect', 'mod_quiz'), 'moodle', ['class' => 'iconsmall']);
+            $output .= \html_writer::empty_tag('input', $attributes);
+            $output .= \html_writer::end_div();
+        }
+
+        return $output;
+    }
+
+    /**
+     * Render the Staff only label.
+     *
+     * @return string HTML String
+     */
+    public function render_staff_only_label() {
+        return \html_writer::span(get_string('staffonly', 'filter_embedquestion'), 'staffonlylabel');
     }
 }

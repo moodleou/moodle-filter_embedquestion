@@ -31,6 +31,25 @@ body#page-filter-embedquestion-showquestion .que {
     padding-top: 0;
 }
 
+body#page-filter-embedquestion-showquestion .fillwithcorrect {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+body#page-filter-embedquestion-showquestion .fillwithcorrect .staffonlylabel {
+    margin-right: 10px;
+}
+
+body#page-filter-embedquestion-showquestion .fillwithcorrect .fillwithcorrectbtn {
+    padding-left: 0;
+}
+
+body#page-filter-embedquestion-showquestion .fillwithcorrect .staffonlylabel,
+body#page-filter-embedquestion-showquestion .fillwithcorrect .iconsmall,
+body#page-filter-embedquestion-showquestion .fillwithcorrect .fillwithcorrectbtn {
+    vertical-align: middle;
+}
+
 /* This needs to work both inside and outside the iframe. */
 .filter_embedquestion-error {
     background-color: #f0f0f1;

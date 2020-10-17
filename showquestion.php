@@ -95,6 +95,16 @@ if (data_submitted() && confirm_sesskey()) {
             $attempt->start_new_attempt_at_question();
             redirect($attempt->get_action_url());
 
+        } else if (optional_param('fill', false, PARAM_BOOL)) {
+            $quba = $attempt->get_question_usage();
+            $correctresponse = $quba->get_correct_response($attempt->get_slot());
+            if (!is_null($correctresponse)) {
+                $quba->process_action($attempt->get_slot(), $correctresponse);
+
+                $transaction = $DB->start_delegated_transaction();
+                question_engine::save_questions_usage_by_activity($quba);
+                $transaction->allow_commit();
+            }
         } else {
             $attempt->process_submitted_actions();
 
