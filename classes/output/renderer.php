@@ -72,52 +72,51 @@ class renderer extends plugin_renderer_base {
      */
     public function embedded_question(\question_usage_by_activity $quba, int $slot,
             question_options $options, string $displaynumber): string {
-        $output = '';
 
         $this->page->requires->js_module('core_question_engine');
-        $output .= $quba->render_question($slot, $options, $displaynumber);
-        $output .= $this->render_fill_with_correct($quba, $slot);
+        $output = $quba->render_question($slot, $options, $displaynumber);
 
-        return $output;
-    }
-
-    /**
-     * Render the Fill with correct link
-     *
-     * @param \question_usage_by_activity $quba containing the question to display.
-     * @param int $slot slot number of the question to display.
-     * @param bool $showlabel Show the Staff only label or not.
-     * @return string HTML string
-     */
-    public function render_fill_with_correct(\question_usage_by_activity $quba, int $slot, bool $showlabel = true): string {
-        $output = '';
-
-        // Show the Fill with correct link to those with permissions.
-        if (question_has_capability_on($quba->get_question($slot), 'edit') && !is_null($quba->get_correct_response($slot))) {
-            $attributes = ['type' => 'submit', 'role' => 'button', 'name' => 'fill', 'class' => 'btn btn-link fillwithcorrectbtn',
-                    'value' => get_string('fillcorrect', 'mod_quiz')];
-            if ($quba->get_question_state($slot)->is_finished()) {
-                // Disable the Fill with correct link if the question state is finished.
-                $attributes['disabled'] = 'disabled';
-            }
-            $output .= \html_writer::start_div('fillwithcorrect');
-            if ($showlabel) {
-                $output .= $this->render_staff_only_label();
-            }
-            $output .= $this->pix_icon('e/tick', get_string('fillcorrect', 'mod_quiz'), 'moodle', ['class' => 'iconsmall']);
-            $output .= \html_writer::empty_tag('input', $attributes);
-            $output .= \html_writer::end_div();
+        if ($options->fillwithcorrect) {
+            $output = $this->add_fill_with_correct_link($output);
         }
 
         return $output;
     }
 
     /**
-     * Render the Staff only label.
+     * Actually insert the Fill with correct link into the HTML.
      *
-     * @return string HTML String
+     * @param string $questionhtml the basic rendered output of the question.
+     * @return string Updated question rendering.
      */
-    public function render_staff_only_label() {
-        return \html_writer::span(get_string('staffonly', 'filter_embedquestion'), 'staffonlylabel');
+    protected function add_fill_with_correct_link(string $questionhtml): string {
+
+        $fillbutton = $this->render_fill_with_correct();
+
+        // If we can, insert at the end of the info section.
+        if (preg_match('~<div class="info">.*</div><div class="content">~', $questionhtml)) {
+            $questionhtml = preg_replace('~(<div class="info">.*)(</div><div class="content">)~',
+                    '$1' . $fillbutton . '$2', $questionhtml, 1);
+
+        } else {
+            // Otherwise, just add at the end.
+            $questionhtml .= $fillbutton;
+        }
+
+        return $questionhtml;
+    }
+
+    /**
+     * Render the Fill with correct button.
+     *
+     * @return string HTML string
+     */
+    public function render_fill_with_correct(): string {
+        return \html_writer::div(\html_writer::tag('button',
+                    $this->pix_icon('e/tick', '', 'moodle', ['class' => 'iconsmall']) .
+                            \html_writer::span(get_string('fillcorrect', 'mod_quiz')),
+                    ['type' => 'submit', 'name' => 'fillwithcorrect', 'value' => 1,
+                            'class' => 'btn btn-link']),
+                'filter_embedquestion-fill-link');
     }
 }

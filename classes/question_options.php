@@ -45,6 +45,8 @@ class question_options extends \question_display_options {
     /** @var int the variant of the question to preview. */
     public $variant;
 
+    public $fillwithcorrect = self::HIDDEN;
+
     /**
      * The question_options constructor.
      *

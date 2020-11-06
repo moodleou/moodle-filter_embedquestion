@@ -31,23 +31,10 @@ body#page-filter-embedquestion-showquestion .que {
     padding-top: 0;
 }
 
-body#page-filter-embedquestion-showquestion .fillwithcorrect {
-    margin-top: 5px;
-    margin-bottom: 5px;
-}
-
-body#page-filter-embedquestion-showquestion .fillwithcorrect .staffonlylabel {
-    margin-right: 10px;
-}
-
-body#page-filter-embedquestion-showquestion .fillwithcorrect .fillwithcorrectbtn {
-    padding-left: 0;
-}
-
-body#page-filter-embedquestion-showquestion .fillwithcorrect .staffonlylabel,
-body#page-filter-embedquestion-showquestion .fillwithcorrect .iconsmall,
-body#page-filter-embedquestion-showquestion .fillwithcorrect .fillwithcorrectbtn {
-    vertical-align: middle;
+body#page-filter-embedquestion-showquestion .que .filter_embedquestion-fill-link button {
+    padding: 0;
+    font-size: 1em;
+    text-align: left;
 }
 
 /* This needs to work both inside and outside the iframe. */

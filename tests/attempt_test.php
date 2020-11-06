@@ -243,6 +243,42 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         }
     }
 
+    public function test_question_rendering(): void {
+        global $PAGE, $USER;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Create a sharable questions in the same category.
+        /** @var filter_embedquestion_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('filter_embedquestion');
+        $q1 = $generator->create_embeddable_question('shortanswer');
+
+        // Start an attempt in the way that showattempt.php would.
+        list($embedid, $context) = $generator->get_embed_id_and_context($q1);
+        $embedlocation = embed_location::make_for_test($context, $context->get_url(), 'Test embed location');
+        $options = new question_options();
+        $options->behaviour = 'immediatefeedback';
+        $attempt = new attempt($embedid, $embedlocation, $USER, $options);
+        $this->verify_attempt_valid($attempt);
+        $attempt->find_or_create_attempt();
+        $this->verify_attempt_valid($attempt);
+
+        // Render the question.
+        $renderer = $PAGE->get_renderer('filter_embedquestion');
+        $html = $attempt->render_question($renderer);
+
+        // Verify that the edit question and fill with correct links are present.
+        $this->assertRegExp('~<div class="info"><h3 class="no">Question <span class="qno">[^<]+</span>' .
+                '</h3><div class="state">Not complete</div><div class="grade">Marked out of 1.00</div>' .
+                '<div class="editquestion"><a href="[^"]+">' .
+                '<i class="icon fa fa-cog fa-fw iconsmall"  title="Edit" aria-label="Edit"></i>Edit question</a></div>' .
+                '<div class="filter_embedquestion-fill-link">' .
+                '<button type="submit" name="fillwithcorrect" value="1" class="btn btn-link">' .
+                '<i class="icon fa fa-check fa-fw iconsmall" aria-hidden="true"  ></i>' .
+                '<span>Fill with correct</span></button></div></div>~',
+                $html);
+    }
+
     /**
      * Helper: throw an exception if attempt is not valid.
      *

@@ -95,8 +95,9 @@ if (data_submitted() && confirm_sesskey()) {
             $attempt->start_new_attempt_at_question();
             redirect($attempt->get_action_url());
 
-        } else if (optional_param('fill', false, PARAM_BOOL)) {
+        } else if (optional_param('fillwithcorrect', false, PARAM_BOOL)) {
             $quba = $attempt->get_question_usage();
+            question_require_capability_on($quba->get_question($attempt->get_slot()), 'use');
             $correctresponse = $quba->get_correct_response($attempt->get_slot());
             if (!is_null($correctresponse)) {
                 $quba->process_action($attempt->get_slot(), $correctresponse);
@@ -104,16 +105,11 @@ if (data_submitted() && confirm_sesskey()) {
                 $transaction = $DB->start_delegated_transaction();
                 question_engine::save_questions_usage_by_activity($quba);
                 $transaction->allow_commit();
+                redirect($attempt->get_action_url(true));
             }
         } else {
             $attempt->process_submitted_actions();
-
-            $actionurl = $attempt->get_action_url();
-            $scrollpos = optional_param('scrollpos', '', PARAM_RAW);
-            if ($scrollpos !== '') {
-                $actionurl->param('scrollpos', (int) $scrollpos);
-            }
-            redirect($actionurl);
+            redirect($attempt->get_action_url(true));
         }
 
     } catch (question_out_of_sequence_exception $e) {

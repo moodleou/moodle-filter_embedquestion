@@ -36,7 +36,7 @@ Feature: Fill with correct feature for staff
     And I press "Check"
     And I should see "Correct"
     And I should see "Mark 1.00 out of 1.00"
-    And the "Fill with correct" "button" should be disabled
+    And "Fill with correct" "button" should not exist
     And I press "Start again"
     And I should not see "Correct"
     And the "Fill with correct" "button" should be enabled

@@ -62,7 +62,6 @@ $string['responsehistory_desc'] = 'Whether the response history table should be 
 $string['restart'] = 'Start again';
 $string['rightanswer_desc'] = 'Whether the automatically generated display of the right answer is shown by default for embedded questions. We recommend that you do not used this, but instead encoruage question authors to explain the right answer in the general feedback.';
 $string['specificfeedback_desc'] = 'Whether the feedback specific to the student\'s response should be shown by default in embedded questions.';
-$string['staffonly'] = 'Staff only:';
 $string['chooserandomly'] = 'Choose an embeddable question from this category randomly';
 $string['taskcleanup'] = 'Clean up old embedded question attempts';
 $string['title'] = 'Embedded question';

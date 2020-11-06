@@ -439,10 +439,17 @@ class attempt {
                 );
         }
 
-        // Show an edit question link to those with permssions.
+        // Show an 'Edit question' action to those with permissions.
         if (question_has_capability_on($this->current_question(), 'edit')) {
             $this->options->editquestionparams = ['returnurl' => $this->embedlocation->pageurl,
                     'courseid' => utils::get_relevant_courseid($this->embedlocation->context)];
+        }
+
+        // Show a 'Fill with correct' action to those with permissions.
+        if (question_has_capability_on($this->current_question(), 'use') &&
+                !$this->quba->get_question_state($this->slot)->is_finished() &&
+                $this->current_question()->get_correct_response() !== null) {
+            $this->options->fillwithcorrect = true;
         }
 
         // Start the question form.
@@ -489,12 +496,21 @@ class attempt {
     /**
      * Get the URL for continuing interacting with a given attempt at this question.
      *
+     * @param bool $withscrollpos if true, and scrollpos is a param to this request, pass it through.
      * @return \moodle_url the URL.
      */
-    public function get_action_url(): \moodle_url {
+    public function get_action_url(bool $withscrollpos = false): \moodle_url {
         $url = utils::get_show_url($this->embedid, $this->embedlocation, $this->options);
         $url->param('qubaid', $this->quba->get_id());
         $url->param('slot', $this->slot);
+
+        if ($withscrollpos) {
+            $scrollpos = optional_param('scrollpos', '', PARAM_RAW);
+            if ($scrollpos !== '') {
+                $url->param('scrollpos', (int) $scrollpos);
+            }
+        }
+
         return $url;
     }
 
