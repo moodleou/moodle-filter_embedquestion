@@ -27,7 +27,7 @@
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
 use Behat\Mink\Exception\ExpectationException as ExpectationException,
-    Behat\Gherkin\Node\TableNode as TableNode;
+        Behat\Gherkin\Node\TableNode as TableNode;
 
 /**
  * Behat steps for filter_embedquestion.
@@ -101,27 +101,51 @@ class behat_filter_embedquestion extends behat_base {
 
             default:
                 throw new ExpectationException('When simulating a embedded questions, ' .
-                    'contextlevel must be "activity" or "course".', $this->getSession());
+                        'contextlevel must be "activity" or "course".', $this->getSession());
         }
 
+        $datas = [];
         foreach ($attemptinfo->getHash() as $questioninfo) {
             if (empty($questioninfo['question'])) {
                 throw new ExpectationException('When simulating embedded questions, ' .
-                    'the question column is required.', $this->getSession());
+                        'the question column is required.', $this->getSession());
             }
             if (!array_key_exists('pagename', $questioninfo)) {
                 throw new ExpectationException('When simulating a embedded questions, ' .
-                    'the pagename column is required.', $this->getSession());
+                        'the pagename column is required.', $this->getSession());
             }
             if (!array_key_exists('response', $questioninfo)) {
                 throw new ExpectationException('When simulating a embedded questions, ' .
-                    'the response column is required.', $this->getSession());
+                        'the response column is required.', $this->getSession());
+            }
+            if (!array_key_exists('slot', $questioninfo)) {
+                $questioninfo['slot'] = 1;
+            }
+
+            if (!array_key_exists($questioninfo['pagename'], $datas)) {
+                $datas[$questioninfo['pagename']] = [
+                        'context' => $attemptcontext,
+                        'user' => $user,
+                        'slots' => []
+                ];
             }
 
             $question = $generator->get_question_from_embed_id($questioninfo['question']);
 
-            $generator->create_attempt_at_embedded_question($question,
-                $user, $questioninfo['response'], $attemptcontext, $questioninfo['pagename']);
+            $datas[$questioninfo['pagename']]['slots'][] = [
+                    'no' => $questioninfo['slot'],
+                    'question' => $question,
+                    'response' => $questioninfo['response']
+            ];
+        }
+
+        foreach ($datas as $pagename => $data) {
+            $attemptcontext = $data['context'];
+            $user = $data['user'];
+            foreach ($data['slots'] as $slot) {
+                $generator->create_attempt_at_embedded_question($slot['question'], $user, $slot['response'], $attemptcontext,
+                        $pagename, $slot['no']);
+            }
         }
     }
 }
