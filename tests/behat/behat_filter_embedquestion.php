@@ -88,21 +88,7 @@ class behat_filter_embedquestion extends behat_base {
         $generator = behat_util::get_data_generator()->get_plugin_generator('filter_embedquestion');
 
         $user = $DB->get_record('user', ['username' => $username], '*', MUST_EXIST);
-        switch ($contextlevel) {
-            case 'course':
-                $courseid = $DB->get_field('course', 'id', ['fullname' => $contextref]);
-                $attemptcontext = context_course::instance($courseid);
-                break;
-
-            case 'activity':
-                $cmid = $DB->get_field('course_modules', 'id', ['idnumber' => $contextref]);
-                $attemptcontext = context_module::instance($cmid);
-                break;
-
-            default:
-                throw new ExpectationException('When simulating a embedded questions, ' .
-                        'contextlevel must be "activity" or "course".', $this->getSession());
-        }
+        $attemptcontext = $this->get_attempt_context($contextlevel, $contextref);
 
         $datas = [];
         foreach ($attemptinfo->getHash() as $questioninfo) {
@@ -147,5 +133,58 @@ class behat_filter_embedquestion extends behat_base {
                         $pagename, $slot['no']);
             }
         }
+    }
+
+    /**
+     * Start an embedded question.
+     *
+     * @Given /^"(?P<username>(?:[^"]|\\")*)" has started embedded question "(?P<questioninfo>(?:[^"]|\\")*)" in "(?P<contextlevel>(?:[^"]|\\")*)" context "(?P<contextref>(?:[^"]|\\")*)"$/
+     *
+     * @param string $username the username of the user that will attempt.
+     * @param string $questioninfo embedded question to attempt
+     * @param string $contextlevel 'course' or 'activity'.
+     * @param string $contextref either course name or activity idnumber.
+     */
+    public function user_has_start_embedded_question(string $username, string $questioninfo, string $contextlevel,
+            string $contextref) {
+        global $DB;
+
+        /** @var filter_embedquestion_generator $generator */
+        $generator = behat_util::get_data_generator()->get_plugin_generator('filter_embedquestion');
+
+        $user = $DB->get_record('user', ['username' => $username], '*', MUST_EXIST);
+        $attemptcontext = $this->get_attempt_context($contextlevel, $contextref);
+
+        $question = $generator->get_question_from_embed_id($questioninfo);
+        $generator->create_attempt_at_embedded_question($question, $user, '', $attemptcontext, '', 1, false);
+    }
+
+    /**
+     * Get attempt context.
+     *
+     * @param string $contextlevel Context level
+     * @param string $contextref Context reference
+     * @return bool|context|context_course|context_module
+     */
+    private function get_attempt_context(string $contextlevel, string $contextref) {
+        global $DB;
+
+        switch ($contextlevel) {
+            case 'course':
+                $courseid = $DB->get_field('course', 'id', ['fullname' => $contextref]);
+                $attemptcontext = context_course::instance($courseid);
+                break;
+
+            case 'activity':
+                $cmid = $DB->get_field('course_modules', 'id', ['idnumber' => $contextref]);
+                $attemptcontext = context_module::instance($cmid);
+                break;
+
+            default:
+                throw new ExpectationException('When simulating a embedded questions, ' .
+                        'contextlevel must be "activity" or "course".', $this->getSession());
+        }
+
+        return $attemptcontext;
     }
 }

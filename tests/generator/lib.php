@@ -162,10 +162,12 @@ class filter_embedquestion_generator extends component_generator_base {
      * @param context|null $attemptcontext the context in which the attempt should be created.
      * @param null $pagename Page name
      * @param int $slot Slot no
+     * @param bool $isfinish Finish the attempt or not.
      * @return attempt the newly generated attempt.
      */
     public function create_attempt_at_embedded_question(stdClass $question,
-            stdClass $user, string $response, context $attemptcontext = null, $pagename = null, $slot = 1): attempt {
+            stdClass $user, string $response, context $attemptcontext = null, $pagename = null, $slot = 1,
+            $isfinish = true): attempt {
         global $USER;
 
         [$embedid, $coursecontext] = $this->get_embed_id_and_context($question);
@@ -214,9 +216,12 @@ class filter_embedquestion_generator extends component_generator_base {
             $attempt->start_new_attempt_at_question($attempt->get_question_usage());
         }
 
-        $postdata = $this->questiongenerator->get_simulated_post_data_for_questions_in_usage($attempt->get_question_usage(),
-                [$slot => $response], true);
-        $attempt->process_submitted_actions($postdata);
+        if ($isfinish) {
+            // Only submit the attempt if needed.
+            $postdata = $this->questiongenerator->get_simulated_post_data_for_questions_in_usage($attempt->get_question_usage(),
+                    [$slot => $response], true);
+            $attempt->process_submitted_actions($postdata);
+        }
 
         // Set the current user back to the original.
         $USER = $currentuser;
