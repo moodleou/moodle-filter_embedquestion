@@ -1,6 +1,15 @@
 # Change log for the embed questions filter
 
 
+## Changes in 1.9
+
+* Now, if the embedding option for max-mark is changed, in-progress attempts pick up the new value.
+* Question editors (those with 'use' capability on the question) get a 'Fill with correct' button.
+* Changes to this plugin to support changes in the associated report.
+* Fix occasional errors in cron from this plugin.
+* Fix a bug where clicking the Edit question link too quickly the form open in the iframe.
+
+
 ## Changes in 1.8
 
 * Allow media players inside embedded questions to go fullscreen.

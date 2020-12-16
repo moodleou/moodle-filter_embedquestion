@@ -138,7 +138,7 @@ class behat_filter_embedquestion extends behat_base {
     /**
      * Start an embedded question.
      *
-     * @Given :username has started embedded question :questioninfo in :$contextlevel context :$contextref
+     * @Given :username has started embedded question :questioninfo in :contextlevel context :contextref
      *
      * @param string $username the username of the user that will attempt.
      * @param string $questioninfo embedded question to attempt

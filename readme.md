@@ -1,4 +1,4 @@
-# The embed questions filter [![Build Status](https://travis-ci.com/moodleou/moodle-filter_embedquestion.svg?branch=master)](https://travis-ci.com/moodleou/moodle-filter_embedquestion)
+# The embed questions filter
 
 This Moodle text filter that displays questions from the question bank embedded
 wherever you can input HTML.
