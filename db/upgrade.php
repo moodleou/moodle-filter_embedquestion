@@ -35,14 +35,13 @@ function xmldb_filter_embedquestion_upgrade($oldversion) {
     // This upgrade will update the question and question_categories
     // tables by extracting the idnumber from the name and putting it
     // in the idnumber field.
-    $newversion = 2019032900;
-    if ($oldversion < $newversion) {
+    if ($oldversion < 2019032900) {
         $updater = new filter_embedquestion\idnumber_upgrader();
         $updater->update_question_category_idnumbers();
         $updater->update_question_idnumbers();
 
         // Filter_embedquestion savepoint reached.
-        upgrade_plugin_savepoint(true, $newversion, 'filter', 'embedquestion');
+        upgrade_plugin_savepoint(true, 2019032900, 'filter', 'embedquestion');
     }
 
     return true;

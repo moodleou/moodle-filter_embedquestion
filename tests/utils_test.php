@@ -342,7 +342,7 @@ class filter_embedquestion_utils_testcase extends advanced_testcase {
         /** @var attempt $attempt */
         // Create attempt at that question for created student.
         $attempt = $attemptgenerator->create_attempt_at_embedded_question($question, $user, 'True', $pagecontext);
-        // verify that the question attempt step information is correct.
+        // Verify that the question attempt step information is correct.
         $this->assertEquals($user->id,
                 $attempt->get_question_usage()->get_question_attempt($attempt->get_slot())->get_last_step()->get_user_id());
     }

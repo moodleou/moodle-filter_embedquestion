@@ -138,15 +138,15 @@ class behat_filter_embedquestion extends behat_base {
     /**
      * Start an embedded question.
      *
-     * @Given /^"(?P<username>(?:[^"]|\\")*)" has started embedded question "(?P<questioninfo>(?:[^"]|\\")*)" in "(?P<contextlevel>(?:[^"]|\\")*)" context "(?P<contextref>(?:[^"]|\\")*)"$/
+     * @Given :username has started embedded question :questioninfo in :$contextlevel context :$contextref
      *
      * @param string $username the username of the user that will attempt.
      * @param string $questioninfo embedded question to attempt
      * @param string $contextlevel 'course' or 'activity'.
      * @param string $contextref either course name or activity idnumber.
      */
-    public function user_has_start_embedded_question(string $username, string $questioninfo, string $contextlevel,
-            string $contextref) {
+    public function user_has_start_embedded_question(string $username, string $questioninfo,
+            string $contextlevel, string $contextref) {
         global $DB;
 
         /** @var filter_embedquestion_generator $generator */

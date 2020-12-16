@@ -114,4 +114,4 @@ jobs:
 
       - name: behat
         if: ${{ always() }}
-        run: moodle-plugin-ci behat
+        run: moodle-plugin-ci behat --profile chrome
