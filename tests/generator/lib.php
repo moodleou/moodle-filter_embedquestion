@@ -168,7 +168,7 @@ class filter_embedquestion_generator extends component_generator_base {
     public function create_attempt_at_embedded_question(stdClass $question,
             stdClass $user, string $response, context $attemptcontext = null, $pagename = null, $slot = 1,
             $isfinish = true): attempt {
-        global $USER;
+        global $USER, $CFG;
 
         [$embedid, $coursecontext] = $this->get_embed_id_and_context($question);
 
@@ -217,9 +217,15 @@ class filter_embedquestion_generator extends component_generator_base {
         }
 
         if ($isfinish) {
+            if ($question->qtype == 'recordrtc') {
+                $postdata = $this->get_simulated_post_data_for_recordrtc_qtype($attempt->get_question_usage(), $slot);
+            } else if ($question->qtype == 'essay') {
+                $postdata = $this->get_simulated_post_data_for_essay_qtype($attempt->get_question_usage(), $slot, $response);
+            } else {
+                $postdata = $this->questiongenerator->get_simulated_post_data_for_questions_in_usage($attempt->get_question_usage(),
+                        [$slot => $response], true);
+            }
             // Only submit the attempt if needed.
-            $postdata = $this->questiongenerator->get_simulated_post_data_for_questions_in_usage($attempt->get_question_usage(),
-                    [$slot => $response], true);
             $attempt->process_submitted_actions($postdata);
         }
 
@@ -238,5 +244,121 @@ class filter_embedquestion_generator extends component_generator_base {
         if (!$attempt->is_valid()) {
             throw new coding_exception($attempt->get_problem_description());
         }
+    }
+
+    /**
+     * Helper: Convert an array of data destined for one question to the equivalent POST data.
+     *
+     * @param question_usage_by_activity $quba Question usage by activity
+     * @param int $slot Slot
+     * @param array $data Data to process
+     * @return array
+     */
+    protected function process_response_data_to_post(question_usage_by_activity $quba, int $slot, array $data): array {
+        $prefix = $quba->get_field_prefix($slot);
+
+        $fulldata = [
+                'slots' => $slot,
+                $prefix . ':sequencecheck' => $quba->get_question_attempt($slot)->get_sequence_check_count()
+        ];
+
+        foreach ($data as $name => $value) {
+            $fulldata[$prefix . $name] = $value;
+        }
+
+        return $fulldata;
+    }
+
+    /**
+     * Helper: Store a test file with a given name and contents in a draft file area.
+     *
+     * @param int $usercontextid User context id.
+     * @param int $draftitemid Draft item id.
+     * @param string $filename Filename.
+     * @param string $contents File contents.
+     */
+    protected function save_file_to_draft_area(int $usercontextid, int $draftitemid, string $filename, string $contents): void {
+        $fs = get_file_storage();
+
+        $filerecord = new stdClass();
+        $filerecord->contextid = $usercontextid;
+        $filerecord->component = 'user';
+        $filerecord->filearea = 'draft';
+        $filerecord->itemid = $draftitemid;
+        $filerecord->filepath = '/';
+        $filerecord->filename = $filename;
+
+        $fs->create_file_from_string($filerecord, $contents);
+    }
+
+    /**
+     * Helper: This method can construct what the post data would be to simulate a user submitting responses to essay question type
+     * within a question usage.
+     *
+     * @param question_usage_by_activity $quba Question usage by activity
+     * @param int $slot Slot
+     * @param string $response Response data.
+     * @return array
+     */
+    protected function get_simulated_post_data_for_essay_qtype(question_usage_by_activity $quba, int $slot,
+            string $response): array {
+        global $USER, $PAGE;
+
+        // Required to init a text editor.
+        $PAGE->set_url('/');
+
+        $usercontextid = context_user::instance($USER->id)->id;
+        $currentoutput = $quba->render_question($slot, new question_display_options());
+
+        if (!preg_match('/env=editor&amp;.*?itemid=(\d+)&amp;/', $currentoutput, $matches)) {
+            throw new coding_exception('Editor draft item id not found.');
+        }
+
+        $editordraftid = $matches[1];
+
+        if (!preg_match('/env=filemanager&amp;action=browse&amp;.*?itemid=(\d+)&amp;/', $currentoutput, $matches)) {
+            throw new coding_exception('File manager draft item id not found.');
+        }
+        $attachementsdraftid = $matches[1];
+
+        $this->save_file_to_draft_area($usercontextid, $attachementsdraftid, 'greeting.txt', $response);
+
+        $userresponse = [
+                'answer' => $response,
+                'answerformat' => FORMAT_HTML,
+                'answer:itemid' => $editordraftid,
+                'attachments' => $attachementsdraftid
+        ];
+
+        return $this->process_response_data_to_post($quba, $slot, $userresponse);
+    }
+
+    /**
+     * Helper: This method can construct what the post data would be to simulate a user submitting responses to a/v recording
+     * question type within a question usage.
+     *
+     * @param question_usage_by_activity $quba Question usage by activity
+     * @param int $slot Slot
+     * @return array
+     */
+    protected function get_simulated_post_data_for_recordrtc_qtype(question_usage_by_activity $quba, int $slot): array {
+        $currentoutput = $quba->render_question($slot, new question_display_options());
+
+        if (!preg_match('/name="' . preg_quote($quba->get_question_attempt($slot)->get_qt_field_name('recording')) .
+                '" value="(\d+)"/', $currentoutput, $matches)) {
+            throw new coding_exception('Draft item id not found.');
+        }
+        $userresponse = [
+                'recording' => $matches[1],
+                '-submit' => '1',
+                '-selfcomment' => 'Sounds OK',
+                '-selfcommentformat' => FORMAT_HTML,
+                '-stars' => '4',
+                '-rate' => '1'
+        ];
+
+        qtype_recordrtc_test_helper::add_recording_to_draft_area($userresponse['recording'], 'moodle-tim.ogg');
+
+        return $this->process_response_data_to_post($quba, $slot, $userresponse);
     }
 }
