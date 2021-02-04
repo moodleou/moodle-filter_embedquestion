@@ -147,6 +147,36 @@ class behat_filter_embedquestion extends behat_base {
      */
     public function user_has_start_embedded_question(string $username, string $questioninfo,
             string $contextlevel, string $contextref) {
+        $this->create_inprogress_attempt_for_embedded_question($username, $questioninfo, $contextlevel, $contextref);
+    }
+
+    /**
+     * Start an embedded question with slot.
+     *
+     * @Given :username has started embedded question :questioninfo in :contextlevel context :contextref with slot :slot
+     *
+     * @param string $username the username of the user that will attempt.
+     * @param string $questioninfo embedded question to attempt
+     * @param string $contextlevel 'course' or 'activity'.
+     * @param string $contextref either course name or activity idnumber.
+     * @param string $slot slot no
+     */
+    public function user_has_start_embedded_question_with_slot(string $username, string $questioninfo,
+            string $contextlevel, string $contextref, string $slot) {
+        $this->create_inprogress_attempt_for_embedded_question($username, $questioninfo, $contextlevel, $contextref, $slot);
+    }
+
+    /**
+     * Create attempt for embedded question with given information.
+     *
+     * @param string $username the username of the user that will attempt.
+     * @param string $questioninfo embedded question to attempt
+     * @param string $contextlevel 'course' or 'activity'.
+     * @param string $contextref either course name or activity idnumber.
+     * @param int $slot Slot not
+     */
+    public function create_inprogress_attempt_for_embedded_question(string $username, string $questioninfo,
+            string $contextlevel, string $contextref, int $slot = 1) {
         global $DB;
 
         /** @var filter_embedquestion_generator $generator */
@@ -156,7 +186,7 @@ class behat_filter_embedquestion extends behat_base {
         $attemptcontext = $this->get_attempt_context($contextlevel, $contextref);
 
         $question = $generator->get_question_from_embed_id($questioninfo);
-        $generator->create_attempt_at_embedded_question($question, $user, '', $attemptcontext, '', 1, false);
+        $generator->create_attempt_at_embedded_question($question, $user, '', $attemptcontext, '', $slot, false);
     }
 
     /**
