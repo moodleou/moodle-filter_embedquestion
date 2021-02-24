@@ -69,9 +69,9 @@ if ($fromform = $form->get_data()) {
     }
 
     $embedcode = question_options::get_embed_from_form_options($fromform);
-    echo html_writer::tag('p', 'Code to embed the question: ' . $embedcode);
+    echo html_writer::tag('p', 'Code to embed the question: ' . s($embedcode));
 
-    echo format_text('The embedded question: ' . $embedcode, FORMAT_HTML, ['context' => $context]);
+    echo format_text('The embedded question: ' . s($embedcode), FORMAT_HTML, ['context' => $context]);
 }
 
 echo $OUTPUT->heading('Generate the code to embed a question');

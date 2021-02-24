@@ -33,6 +33,9 @@ defined('MOODLE_INTERNAL') || die();
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class embed_id {
+    private const TO_ESCAPE = ['%', '/', '|'];
+    private const ESCAPED = ['%25', '%2F', '%7C'];
+
     /**
      * @var string the category idnumber.
      */
@@ -55,12 +58,40 @@ class embed_id {
     }
 
     /**
+     * Create an embed id from a string that was output by ou to-string method.
+     *
+     * @param string $questioninfo a string in the form output by {@see __toString()}.
+     * @return embed_id|null if the string can be parse
+     */
+    public static function create_from_string(string $questioninfo): ?embed_id {
+        if (strpos($questioninfo, '/') === false) {
+            return null;
+        }
+
+        list($categoryidnumber, $questionidnumber) = explode('/', $questioninfo, 2);
+        return new embed_id(str_replace(self::ESCAPED, self::TO_ESCAPE, $categoryidnumber),
+                str_replace(self::ESCAPED, self::TO_ESCAPE, $questionidnumber));
+    }
+
+    /**
      * To-string method.
      *
      * @return string categoryidnumber/questionidnumber.
      */
     public function __toString(): string {
-        return $this->categoryidnumber . '/' . $this->questionidnumber;
+        return str_replace(self::TO_ESCAPE, self::ESCAPED, $this->categoryidnumber) . '/' .
+                str_replace(self::TO_ESCAPE, self::ESCAPED, $this->questionidnumber);
+    }
+
+    /**
+     * To-string method.
+     *
+     * @return string categoryidnumber/questionidnumber - but cleaned up to only have characters
+     *       that are safe in HTML id attributes.
+     */
+    public function to_html_id(): string {
+        return clean_param($this->categoryidnumber, PARAM_ALPHANUMEXT) . '/' .
+                clean_param($this->questionidnumber, PARAM_ALPHANUMEXT);
     }
 
     /**

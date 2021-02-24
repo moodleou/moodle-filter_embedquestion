@@ -24,6 +24,7 @@
 
 namespace filter_embedquestion\output;
 
+use filter_embedquestion\embed_id;
 use renderer_base;
 
 defined('MOODLE_INTERNAL') || die();
@@ -52,7 +53,8 @@ class embed_iframe implements \renderable, \templatable {
         $data = [
             'showquestionurl' => $this->showquestionurl,
             'name' => null,
-            'embedid' => $this->showquestionurl->param('catid') . '/' . $this->showquestionurl->param('qid'),
+            'embedid' => (new embed_id($this->showquestionurl->param('catid'),
+                    $this->showquestionurl->param('qid')))->to_html_id(),
         ];
         if (defined('BEHAT_SITE_RUNNING')) {
             $data['name'] = 'filter_embedquestion-iframe';

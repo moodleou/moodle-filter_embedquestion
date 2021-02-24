@@ -146,7 +146,7 @@ class filter_embedquestion extends moodle_text_filter {
      *      If the code is invalid, all elements are null.
      */
     public static function parse_embed_code(string $embedcode): array {
-        $parts = explode('|', $embedcode);
+        $parts = explode('|', htmlspecialchars_decode($embedcode));
 
         if (count($parts) < 2) {
             return [null, null];
@@ -155,12 +155,10 @@ class filter_embedquestion extends moodle_text_filter {
         $questioninfo = array_shift($parts);
         $token = array_pop($parts);
 
-        if (strpos($questioninfo, '/') === false) {
+        $embedid = embed_id::create_from_string($questioninfo);
+        if ($embedid === null) {
             return [null, null];
         }
-
-        list($categoryidnumber, $questionidnumber) = explode('/', $questioninfo, 2);
-        $embedid = new embed_id($categoryidnumber, $questionidnumber);
 
         if ($token !== token::make_secret_token($embedid)) {
             return [null, null];

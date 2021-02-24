@@ -49,8 +49,6 @@ class filter_embedquestion_testcase extends advanced_testcase {
         global $CFG;
         $tokenerror = ['<div class="filter_embedquestion-error">',
                 'This question may not be embedded here.'];
-        $embedid = new embed_id('cat', 'q');
-        $requiredtoken = token::make_secret_token($embedid);
 
         $cases = [
             ['Frog', 'Frog'],
@@ -60,6 +58,7 @@ class filter_embedquestion_testcase extends advanced_testcase {
 
         $title = get_string('title', 'filter_embedquestion');
 
+        $requiredtoken = token::make_secret_token(new embed_id('cat', 'q'));
         $expectedurl = new moodle_url('/filter/embedquestion/showquestion.php', [
                 'catid' => 'cat', 'qid' => 'q', 'contextid' => '1', 'pageurl' => '/', 'pagetitle' => 'System',
                 'behaviour' => 'interactive', 'correctness' => '1', 'marks' => '2', 'markdp' => '2',
@@ -72,17 +71,18 @@ class filter_embedquestion_testcase extends advanced_testcase {
     src="' . $expectedurl . '"
     id="cat/q"></iframe>'];
 
+        $requiredtoken = token::make_secret_token(new embed_id('A/V questions', '|<--- 100%'));
         $expectedurl = new moodle_url('/filter/embedquestion/showquestion.php', [
-                'catid' => 'cat', 'qid' => 'q', 'contextid' => '1', 'pageurl' => '/', 'pagetitle' => 'System',
+                'catid' => 'A/V questions', 'qid' => '|<--- 100%', 'contextid' => '1', 'pageurl' => '/', 'pagetitle' => 'System',
                 'behaviour' => 'immediatefeedback', 'correctness' => '1', 'marks' => '10', 'markdp' => '3',
                 'feedback' => '1', 'generalfeedback' => '0', 'rightanswer' => '0', 'history' => '0']);
         token::add_iframe_token_to_url($expectedurl);
-        $cases[] = ['{Q{cat/q|behaviour=immediatefeedback|marks=10|markdp=3|generalfeedback=0|' . $requiredtoken . '}Q}',
+        $cases[] = ['{Q{A%2FV questions/%7C&lt;--- 100%25|behaviour=immediatefeedback|marks=10|markdp=3|generalfeedback=0|' . $requiredtoken . '}Q}',
                 '<iframe
     class="filter_embedquestion-iframe" allowfullscreen
     title="' . $title . '"
     src="' . $expectedurl . '"
-    id="cat/q"></iframe>'];
+    id="AVquestions/---100"></iframe>'];
 
         return $cases;
     }

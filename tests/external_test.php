@@ -106,7 +106,25 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
                 external::get_sharable_question_choices($course->id, 'abc123'));
     }
 
-    public function test_get_embed_code_working() {
+    /**
+     *
+     */
+    public function get_embed_code_cases(): array {
+        return [
+            ['abc123', 'toad', 'abc123/toad'],
+            ['A/V questions', '|---> 100%', 'A%2FV questions/%7C---> 100%25'],
+        ];
+    }
+
+    /**
+     * Test getting the embed code for a particular question.
+     *
+     * @param string $catid idnumber to use for the category.
+     * @param string $questionid idnumber to use for the question.
+     * @param string $expectedembedid what the embed id in the output should be.
+     * @dataProvider get_embed_code_cases()
+     */
+    public function test_get_embed_code_working(string $catid, string $questionid, string $expectedembedid): void {
 
         $this->resetAfterTest();
 
@@ -116,13 +134,13 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         /** @var core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
         $category = $questiongenerator->create_question_category(
-                ['name' => 'Category', 'idnumber' => 'abc123',
+                ['name' => 'Category', 'idnumber' => $catid,
                         'contextid' => context_course::instance($course->id)->id]);
 
         $questiongenerator->create_question('shortanswer', null,
-                ['category' => $category->id, 'name' => 'Question', 'idnumber' => 'toad']);
+                ['category' => $category->id, 'name' => 'Question', 'idnumber' => $questionid]);
 
-        $embedid = new embed_id('abc123', 'toad');
+        $embedid = new embed_id($catid, $questionid);
         $behaviour = '';
         $maxmark = '';
         $variant = '';
@@ -135,7 +153,7 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $history = '';
 
         $token = token::make_secret_token($embedid);
-        $expected = '{Q{' . $embedid . '|' . $token . '}Q}';
+        $expected = '{Q{' . $expectedembedid . '|' . $token . '}Q}';
         $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
                 $embedid->questionidnumber, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);
@@ -143,7 +161,7 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $this->assertEquals($expected, $actual);
 
         $behaviour = 'immediatefeedback';
-        $expected = '{Q{' . $embedid . '|behaviour=' . $behaviour . '|' . $token . '}Q}';
+        $expected = '{Q{' . $expectedembedid . '|behaviour=' . $behaviour . '|' . $token . '}Q}';
         $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
                 $embedid->questionidnumber, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);
