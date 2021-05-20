@@ -28,6 +28,7 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 
 use filter_embedquestion\attempt;
+use filter_embedquestion\custom_string_manager;
 use filter_embedquestion\embed_id;
 use filter_embedquestion\embed_location;
 use filter_embedquestion\output\renderer;
@@ -44,15 +45,18 @@ if (isguestuser()) {
     print_error('noguests', 'filter_embedquestion');
 }
 
+$options = new filter_embedquestion\question_options();
+$options->set_from_request();
+if ($options->forcedlanguage) {
+    \filter_embedquestion\custom_string_manager::force_page_language($options->forcedlanguage);
+}
+
 // Process other parameters.
 $categoryidnumber = required_param('catid', PARAM_RAW);
 $questionidnumber = required_param('qid', PARAM_RAW);
 $embedid = new embed_id($categoryidnumber, $questionidnumber);
 
 $embedlocation = embed_location::make_from_url_params();
-
-$options = new filter_embedquestion\question_options();
-$options->set_from_request();
 
 $PAGE->set_url(utils::get_show_url($embedid, $embedlocation, $options));
 

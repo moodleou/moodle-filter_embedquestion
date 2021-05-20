@@ -51,9 +51,9 @@ class filter_embedquestion_testcase extends advanced_testcase {
                 'This question may not be embedded here.'];
 
         $cases = [
-            ['Frog', 'Frog'],
-            ['{Q{x}Q}', $tokenerror],
-            ['{Q{cat/q|not-the-right-token}Q}', $tokenerror],
+            'noembed' => ['Frog', 'Frog'],
+            'invalidembed' => ['{Q{x}Q}', $tokenerror],
+            'missingtoken' => ['{Q{cat/q|not-the-right-token}Q}', $tokenerror],
         ];
 
         $title = get_string('title', 'filter_embedquestion');
@@ -64,7 +64,7 @@ class filter_embedquestion_testcase extends advanced_testcase {
                 'behaviour' => 'interactive', 'correctness' => '1', 'marks' => '2', 'markdp' => '2',
                 'feedback' => '1', 'generalfeedback' => '1', 'rightanswer' => '0', 'history' => '0']);
         token::add_iframe_token_to_url($expectedurl);
-        $cases[] = ['{Q{cat/q|' . $requiredtoken . '}Q}',
+        $cases['defaultoptions'] = ['{Q{cat/q|' . $requiredtoken . '}Q}',
                 '<iframe
     class="filter_embedquestion-iframe" allowfullscreen
     title="' . $title . '"
@@ -75,9 +75,11 @@ class filter_embedquestion_testcase extends advanced_testcase {
         $expectedurl = new moodle_url('/filter/embedquestion/showquestion.php', [
                 'catid' => 'A/V questions', 'qid' => '|<--- 100%', 'contextid' => '1', 'pageurl' => '/', 'pagetitle' => 'System',
                 'behaviour' => 'immediatefeedback', 'correctness' => '1', 'marks' => '10', 'markdp' => '3',
-                'feedback' => '1', 'generalfeedback' => '0', 'rightanswer' => '0', 'history' => '0']);
+                'feedback' => '1', 'generalfeedback' => '0', 'rightanswer' => '0', 'history' => '0', 'forcedlanguage' => 'en']);
         token::add_iframe_token_to_url($expectedurl);
-        $cases[] = ['{Q{A%2FV questions/%7C&lt;--- 100%25|behaviour=immediatefeedback|marks=10|markdp=3|generalfeedback=0|' . $requiredtoken . '}Q}',
+        $cases['givenoptions'] = ['{Q{A%2FV questions/%7C&lt;--- 100%25|' .
+                'behaviour=immediatefeedback|marks=10|markdp=3|generalfeedback=0|forcedlanguage=en|' .
+                $requiredtoken . '}Q}',
                 '<iframe
     class="filter_embedquestion-iframe" allowfullscreen
     title="' . $title . '"
@@ -111,7 +113,7 @@ class filter_embedquestion_testcase extends advanced_testcase {
 
         } else if (is_array($expectedoutput)) {
             foreach ($expectedoutput as $expectedpart) {
-                $this->assertContains($expectedpart, $actualoutput);
+                $this->assertStringContainsString($expectedpart, $actualoutput);
             }
 
         } else {
@@ -132,7 +134,7 @@ class filter_embedquestion_testcase extends advanced_testcase {
 
         $actualoutput = $filter->filter('{Q{cat/q|' . token::make_secret_token($embedid) . '}Q}');
 
-        $this->assertContains('<div class="filter_embedquestion-error">', $actualoutput);
-        $this->assertContains('Guest users do not have permission to interact with embedded questions.', $actualoutput);
+        $this->assertStringContainsString('<div class="filter_embedquestion-error">', $actualoutput);
+        $this->assertStringContainsString('Guest users do not have permission to interact with embedded questions.', $actualoutput);
     }
 }

@@ -302,4 +302,19 @@ class utils {
         }
         return $behaviours;
     }
+
+    /**
+     * Get the list of languages installed on this system, if there is more than one.
+     *
+     * @return array|null null if only one language is installed, else array lang code => name,
+     *     including a 'Do not force' option.
+     */
+    public static function get_installed_language_choices(): ?array {
+        $languages = get_string_manager()->get_list_of_translations();
+        if (count($languages) == 1) {
+            return null;
+        }
+
+        return ['' => get_string('forceno')] + $languages;
+    }
 }

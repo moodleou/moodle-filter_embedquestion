@@ -156,7 +156,8 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $expected = '{Q{' . $expectedembedid . '|' . $token . '}Q}';
         $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
                 $embedid->questionidnumber, $behaviour,
-                $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);
+                $maxmark, $variant, $correctness, $marks, $markdp, $feedback,
+                $generalfeedback, $rightanswer, $history, '');
 
         $this->assertEquals($expected, $actual);
 
@@ -164,7 +165,8 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $expected = '{Q{' . $expectedembedid . '|behaviour=' . $behaviour . '|' . $token . '}Q}';
         $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
                 $embedid->questionidnumber, $behaviour,
-                $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);
+                $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback,
+                $rightanswer, $history, '');
 
         $this->assertEquals($expected, $actual);
     }
@@ -203,7 +205,8 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $expected = '{Q{' . $embedid . '|' . $token .'}Q}';
         $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
                 $embedid->questionidnumber, $behaviour,
-                $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);
+                $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback,
+                $rightanswer, $history, '');
         $this->assertEquals($expected, $actual);
 
         $embedid = new embed_id('abc123', 'frog');
@@ -211,7 +214,8 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $expected = '{Q{' . $embedid . '|' . $token .'}Q}';
         $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
                 $embedid->questionidnumber, $behaviour,
-                $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);
+                $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback,
+                $rightanswer, $history, '');
         $this->assertEquals($expected, $actual);
 
         // Accept '*' for $questionidnumber to indicate a random question.
@@ -220,14 +224,16 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $expected = '{Q{' . $embedid . '|' . $token .'}Q}';
         $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
                 $embedid->questionidnumber, $behaviour,
-                $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);
+                $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback,
+                $rightanswer, $history, '');
         $this->assertEquals($expected, $actual);
 
         $behaviour = 'immediatefeedback';
         $expected = '{Q{' . $embedid . '|behaviour=' . $behaviour . '|' . $token . '}Q}';
         $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
                 $embedid->questionidnumber, $behaviour,
-                $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback, $rightanswer, $history);
+                $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback,
+                $rightanswer, $history, '');
         $this->assertEquals($expected, $actual);
     }
 }

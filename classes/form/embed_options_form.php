@@ -107,6 +107,11 @@ class embed_options_form extends \moodleform {
         $mform->addElement('select', 'history', get_string('responsehistory', 'question'),
                 $this->get_show_hide_options($defaultoptions->history));
 
+        $languages = utils::get_installed_language_choices();
+        if ($languages) {
+            $mform->addElement('select', 'forcedlanguage', get_string('forcelanguage'), $languages);
+        }
+
         $this->add_action_buttons(false, get_string('embedquestion', 'filter_embedquestion'));
         $mform->disabledIf('submitbutton', 'questionidnumber', 'eq', '');
     }

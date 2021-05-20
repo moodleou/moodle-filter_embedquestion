@@ -143,6 +143,8 @@ class external extends \external_api {
                         'Whether to show the automatically generated right answer display (1/0/"") for show, hide or default.'),
                 'history' => new \external_value(PARAM_RAW_TRIMMED,
                         'Whether to show the response history (1/0/"") for show, hide or default.'),
+                'forcedlanguage' => new \external_value(PARAM_LANG,
+                        'Whether to force the UI language of the question. Lang code or empty string.'),
         ]);
     }
 
@@ -181,19 +183,20 @@ class external extends \external_api {
      * @param string $generalfeedback 0, 1 or ''.
      * @param string $rightanswer 0, 1 or ''.
      * @param string $history 0, 1 or ''.
+     * @param string $forcedlanguage moodle lang pack (e.g. 'fr') or ''.
      *
      * @return string the embed code.
      */
     public static function get_embed_code(int $courseid, string $categoryidnumber, string $questionidnumber,
             string $behaviour, string $maxmark, string $variant, string $correctness, string $marks,
-            string $markdp, string $feedback, string $generalfeedback, string $rightanswer, string $history): string {
+            string $markdp, string $feedback, string $generalfeedback, string $rightanswer, string $history, string $forcedlanguage): string {
         global $CFG;
 
         self::validate_parameters(self::get_embed_code_parameters(),
                 array('courseid' => $courseid, 'categoryidnumber' => $categoryidnumber, 'questionidnumber' => $questionidnumber,
                         'behaviour' => $behaviour, 'maxmark' => $maxmark, 'variant' => $variant, 'correctness' => $correctness,
                         'marks' => $marks, 'markdp' => $markdp, 'feedback' => $feedback, 'generalfeedback' => $generalfeedback,
-                        'rightanswer' => $rightanswer, 'history' => $history,
+                        'rightanswer' => $rightanswer, 'history' => $history, 'forcedlanguage' => $forcedlanguage,
                 ));
 
         $context = \context_course::instance($courseid);
@@ -224,6 +227,7 @@ class external extends \external_api {
         $fromform->generalfeedback = $generalfeedback;
         $fromform->rightanswer = $rightanswer;
         $fromform->history = $history;
+        $fromform->forcedlanguage = $forcedlanguage;
 
         // Log this.
         if ($questionidnumber === '*') {

@@ -45,6 +45,10 @@ class question_options extends \question_display_options {
     /** @var int the variant of the question to preview. */
     public $variant;
 
+    /** @var string if set, force the embedded question to be displayed in this language. Moodle lang code, e.g. 'fr'. */
+    public $forcedlanguage = null;
+
+    /** @var int whether the current user is allowed to see the 'Fille with correct' button. */
     public $fillwithcorrect = self::HIDDEN;
 
     /**
@@ -88,6 +92,7 @@ class question_options extends \question_display_options {
             'generalfeedback' => PARAM_BOOL,
             'rightanswer' => PARAM_BOOL,
             'history' => PARAM_BOOL,
+            'forcedlanguage' => PARAM_LANG,
         );
     }
 
@@ -97,6 +102,10 @@ class question_options extends \question_display_options {
     public function set_from_request(): void {
         foreach (self::get_field_types() as $field => $type) {
             $this->$field = optional_param($field, $this->$field, $type);
+            if ($type == PARAM_LANG && $this->$field === '') {
+                // PARAM_LANG handles invalid values in a strange way. Normalise.
+                $this->$field = null;
+            }
         }
         $this->numpartscorrect = $this->feedback;
 
@@ -115,6 +124,10 @@ class question_options extends \question_display_options {
         foreach (self::get_field_types() as $field => $type) {
             if (array_key_exists($field, $params) && $params[$field] !== '') {
                 $this->$field = clean_param($params[$field], $type);
+                if ($type == PARAM_LANG && $this->$field === '') {
+                    // PARAM_LANG handles invalid values in a strange way. Normalise.
+                    $this->$field = null;
+                }
             }
         }
         $this->numpartscorrect = $this->feedback;
