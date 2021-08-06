@@ -1,6 +1,19 @@
 # Change log for the embed questions filter
 
 
+## Changes in 2.0
+
+* A new option to change the language used for each embedded question. If your Moodle site
+  has more than one language pack installed, then when you embed a question there is a
+  new option for the language pack to use for that question. So, for example,
+  in your "Beginner's French" course you can leave the standard Moodle UI language
+  as English, but you can still have the UI buttons like "Submit" inside the embedded questions
+  in French.
+* Ensure that all character that might appear in the idnubmers of embedded questions work
+  (Even though I would recommend keeping the idnumbers simple.)
+* Support for the download features in the associated report.
+
+
 ## Changes in 1.9
 
 * Now, if the embedding option for max-mark is changed, in-progress attempts pick up the new value.

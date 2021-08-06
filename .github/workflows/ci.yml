@@ -3,7 +3,7 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: 'ubuntu-latest'
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -23,20 +23,16 @@ jobs:
 
     services:
       postgres:
-        image: postgres
+        image: postgres:10
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 3
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
         ports:
           - 5432:5432
 
       mariadb:
-        image: mariadb
+        image: mariadb:10.5
         env:
           MYSQL_USER: 'root'
           MYSQL_ALLOW_EMPTY_PASSWORD: "true"

@@ -64,14 +64,22 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
 
         // Verify that we started an attempt at one of our questions.
         $firstusedquestionid = $attempt->get_question_usage()->get_question($attempt->get_slot())->id;
-        $this->assertContains($firstusedquestionid, [$q1->id, $q2->id]);
+        if (method_exists($this, 'assertContainsEquals')) {
+            $this->assertContainsEquals($firstusedquestionid, [$q1->id, $q2->id]);
+        } else {
+            $this->assertContains($firstusedquestionid, [$q1->id, $q2->id]);
+        }
 
         // Now start a second question attempt.
         $attempt->start_new_attempt_at_question();
 
         // Verify that it uses the other question.
         $secondusedquestionid = $attempt->get_question_usage()->get_question($attempt->get_slot())->id;
-        $this->assertContains($secondusedquestionid, [$q1->id, $q2->id]);
+        if (method_exists($this, 'assertContainsEquals')) {
+            $this->assertContainsEquals($secondusedquestionid, [$q1->id, $q2->id]);
+        } else {
+            $this->assertContains($secondusedquestionid, [$q1->id, $q2->id]);
+        }
         $this->assertNotEquals($firstusedquestionid, $secondusedquestionid);
     }
 
@@ -268,15 +276,19 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         $html = $attempt->render_question($renderer);
 
         // Verify that the edit question and fill with correct links are present.
-        $this->assertRegExp('~<div class="info"><h3 class="no">Question <span class="qno">[^<]+</span>' .
+        $expectedregex = '~<div class="info"><h3 class="no">Question <span class="qno">[^<]+</span>' .
                 '</h3><div class="state">Not complete</div><div class="grade">Marked out of 1.00</div>' .
                 '<div class="editquestion"><a href="[^"]+">' .
                 '<i class="icon fa fa-cog fa-fw iconsmall"  title="Edit" aria-label="Edit"></i>Edit question</a></div>' .
                 '<div class="filter_embedquestion-fill-link">' .
                 '<button type="submit" name="fillwithcorrect" value="1" class="btn btn-link">' .
                 '<i class="icon fa fa-check fa-fw iconsmall" aria-hidden="true"  ></i>' .
-                '<span>Fill with correct</span></button></div></div>~',
-                $html);
+                '<span>Fill with correct</span></button></div></div>~';
+        if (method_exists($this, 'assertMatchesRegularExpression')) {
+            $this->assertMatchesRegularExpression($expectedregex, $html);
+        } else {
+            $this->assertRegExp($expectedregex, $html);
+        }
     }
 
     /**

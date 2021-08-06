@@ -24,10 +24,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2020121600;
+$plugin->version   = 2020080600;
 $plugin->requires  = 2020061500;
 $plugin->component = 'filter_embedquestion';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.9 for Moodle 3.9+';
+$plugin->release   = '2.0 for Moodle 3.9+';
 
 $plugin->outestssufficient = true;
