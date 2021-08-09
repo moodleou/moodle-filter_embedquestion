@@ -1,6 +1,11 @@
 # Change log for the embed questions filter
 
 
+## Changes in 2.1
+
+* Fix the version number, which was wrong in the 2.0 release.
+
+
 ## Changes in 2.0
 
 * A new option to change the language used for each embedded question. If your Moodle site
