@@ -357,7 +357,7 @@ class filter_embedquestion_generator extends component_generator_base {
                 '-rate' => '1'
         ];
 
-        qtype_recordrtc_test_helper::add_recording_to_draft_area($userresponse['recording'], 'moodle-tim.ogg');
+        qtype_recordrtc_test_helper::add_recording_to_draft_area($userresponse['recording'], 'moodle-tim.ogg', 'recording.ogg');
 
         return $this->process_response_data_to_post($quba, $slot, $userresponse);
     }
