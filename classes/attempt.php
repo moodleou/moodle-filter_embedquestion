@@ -191,13 +191,18 @@ class attempt {
         $question = $this->quba->get_question($this->slot);
 
         if ($this->embedid->questionidnumber === '*') {
-            if (empty($question->idnumber) || $question->category != $this->category->id) {
-                print_error('questionidmismatch', 'question');
+            if (empty($question->idnumber)) {
+                throw new \moodle_exception('questionnolongerhasidnumber', 'filter_embedquestion');
             }
         } else {
             if ($this->embedid->questionidnumber !== $question->idnumber) {
-                print_error('questionidmismatch', 'question');
+                throw new \moodle_exception('questionidnumberchanged', 'filter_embedquestion', '',
+                        s($this->embedid->questionidnumber));
             }
+        }
+        if ($question->category != $this->category->id) {
+            throw new \moodle_exception('questionnolongerincategory', 'filter_embedquestion', '',
+                    s($this->embedid->categoryidnumber));
         }
 
         $this->synch_options_from_loaded_quba();
@@ -345,6 +350,7 @@ class attempt {
             $this->problemdetails = [
                     'qid' => $questionidnumber,
                     'catname' => format_string($this->category->name),
+                    'catidnumber' => s($this->category->idnumber),
             ];
             return 0;
         }

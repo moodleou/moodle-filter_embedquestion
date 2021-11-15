@@ -46,9 +46,8 @@ class filter_embedquestion_testcase extends advanced_testcase {
      * @return array the test cases.
      */
     public function get_cases_for_test_filter(): array {
-        global $CFG;
         $tokenerror = ['<div class="filter_embedquestion-error">',
-                'This question may not be embedded here.'];
+                'This embedded question is incorrectly configured.'];
 
         $cases = [
             'noembed' => ['Frog', 'Frog'],

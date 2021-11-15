@@ -88,7 +88,15 @@ try {
     } else {
         // First time error happened, show a nice message, with a button to get out of the mess.
         $nexturl = new moodle_url($PAGE->url, ['forcerestart' => '1']);
-        print_error('corruptattempt', 'filter_embedquestion', $nexturl, null, $e);
+        if (has_capability('moodle/question:useall', $context)) {
+            $message = 'corruptattemptwithreason';
+            $a = $e->getMessage();
+        } else {
+            $message = 'corruptattempt';
+            $a = null;
+        }
+
+        throw new moodle_exception($message, 'filter_embedquestion', $nexturl, $a, $e);
     }
 }
 

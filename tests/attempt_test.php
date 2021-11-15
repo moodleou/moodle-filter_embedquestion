@@ -158,7 +158,7 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
 
         // And try to restart. Should give an error.
         $this->expectOutputRegex('~The question with idnumber "embeddableq\d+" ' .
-                'does not exist in category "Test question category \d+"\.~');
+                'does not exist in category "Test question category \d+ \[embeddablecat\d+\]"\.~');
         $this->expectException(coding_exception::class);
         $attempt->start_new_attempt_at_question();
     }
