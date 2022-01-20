@@ -151,7 +151,7 @@ class filter_embedquestion extends moodle_text_filter {
             return [null, null];
         }
 
-        if ($token !== token::make_secret_token($embedid)) {
+        if (!token::is_authorized_secret_token($token, $embedid)) {
             return [null, null];
         }
 
