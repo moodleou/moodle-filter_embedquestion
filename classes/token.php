@@ -64,4 +64,23 @@ class token {
     public static function add_iframe_token_to_url(\moodle_url $url): void {
         $url->param('token', self::make_iframe_token($url->get_query_string(false)));
     }
+
+    /**
+     * @param string the security token to be verified
+     * @param embed_id $embedid the embed code.
+     * @return bool if authorized then true, otherwise false.
+     */
+    public static function is_authorized_secret_token($token, embed_id $embedid): bool {
+        $authorizedsecrets = get_config('filter_embedquestion', 'authorizedsecrets');
+        $authorizedsecrets = preg_split('/\n|\r/', $authorizedsecrets, -1, PREG_SPLIT_NO_EMPTY);
+        $authorizedsecrets[] = get_config('filter_embedquestion', 'secret');
+        
+        foreach($authorizedsecrets as $item){
+            $secret = hash('sha256', $embedid . '#embed#' . $item);
+            if ($token === $secret) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
