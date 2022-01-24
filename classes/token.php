@@ -73,7 +73,7 @@ class token {
     public static function is_authorized_secret_token($token, embed_id $embedid): bool {
         $authorizedsecrets = get_config('filter_embedquestion', 'authorizedsecrets');
         $authorizedsecrets = preg_split('/\n|\r/', $authorizedsecrets, -1, PREG_SPLIT_NO_EMPTY);
-        $authorizedsecrets[] = get_config('filter_embedquestion', 'secret');
+        array_unshift($authorizedsecrets, get_config('filter_embedquestion', 'secret'));
         
         foreach($authorizedsecrets as $item){
             $secret = hash('sha256', $embedid . '#embed#' . $item);

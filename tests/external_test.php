@@ -236,4 +236,25 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
                 $rightanswer, $history, '');
         $this->assertEquals($expected, $actual);
     }
+
+    /**
+     * Test function token::is_authorized_secret_token
+     *
+     * @param string $catid idnumber to use for the category.
+     * @param string $questionid idnumber to use for the question.
+     * @dataProvider get_embed_code_cases()
+     */
+    public function test_is_authorized_secret_token(string $catid, string $questionid): void {
+
+        $this->resetAfterTest();
+
+        $this->setAdminUser();
+
+        $embedid = new embed_id($catid, $questionid);
+        $token = token::make_secret_token($embedid);
+
+        $this->assertEquals(false, token::is_authorized_secret_token("AAA", $embedid));
+
+        $this->assertEquals(true, token::is_authorized_secret_token($token, $embedid));
+    }
 }

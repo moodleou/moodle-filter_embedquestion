@@ -88,7 +88,7 @@ if ($ADMIN->fulltree) {
             get_string('responsehistory_desc', 'filter_embedquestion'),
             0, $hiddenorvisible));
 
-     // autorized secret history.
+     // Authorized secrets.
      $params = new stdClass();
      $params->secret = $secret = get_config('filter_embedquestion', 'secret');
      $settings->add(new admin_setting_configtextarea('filter_embedquestion/authorizedsecrets',
