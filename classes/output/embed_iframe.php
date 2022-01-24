@@ -34,15 +34,18 @@ class embed_iframe implements \renderable, \templatable {
      * The error_message constructor.
      *
      * @param \moodle_url $showquestionurl The URL of the script to show in the iframe.
+     * @param string $iframedescription The contents of iframe description.
      */
-    public function __construct(\moodle_url $showquestionurl) {
+    public function __construct(\moodle_url $showquestionurl, string $iframedescription) {
         $this->showquestionurl = $showquestionurl;
+        $this->iframedescription = $iframedescription;
     }
 
     public function export_for_template(renderer_base $output) {
         $data = [
             'showquestionurl' => $this->showquestionurl,
             'name' => null,
+            'iframedescription' => format_string($this->iframedescription),
             'embedid' => (new embed_id($this->showquestionurl->param('catid'),
                     $this->showquestionurl->param('qid')))->to_html_id(),
         ];

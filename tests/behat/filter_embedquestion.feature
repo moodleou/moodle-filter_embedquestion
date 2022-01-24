@@ -30,6 +30,7 @@ Feature: Add an activity and embed a question inside that activity
     And I set the field "Question category" to "Test questions [embed] (1)"
     And I set the field "id_questionidnumber" to "First question"
     And I press "Embed question"
+    And ".filter_embedquestion-iframe[title=\"Embedded question 1\"]" "css_element" should exist
     And I switch to "filter_embedquestion-iframe" iframe
     And I click on "True" "radio" in the "The answer is true." "question"
     And I press "Check"
@@ -55,7 +56,9 @@ Feature: Add an activity and embed a question inside that activity
     When I am on the "Course 1" "filter_embedquestion > test" page logged in as teacher
     And I set the field "Question category" to "Test questions [embed] (4)"
     And I set the field "id_questionidnumber" to "Choose an embeddable question from this category randomly"
+    And I set the field "Iframe description" to "Embed question for behat testing"
     And I press "Embed question"
+    And ".filter_embedquestion-iframe[title=\"Embed question for behat testing\"]" "css_element" should exist
     And I switch to "filter_embedquestion-iframe" iframe
     And I click on "True" "radio" in the "The answer is true." "question"
     And I press "Check"

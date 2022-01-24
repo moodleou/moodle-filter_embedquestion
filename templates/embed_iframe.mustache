@@ -31,11 +31,12 @@
     {
         "showquestionurl": "https://example.com/filter/embedquestion/showquestion.php?catid=e&amp;qid=q",
         "name": "filter_embedquestion-iframe",
+        "iframedescription": "iframe description for accessibility!",
         "embedid": "catid/qid"
     }
 }}
 <iframe
     class="filter_embedquestion-iframe" allowfullscreen
-    title="{{#str}} title, filter_embedquestion {{/str}}"
+    title="{{iframedescription}}"
     src="{{{showquestionurl}}}"
     id="{{embedid}}"{{#name}} name="{{name}}"{{/name}}></iframe>

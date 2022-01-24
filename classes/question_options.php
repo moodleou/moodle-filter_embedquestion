@@ -51,6 +51,9 @@ class question_options extends \question_display_options {
     /** @var int whether the current user is allowed to see the 'Fille with correct' button. */
     public $fillwithcorrect = self::HIDDEN;
 
+    /** @var string Accessibility text for the iframe. */
+    public $iframedescription = '';
+
     /**
      * The question_options constructor.
      *
@@ -60,6 +63,7 @@ class question_options extends \question_display_options {
     public function __construct() {
         $defaults = get_config('filter_embedquestion');
 
+        $this->iframedescription = '';
         $this->behaviour = $defaults->behaviour;
         $this->maxmark = null;
         $this->variant = null;
@@ -82,6 +86,7 @@ class question_options extends \question_display_options {
      */
     public static function get_field_types(): array {
         return array(
+            'iframedescription' => PARAM_TEXT,
             'behaviour' => PARAM_ALPHA,
             'maxmark' => PARAM_FLOAT,
             'variant' => PARAM_INT,
@@ -101,6 +106,9 @@ class question_options extends \question_display_options {
      */
     public function set_from_request(): void {
         foreach (self::get_field_types() as $field => $type) {
+            if ($field === 'iframedescription') {
+                continue; // This one is not passed into the iframe.
+            }
             $this->$field = optional_param($field, $this->$field, $type);
             if ($type == PARAM_LANG && $this->$field === '') {
                 // PARAM_LANG handles invalid values in a strange way. Normalise.
@@ -123,7 +131,13 @@ class question_options extends \question_display_options {
     public function set_from_filter_options(array $params): void {
         foreach (self::get_field_types() as $field => $type) {
             if (array_key_exists($field, $params) && $params[$field] !== '') {
+                if ($field === 'iframedescription') {
+                    // May contain almost any character. Encode to protect it.
+                    $params[$field] = base64_decode($params[$field]);
+                }
+
                 $this->$field = clean_param($params[$field], $type);
+
                 if ($type == PARAM_LANG && $this->$field === '') {
                     // PARAM_LANG handles invalid values in a strange way. Normalise.
                     $this->$field = null;
@@ -142,6 +156,9 @@ class question_options extends \question_display_options {
         foreach (self::get_field_types() as $field => $notused) {
             if (is_null($this->$field)) {
                 continue;
+            }
+            if ($field === 'iframedescription') {
+                continue; // This one is not passed into the iframe.
             }
             $url->param($field, $this->$field);
         }
@@ -166,6 +183,12 @@ class question_options extends \question_display_options {
             }
 
             $value = clean_param($fromform->$field, $type);
+
+            if ($field === 'iframedescription') {
+                // May contain almost any character. Encode to protect it.
+                $value = base64_encode($value);
+            }
+
             $parts[] = $field . '=' . $value;
         }
         $parts[] = token::make_secret_token($embedid);

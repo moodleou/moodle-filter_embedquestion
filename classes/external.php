@@ -117,6 +117,8 @@ class external extends \external_api {
                         'Id number of the question category.'),
                 'questionidnumber' => new \external_value(PARAM_RAW,
                         'Id number of the question.'),
+                'iframedescription' => new \external_value(PARAM_TEXT,
+                        'Iframe description.'),
                 'behaviour' => new \external_value(PARAM_RAW,
                         'Question behaviour.'),
                 'maxmark' => new \external_value(PARAM_RAW_TRIMMED,
@@ -167,6 +169,7 @@ class external extends \external_api {
      * @param int $courseid the id of the course we are embedding questions from.
      * @param string $categoryidnumber the idnumber of the question category.
      * @param string $questionidnumber the idnumber of the question to be embedded, or '*' to mean a question picked at random.
+     * @param string $iframedescription the iframe description.
      * @param string $behaviour which question behaviour to use.
      * @param string $maxmark float value or ''.
      * @param string $variant int value or ''.
@@ -182,13 +185,14 @@ class external extends \external_api {
      * @return string the embed code.
      */
     public static function get_embed_code(int $courseid, string $categoryidnumber, string $questionidnumber,
-            string $behaviour, string $maxmark, string $variant, string $correctness, string $marks,
-            string $markdp, string $feedback, string $generalfeedback, string $rightanswer, string $history,
+            string $iframedescription, string $behaviour, string $maxmark, string $variant, string $correctness,
+            string $marks, string $markdp, string $feedback, string $generalfeedback, string $rightanswer, string $history,
             string $forcedlanguage): string {
         global $CFG;
 
         self::validate_parameters(self::get_embed_code_parameters(),
                 array('courseid' => $courseid, 'categoryidnumber' => $categoryidnumber, 'questionidnumber' => $questionidnumber,
+                        'iframedescription' => $iframedescription,
                         'behaviour' => $behaviour, 'maxmark' => $maxmark, 'variant' => $variant, 'correctness' => $correctness,
                         'marks' => $marks, 'markdp' => $markdp, 'feedback' => $feedback, 'generalfeedback' => $generalfeedback,
                         'rightanswer' => $rightanswer, 'history' => $history, 'forcedlanguage' => $forcedlanguage,
@@ -212,6 +216,7 @@ class external extends \external_api {
         $fromform->courseid = $courseid;
         $fromform->categoryidnumber = $categoryidnumber;
         $fromform->questionidnumber = $questionidnumber;
+        $fromform->iframedescription = $iframedescription;
         $fromform->behaviour = $behaviour;
         $fromform->maxmark = $maxmark;
         $fromform->variant = $variant;

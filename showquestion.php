@@ -48,7 +48,7 @@ if (isguestuser()) {
 $options = new filter_embedquestion\question_options();
 $options->set_from_request();
 if ($options->forcedlanguage) {
-    \filter_embedquestion\custom_string_manager::force_page_language($options->forcedlanguage);
+    custom_string_manager::force_page_language($options->forcedlanguage);
 }
 
 // Process other parameters.

@@ -402,4 +402,27 @@ class utils {
 
         return ['' => get_string('forceno')] + $languages;
     }
+
+    /** @var int Use to create unique iframe names. */
+    protected  static $untitilediframecounter = 0;
+
+    /**
+     * Make a unique name, for anonymous iframes.
+     *
+     * @return string Iframe description.
+     */
+    public static function make_unique_iframe_description(): string {
+        // Number of embed question needing an auto-increasing description.
+        static $untitilediframecounter = 0;
+
+        self::$untitilediframecounter += 1;
+        return get_string('iframetitleauto', 'filter_embedquestion', self::$untitilediframecounter);
+    }
+
+    /**
+     * For unit tests only, reset the counter between tests.
+     */
+    public static function unit_test_reset() {
+        self::$untitilediframecounter = 0;
+    }
 }

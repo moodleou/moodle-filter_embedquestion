@@ -67,6 +67,15 @@ class embed_options_form extends \moodleform {
         $mform->disabledIf('questionidnumber', 'categoryidnumber', 'eq', '');
         $PAGE->requires->js_call_amd('filter_embedquestion/questionid_choice_updater', 'init');
 
+        $mform->addElement('text', 'iframedescription', get_string('iframedescription', 'filter_embedquestion'),
+            ['size' => 100]);
+        $mform->setType('iframedescription', PARAM_TEXT);
+        $mform->addRule('iframedescription', get_string('iframedescriptionmaxlengthwarning', 'filter_embedquestion'),
+        'maxlength', 100, 'client');
+        $mform->addRule('iframedescription', get_string('iframedescriptionminlengthwarning', 'filter_embedquestion'),
+        'minlength', 3, 'client');
+        $mform->addHelpButton('iframedescription', 'iframedescription', 'filter_embedquestion');
+
         $mform->addElement('header', 'attemptheader', get_string('attemptoptions', 'filter_embedquestion'));
 
         $behaviours = ['' => get_string('defaultx', 'filter_embedquestion',

@@ -129,6 +129,7 @@ class external_test extends \advanced_testcase {
                 ['category' => $category->id, 'name' => 'Question', 'idnumber' => $questionid]);
 
         $embedid = new embed_id($catid, $questionid);
+        $iframedescription = '';
         $behaviour = '';
         $maxmark = '';
         $variant = '';
@@ -143,7 +144,7 @@ class external_test extends \advanced_testcase {
         $token = token::make_secret_token($embedid);
         $expected = '{Q{' . $expectedembedid . '|' . $token . '}Q}';
         $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
-                $embedid->questionidnumber, $behaviour,
+                $embedid->questionidnumber, $iframedescription, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback,
                 $generalfeedback, $rightanswer, $history, '');
 
@@ -152,7 +153,7 @@ class external_test extends \advanced_testcase {
         $behaviour = 'immediatefeedback';
         $expected = '{Q{' . $expectedembedid . '|behaviour=' . $behaviour . '|' . $token . '}Q}';
         $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
-                $embedid->questionidnumber, $behaviour,
+                $embedid->questionidnumber, $iframedescription, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback,
                 $rightanswer, $history, '');
 
@@ -178,6 +179,7 @@ class external_test extends \advanced_testcase {
                 ['category' => $category->id, 'name' => 'Question2', 'idnumber' => 'frog']);
 
         $embedid = new embed_id('abc123', 'toad');
+        $iframedescription = 'Embedded random question';
         $behaviour = '';
         $maxmark = '';
         $variant = '';
@@ -189,19 +191,21 @@ class external_test extends \advanced_testcase {
         $rightanswer = '';
         $history = '';
 
+        $titlebit = '|iframedescription=' . base64_encode($iframedescription);
+
         $token = token::make_secret_token($embedid);
-        $expected = '{Q{' . $embedid . '|' . $token .'}Q}';
+        $expected = '{Q{' . $embedid . $titlebit . '|' . $token . '}Q}';
         $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
-                $embedid->questionidnumber, $behaviour,
+                $embedid->questionidnumber, $iframedescription, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback,
                 $rightanswer, $history, '');
         $this->assertEquals($expected, $actual);
 
         $embedid = new embed_id('abc123', 'frog');
         $token = token::make_secret_token($embedid);
-        $expected = '{Q{' . $embedid . '|' . $token .'}Q}';
+        $expected = '{Q{' . $embedid . $titlebit . '|' . $token . '}Q}';
         $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
-                $embedid->questionidnumber, $behaviour,
+                $embedid->questionidnumber, $iframedescription, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback,
                 $rightanswer, $history, '');
         $this->assertEquals($expected, $actual);
@@ -209,17 +213,17 @@ class external_test extends \advanced_testcase {
         // Accept '*' for $questionidnumber to indicate a random question.
         $embedid = new embed_id('abc123', '*');
         $token = token::make_secret_token($embedid);
-        $expected = '{Q{' . $embedid . '|' . $token .'}Q}';
+        $expected = '{Q{' . $embedid . $titlebit . '|' . $token . '}Q}';
         $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
-                $embedid->questionidnumber, $behaviour,
+                $embedid->questionidnumber, $iframedescription, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback,
                 $rightanswer, $history, '');
         $this->assertEquals($expected, $actual);
 
         $behaviour = 'immediatefeedback';
-        $expected = '{Q{' . $embedid . '|behaviour=' . $behaviour . '|' . $token . '}Q}';
+        $expected = '{Q{' . $embedid . $titlebit . '|behaviour=' . $behaviour . '|' . $token . '}Q}';
         $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
-                $embedid->questionidnumber, $behaviour,
+                $embedid->questionidnumber, $iframedescription, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback,
                 $rightanswer, $history, '');
         $this->assertEquals($expected, $actual);

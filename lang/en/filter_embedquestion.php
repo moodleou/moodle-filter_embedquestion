@@ -45,7 +45,14 @@ $string['filtername'] = 'Embed questions';
 $string['generalfeedback_desc'] = 'Whether the general feedback should be shown by default in embedded questions.';
 $string['howquestionbehaves'] = 'How the question behaves';
 $string['howquestionbehaves_desc'] = 'The default behaviour to use for embedded questions.';
+$string['iframedescription'] = 'Iframe description';
+$string['iframedescription_help'] = 'This description helps screenreader users navigate a page better if you embed several questions on the same page.
+ Accessibility will be improved if you briefly describe each embedded question to make them unique. Note that the system will automatically describe this as "Embedded question [[n]]", where its exact number is calculated by the system.
+ You can supply further text description, but please use no more than 100 characters.';
+$string['iframedescriptionmaxlengthwarning'] = 'Please shorten the description to 100 characters maximum.';
+$string['iframedescriptionminlengthwarning'] = 'A description must have at least three characters.';
 $string['iframetitle'] = 'Embedded question';
+$string['iframetitleauto'] = 'Embedded question {$a}';
 $string['invalidcategory'] = 'The category with idnumber "{$a->catid}" does not exist in "{$a->contextname}".';
 $string['invalidemptycategory'] = 'The category "{$a->catname}" in "{$a->contextname}" does not contain any embeddable questions.';
 $string['invalidquestion'] = 'The question with idnumber "{$a->qid}" does not exist in category "{$a->catname} [{$a->catidnumber}]".';

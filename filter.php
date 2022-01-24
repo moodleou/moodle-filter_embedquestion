@@ -86,7 +86,7 @@ class filter_embedquestion extends moodle_text_filter {
     }
 
     /**
-     * Process the bit of the intput for embedding one question.
+     * Process the bit of the input for embedding one question.
      *
      * @param string $embedcode the contents of the {Q{...}Q} delimiters.
      *
@@ -111,10 +111,14 @@ class filter_embedquestion extends moodle_text_filter {
         $options = new question_options();
         $options->set_from_filter_options($params);
 
+        if (!$options->iframedescription) {
+            $options->iframedescription = utils::make_unique_iframe_description();
+        }
+
         $embedlocation = embed_location::make_from_page($this->page);
 
         $showquestionurl = utils::get_show_url($embedid, $embedlocation, $options);
-        return $this->renderer->render(new embed_iframe($showquestionurl));
+        return $this->renderer->render(new embed_iframe($showquestionurl, $options->iframedescription));
     }
 
     /**

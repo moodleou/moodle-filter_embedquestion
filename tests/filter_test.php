@@ -32,6 +32,11 @@ require_once($CFG->dirroot . '/filter/embedquestion/filter.php');
  */
 class filter_test extends \advanced_testcase {
 
+    public function setUp(): void {
+        parent::setUp();
+        utils::unit_test_reset();
+    }
+
     /**
      * Data provider for {@link test_filter()}.
      * @return array the test cases.
@@ -46,7 +51,7 @@ class filter_test extends \advanced_testcase {
             'missingtoken' => ['{Q{cat/q|not-the-right-token}Q}', $tokenerror],
         ];
 
-        $title = get_string('title', 'filter_embedquestion');
+        $title = 'Embedded question 1';
 
         $requiredtoken = token::make_secret_token(new embed_id('cat', 'q'));
         $expectedurl = new \moodle_url('/filter/embedquestion/showquestion.php', [
