@@ -279,7 +279,7 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         $expectedregex = '~<div class="info"><h3 class="no">Question <span class="qno">[^<]+</span>' .
                 '</h3><div class="state">Not complete</div><div class="grade">Marked out of 1.00</div>' .
                 '<div class="editquestion"><a href="[^"]+">' .
-                '<i class="icon fa fa-cog fa-fw iconsmall"  title="Edit" aria-label="Edit"></i>Edit question</a></div>' .
+                '<i class="icon fa fa-cog fa-fw iconsmall"  title="Edit"[^>]+></i>Edit question</a></div>' .
                 '<div class="filter_embedquestion-fill-link">' .
                 '<button type="submit" name="fillwithcorrect" value="1" class="btn btn-link">' .
                 '<i class="icon fa fa-check fa-fw iconsmall" aria-hidden="true"  ></i>' .
