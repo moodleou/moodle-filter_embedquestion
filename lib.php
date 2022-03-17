@@ -24,8 +24,6 @@
 
 use filter_embedquestion\attempt_storage;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Called via pluginfile.php -> question_pluginfile to serve files belonging to
  * a question in a question_attempt when that attempt an embedded question.

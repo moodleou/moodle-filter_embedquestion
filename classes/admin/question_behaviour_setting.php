@@ -14,25 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Admin settings class for embed question filter default behaviour.
- *
- * @package   filter_embedquestion
- * @category  admin
- * @copyright 2018 the Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 namespace filter_embedquestion\admin;
+
 use filter_embedquestion\utils;
-
-defined('MOODLE_INTERNAL') || die();
-
 
 /**
  * Admin settings class to select a questoin behaviour that can finish during the attempt.
  *
  * Just so we can lazy-load the choices.
  *
+ * @package   filter_embedquestion
+ * @category  admin
  * @copyright 2018 the Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

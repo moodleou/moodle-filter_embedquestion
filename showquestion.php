@@ -42,7 +42,7 @@ $PAGE->set_pagelayout('embedded');
 $PAGE->requires->js_call_amd('filter_embedquestion/question', 'init');
 
 if (isguestuser()) {
-    print_error('noguests', 'filter_embedquestion');
+    throw new moodle_exception('noguests', 'filter_embedquestion');
 }
 
 $options = new filter_embedquestion\question_options();
@@ -62,7 +62,7 @@ $PAGE->set_url(utils::get_show_url($embedid, $embedlocation, $options));
 
 $token = required_param('token', PARAM_RAW);
 if ($token !== $PAGE->url->param('token')) {
-    print_error('invalidtoken', 'filter_embedquestion');
+    throw new moodle_exception('invalidtoken', 'filter_embedquestion');
 }
 
 // Either continue existing current attempt, or find/create one.
@@ -125,7 +125,7 @@ if (data_submitted() && confirm_sesskey()) {
         }
 
     } catch (question_out_of_sequence_exception $e) {
-        print_error('submissionoutofsequencefriendlymessage', 'question',
+        throw new moodle_exception('submissionoutofsequencefriendlymessage', 'question',
                 $attempt->get_action_url());
 
     } catch (Exception $e) {
@@ -135,7 +135,7 @@ if (data_submitted() && confirm_sesskey()) {
         if (!empty($e->debuginfo)) {
             $debuginfo = $e->debuginfo;
         }
-        print_error('errorprocessingresponses', 'question',
+        throw new moodle_exception('errorprocessingresponses', 'question',
                 $attempt->get_action_url(), $e->getMessage(), $debuginfo);
     }
 }

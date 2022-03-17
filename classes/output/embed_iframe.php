@@ -14,25 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Represents the iframe that embeds a question.
- *
- * @package   filter_embedquestion
- * @copyright 2018 The Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace filter_embedquestion\output;
 
 use filter_embedquestion\embed_id;
 use renderer_base;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * Represents the iframe that embeds a question.
  *
+ * @package   filter_embedquestion
  * @copyright 2018 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

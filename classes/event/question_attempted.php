@@ -14,17 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * The question attempted event.
- *
- * @package   filter_embedquestion
- * @category  event
- * @copyright 2018 the Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 namespace filter_embedquestion\event;
-defined('MOODLE_INTERNAL') || die();
-
 
 /**
  * The question attempted event.
@@ -33,6 +23,7 @@ defined('MOODLE_INTERNAL') || die();
  * }
  *
  * @package   filter_embedquestion
+ * @category  event
  * @copyright 2018 the Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

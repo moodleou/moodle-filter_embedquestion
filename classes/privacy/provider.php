@@ -14,21 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Privacy Subsystem implementation for filter_embedquestion.
- *
- * @package   filter_embedquestion
- * @copyright 2018 The Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace filter_embedquestion\privacy;
-defined('MOODLE_INTERNAL') || die();
-
 
 /**
  * Privacy Subsystem for filter_embedquestion implementing null_provider.
  *
+ * @package   filter_embedquestion
  * @copyright  2018 The Open Univesity
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

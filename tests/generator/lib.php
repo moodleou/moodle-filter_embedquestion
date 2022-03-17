@@ -19,9 +19,6 @@ use filter_embedquestion\embed_id;
 use filter_embedquestion\embed_location;
 use filter_embedquestion\question_options;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  *  Embed question filter test data generator.
  *

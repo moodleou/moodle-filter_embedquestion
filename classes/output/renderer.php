@@ -14,31 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace filter_embedquestion\output;
+
+use filter_embedquestion\question_options;
+
 /**
  * The filter_embedquestion renderer.
  *
  * @package   filter_embedquestion
  * @copyright 2018 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-namespace filter_embedquestion\output;
-defined('MOODLE_INTERNAL') || die();
-
-use filter_embedquestion\question_options,
-    plugin_renderer_base;
-
-
-/**
- * The filter_embedquestion renderer.
- *
- * @copyright 2018 The Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  * @method string header() inherited from core_renderer.
  * @method string footer() inherited from core_renderer.
  */
-class renderer extends plugin_renderer_base {
+class renderer extends \plugin_renderer_base {
     /**
      * Render an embed_iframe.
      *

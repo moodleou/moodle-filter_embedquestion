@@ -14,16 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Embed question filter allows question bank questions to be used within other activities.
- *
- * @package   filter_embedquestion
- * @copyright 2018 The Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-defined('MOODLE_INTERNAL') || die();
-
 use filter_embedquestion\embed_id;
 use filter_embedquestion\embed_location;
 use filter_embedquestion\output\embed_iframe;
@@ -33,8 +23,9 @@ use filter_embedquestion\token;
 use filter_embedquestion\utils;
 
 /**
- * The filter implementation.
+ * A Moodle text filter to embed questions from the bank in content.
  *
+ * @package   filter_embedquestion
  * @copyright 2018 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

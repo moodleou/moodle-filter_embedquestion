@@ -14,25 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace filter_embedquestion;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/filter/embedquestion/filter.php');
 
-use filter_embedquestion\embed_id;
-use filter_embedquestion\token;
-
-
 /**
- * Unit tests for filter_embedquestion.
+ * Unit tests for \filter_embedquestion.
  *
  * Test the delimiter parsing used by the embedquestion filter.
  *
- * @package    filter_embedquestion
+ * @package    \filter_embedquestion
  * @copyright  2018 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class filter_test extends advanced_testcase {
+class filter_test extends \advanced_testcase {
 
     /**
      * Data provider for {@link test_filter()}.
@@ -51,7 +49,7 @@ class filter_test extends advanced_testcase {
         $title = get_string('title', 'filter_embedquestion');
 
         $requiredtoken = token::make_secret_token(new embed_id('cat', 'q'));
-        $expectedurl = new moodle_url('/filter/embedquestion/showquestion.php', [
+        $expectedurl = new \moodle_url('/filter/embedquestion/showquestion.php', [
                 'catid' => 'cat', 'qid' => 'q', 'contextid' => '1', 'pageurl' => '/', 'pagetitle' => 'System',
                 'behaviour' => 'interactive', 'correctness' => '1', 'marks' => '2', 'markdp' => '2',
                 'feedback' => '1', 'generalfeedback' => '1', 'rightanswer' => '0', 'history' => '0']);
@@ -64,7 +62,7 @@ class filter_test extends advanced_testcase {
     id="cat/q"></iframe>'];
 
         $requiredtoken = token::make_secret_token(new embed_id('A/V questions', '|<--- 100%'));
-        $expectedurl = new moodle_url('/filter/embedquestion/showquestion.php', [
+        $expectedurl = new \moodle_url('/filter/embedquestion/showquestion.php', [
                 'catid' => 'A/V questions', 'qid' => '|<--- 100%', 'contextid' => '1', 'pageurl' => '/', 'pagetitle' => 'System',
                 'behaviour' => 'immediatefeedback', 'correctness' => '1', 'marks' => '10', 'markdp' => '3',
                 'feedback' => '1', 'generalfeedback' => '0', 'rightanswer' => '0', 'history' => '0', 'forcedlanguage' => 'en']);
@@ -93,8 +91,8 @@ class filter_test extends advanced_testcase {
     public function test_filter(string $input, $expectedoutput): void {
         global $PAGE;
 
-        $context = context_course::instance(SITEID);
-        $filter = new filter_embedquestion($context, []);
+        $context = \context_course::instance(SITEID);
+        $filter = new \filter_embedquestion($context, []);
         $PAGE->set_url('/');
         $filter->setup($PAGE, $context);
 
@@ -109,7 +107,7 @@ class filter_test extends advanced_testcase {
             }
 
         } else {
-            throw new coding_exception('Unexpected expected output type.');
+            throw new \coding_exception('Unexpected expected output type.');
         }
     }
 
@@ -120,8 +118,8 @@ class filter_test extends advanced_testcase {
         $this->setGuestUser();
 
         $embedid = new embed_id('cat', 'q');
-        $context = context_course::instance(SITEID);
-        $filter = new filter_embedquestion($context, []);
+        $context = \context_course::instance(SITEID);
+        $filter = new \filter_embedquestion($context, []);
         $filter->setup($PAGE, $context);
 
         $actualoutput = $filter->filter('{Q{cat/q|' . token::make_secret_token($embedid) . '}Q}');

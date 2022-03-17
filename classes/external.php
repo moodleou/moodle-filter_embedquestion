@@ -14,23 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Web service end point for the embed question filter.
- *
- * @package   filter_embedquestion
- * @copyright 2018 The Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace filter_embedquestion;
+
 defined('MOODLE_INTERNAL') || die();
+
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
-
 
 /**
  * External API for AJAX calls.
  *
+ * @package   filter_embedquestion
  * @copyright 2018 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -189,7 +183,8 @@ class external extends \external_api {
      */
     public static function get_embed_code(int $courseid, string $categoryidnumber, string $questionidnumber,
             string $behaviour, string $maxmark, string $variant, string $correctness, string $marks,
-            string $markdp, string $feedback, string $generalfeedback, string $rightanswer, string $history, string $forcedlanguage): string {
+            string $markdp, string $feedback, string $generalfeedback, string $rightanswer, string $history,
+            string $forcedlanguage): string {
         global $CFG;
 
         self::validate_parameters(self::get_embed_code_parameters(),

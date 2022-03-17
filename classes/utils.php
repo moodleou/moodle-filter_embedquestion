@@ -14,17 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Helper functions for filter_embedquestion.
- *
- * @package   filter_embedquestion
- * @copyright 2018 The Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace filter_embedquestion;
 
-defined('MOODLE_INTERNAL') || die();
 use filter_embedquestion\output\error_message;
 use filter_embedquestion\output\renderer;
 use core_question\local\bank\question_version_status;
@@ -32,6 +23,7 @@ use core_question\local\bank\question_version_status;
 /**
  * Helper functions for filter_embedquestion.
  *
+ * @package   filter_embedquestion
  * @copyright 2018 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -227,7 +219,7 @@ class utils {
 
             $categories = $DB->get_records_sql("
                     SELECT qc.id, qc.name, qc.idnumber, COUNT(q.id) AS count
-    
+
                       FROM {question_categories} qc
                       JOIN {question_bank_entries} qbe ON qbe.questioncategoryid = qc.id
                                     AND qbe.idnumber IS NOT NULL $creatortest
@@ -240,7 +232,7 @@ class utils {
 
                      WHERE qc.contextid = ?
                        AND qc.idnumber IS NOT NULL
-    
+
                   GROUP BY qc.id, qc.name
                     HAVING COUNT(q.id) > 0
                   ORDER BY qc.name
@@ -257,17 +249,17 @@ class utils {
 
             $categories = $DB->get_records_sql("
                     SELECT qc.id, qc.name, qc.idnumber, COUNT(q.id) AS count
-    
+
                       FROM {question_categories} qc
                       JOIN {question} q ON q.category = qc.id
                                         AND q.idnumber IS NOT NULL
                                         $creatortest
                                         AND q.hidden = 0
                                         AND q.parent = 0
-    
+
                      WHERE qc.contextid = ?
                        AND qc.idnumber IS NOT NULL
-    
+
                   GROUP BY qc.id, qc.name
                     HAVING COUNT(q.id) > 0
                   ORDER BY qc.name
@@ -307,7 +299,7 @@ class utils {
 
             return $DB->get_records_sql("
                     SELECT q.id, q.name, qbe.idnumber
-    
+
                       FROM {question_bank_entries} qbe
                       JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id AND qv.version = (
                                     SELECT MAX(version)
@@ -319,7 +311,7 @@ class utils {
                      WHERE qbe.questioncategoryid = ?
                        AND qbe.idnumber IS NOT NULL
                        $creatortest
-    
+
                   ORDER BY q.name
                     ", $params);
 
@@ -334,15 +326,15 @@ class utils {
 
             return $DB->get_records_sql("
                     SELECT q.id, q.name, q.idnumber
-    
+
                       FROM {question} q
-    
+
                      WHERE q.category = ?
                        AND q.idnumber IS NOT NULL
                        $creatortest
                        AND q.hidden = 0
                        AND q.parent = 0
-    
+
                   ORDER BY q.name
                     ", $params);
         }

@@ -14,22 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Nasty hack to let us force the language for one page only.
- *
- * @package   filter_embedquestion
- * @copyright 2021 The Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace filter_embedquestion;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Nasty hack to let us force the language for one page only.
  *
  * To use this, call custom_string_manager::force_page_language($lang);
+ *
+ * @package   filter_embedquestion
+ * @copyright 2021 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class custom_string_manager extends \core_string_manager_standard {
 

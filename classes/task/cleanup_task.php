@@ -14,25 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace filter_embedquestion\task;
+
+use core\task\scheduled_task;
+
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+require_once($CFG->libdir . '/questionlib.php');
+
 /**
  * A scheduled task to ensure that old attempt data is cleaned up.
  *
  * @package   filter_embedquestion
  * @category  task
- * @copyright 2018 the Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-namespace filter_embedquestion\task;
-defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
-require_once($CFG->libdir . '/questionlib.php');
-use core\task\scheduled_task;
-
-
-/**
- * A scheduled task to ensure that old attempt data is cleaned up.
- *
  * @copyright 2018 the Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

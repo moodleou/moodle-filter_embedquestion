@@ -14,25 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace filter_embedquestion\event;
+
 /**
  * An event to record when someone makes a token to embed a question picked at random from a category.
- *
- * @package   filter_embedquestion
- * @category  event
- * @copyright 2018 the Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-namespace filter_embedquestion\event;
-defined('MOODLE_INTERNAL') || die();
-
-
-/**
- * The question viewed event.
  *
  * @property-read array $other {
  * }
  *
  * @package   filter_embedquestion
+ * @category  event
  * @copyright 2019 the Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

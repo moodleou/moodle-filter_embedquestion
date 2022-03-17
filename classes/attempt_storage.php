@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace filter_embedquestion;
+
 /**
  * Deals with finding or creating the usages to store question attempts.
  *
@@ -22,20 +24,6 @@
  * which does keep the data.
  *
  * @package   filter_embedquestion
- * @copyright 2019 The Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-namespace filter_embedquestion;
-defined('MOODLE_INTERNAL') || die();
-
-/**
- * Deals with finding or creating the usages to store question attempts.
- *
- * This default implementation does not keep attempts long term. If you
- * install report_embedquestion then there is an alternative implementation
- * which does keep the data.
- *
  * @copyright 2019 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
