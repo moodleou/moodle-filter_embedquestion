@@ -22,11 +22,10 @@ Feature: Fill with correct feature for staff
       | Test questions   | truefalse | First question  | test1    |
       | Test questions   | essay     | Second question | test2    |
     And the "embedquestion" filter is "on"
-    And I log in as "teacher"
 
   @javascript
   Scenario: Teacher can see and use the Fill with correct link
-    Given I am on the filter test page for "Course 1"
+    When I am on the "Course 1" "filter_embedquestion > test" page logged in as teacher
     And I set the field "Question category" to "Test questions [embed] (2)"
     And I set the field "id_questionidnumber" to "First question"
     And I press "Embed question"
@@ -43,7 +42,7 @@ Feature: Fill with correct feature for staff
 
   @javascript
   Scenario: Teacher can not see the Fill with correct link for open question
-    Given I am on the filter test page for "Course 1"
+    When I am on the "Course 1" "filter_embedquestion > test" page logged in as teacher
     And I set the field "Question category" to "Test questions [embed] (2)"
     And I set the field "id_questionidnumber" to "Second question"
     And I press "Embed question"

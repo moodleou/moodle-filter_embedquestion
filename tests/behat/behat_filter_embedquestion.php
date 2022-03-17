@@ -38,16 +38,44 @@ use Behat\Mink\Exception\ExpectationException as ExpectationException,
 class behat_filter_embedquestion extends behat_base {
 
     /**
-     * Opens the filter test page for a particular course.
+     * Convert page names to URLs for steps like 'When I am on the "[page name]" page'.
      *
-     * @Given /^I am on the filter test page for "(?P<coursefullname_string>(?:[^"]|\\")*)"$/
-     * @param string $coursefullname The full name of the course.
+     * Recognised page names are:
+     * | pagetype          | description |
+     * | None so far!      |             |
+     *
+     * @param string $page name of the page, with the component name removed e.g. 'Admin notification'.
+     * @return moodle_url the corresponding URL.
+     * @throws Exception with a meaningful error message if the specified page cannot be found.
      */
-    public function i_am_on_filter_test_page($coursefullname) {
-        global $DB;
-        $course = $DB->get_record('course', array('fullname' => $coursefullname), 'id', MUST_EXIST);
-        $url = new moodle_url('/filter/embedquestion/testhelper.php', ['courseid' => $course->id]);
-        $this->getSession()->visit($this->locate_path($url->out_as_local_url(false)));
+    protected function resolve_page_url(string $page): moodle_url {
+        switch (strtolower($page)) {
+            default:
+                throw new Exception('Unrecognised quiz page type "' . $page . '."');
+        }
+    }
+
+    /**
+     * Convert page names to URLs for steps like 'When I am on the "[identifier]" "[page type]" page'.
+     *
+     * Recognised page names are:
+     * | pagetype | name meaning | description          |
+     * | test     | Course name  | The filter test page |
+     *
+     * @param string $type identifies which type of page this is, e.g. 'Attempt review'.
+     * @param string $identifier identifies the particular page, e.g. 'Test quiz > student > Attempt 1'.
+     * @return moodle_url the corresponding URL.
+     * @throws Exception with a meaningful error message if the specified page cannot be found.
+     */
+    protected function resolve_page_instance_url(string $type, string $identifier): moodle_url {
+        switch (strtolower($type)) {
+            case 'test':
+                return new moodle_url('/filter/embedquestion/testhelper.php',
+                        ['courseid' => $this->get_course_id($identifier)]);
+
+            default:
+                throw new Exception('Unrecognised quiz page type "' . $type . '."');
+        }
     }
 
     /**

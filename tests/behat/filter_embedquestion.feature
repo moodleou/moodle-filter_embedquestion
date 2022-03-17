@@ -20,14 +20,13 @@ Feature: Add an activity and embed a question inside that activity
       | contextlevel | reference | name          | idnumber |
       | Course       | C1        | Test questions| embed    |
     And the "embedquestion" filter is "on"
-    And I log in as "teacher"
 
   @javascript
   Scenario: Test using the helper script - embed a specific question
     Given the following "questions" exist:
       | questioncategory | qtype     | name           | idnumber |
       | Test questions   | truefalse | First question | test1    |
-    When I am on the filter test page for "Course 1"
+    When I am on the "Course 1" "filter_embedquestion > test" page logged in as teacher
     And I set the field "Question category" to "Test questions [embed] (1)"
     And I set the field "id_questionidnumber" to "First question"
     And I press "Embed question"
@@ -53,7 +52,7 @@ Feature: Add an activity and embed a question inside that activity
       | Test questions   | truefalse | Q2   | test2    |
       | Test questions   | truefalse | Q3   | test3    |
       | Test questions   | truefalse | Q4   | test4    |
-    When I am on the filter test page for "Course 1"
+    When I am on the "Course 1" "filter_embedquestion > test" page logged in as teacher
     And I set the field "Question category" to "Test questions [embed] (4)"
     And I set the field "id_questionidnumber" to "Choose an embeddable question from this category randomly"
     And I press "Embed question"
@@ -70,7 +69,7 @@ Feature: Add an activity and embed a question inside that activity
     Given the following "questions" exist:
       | questioncategory | qtype     | name           | idnumber |
       | Test questions   | truefalse | First question | test1    |
-    When I am on the filter test page for "Course 1"
+    When I am on the "Course 1" "filter_embedquestion > test" page logged in as teacher
     And I set the field "Question category" to "Test questions [embed] (1)"
     And I set the field "id_questionidnumber" to "First question"
     And I press "Embed question"
