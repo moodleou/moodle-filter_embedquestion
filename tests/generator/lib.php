@@ -18,6 +18,7 @@ use filter_embedquestion\attempt;
 use filter_embedquestion\embed_id;
 use filter_embedquestion\embed_location;
 use filter_embedquestion\question_options;
+use filter_embedquestion\utils;
 
 /**
  *  Embed question filter test data generator.
@@ -122,15 +123,9 @@ class filter_embedquestion_generator extends component_generator_base {
      */
     public function get_question_from_embed_id(string $embedid): stdClass {
         global $DB;
-        $catque = explode('/', $embedid);
-        $categoryidnumber = $catque[0];
-        $questionidnumber = $catque[1];
-        return $DB->get_record_sql("
-            SELECT q.*
-            FROM {question} q
-            JOIN {question_categories} qc ON qc.id = q.category
-            WHERE q.idnumber = :questionidnumber AND qc.idnumber = :categoryidnumber",
-            ['questionidnumber' => $questionidnumber, 'categoryidnumber' => $categoryidnumber]);
+        [$categoryidnumber, $questionidnumber] = explode('/', $embedid);
+        $categoryid = $DB->get_field('question_categories', 'id', ['idnumber' => $categoryidnumber], MUST_EXIST);
+        return utils::get_question_by_idnumber($categoryid, $questionidnumber);
     }
 
     /**

@@ -168,7 +168,8 @@ class utils {
 
         if (self::has_question_versionning()) {
             $question = $DB->get_record_sql('
-                    SELECT q.*, qbe.idnumber, qv.id as versionid, qv.version, qv.questionbankentryid
+                    SELECT q.*, qbe.idnumber, qbe.questioncategoryid AS category,
+                           qv.id AS versionid, qv.version, qv.questionbankentryid
                       FROM {question_bank_entries} qbe
                       JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id AND qv.version = (
                                       SELECT MAX(version)
@@ -177,7 +178,7 @@ class utils {
                                   )
                       JOIN {question} q ON q.id = qv.questionid
                      WHERE qbe.questioncategoryid = :category AND qbe.idnumber = :idnumber',
-                    ['ready' => question_version_status::QUESTION_STATUS_READY,
+                            ['ready' => question_version_status::QUESTION_STATUS_READY,
                             'category' => $categoryid, 'idnumber' => $idnumber]);
         } else {
             $question = $DB->get_record_select('question',
