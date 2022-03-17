@@ -14,26 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace filter_embedquestion;
+
+use filter_embedquestion\task\cleanup_task;
+
 /**
- * Unit test for the external functions.
+ * Unit tests for the cleanup scheduled task.
  *
  * @package    filter_embedquestion
  * @copyright  2018 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
-use filter_embedquestion\task\cleanup_task;
-
-
-/**
- * Unit tests for the external functions.
- *
- * @copyright  2018 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-class filter_embedquestion_cleanup_task_testcase extends advanced_testcase {
+class cleanup_task_test extends \advanced_testcase {
 
     public function test_cleanup_task() {
 

@@ -14,14 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Unit test for the filter_embedquestion
- *
- * @package    filter_embedquestion
- * @copyright  2018 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -36,10 +28,11 @@ use filter_embedquestion\token;
  *
  * Test the delimiter parsing used by the embedquestion filter.
  *
+ * @package    filter_embedquestion
  * @copyright  2018 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class filter_embedquestion_testcase extends advanced_testcase {
+class filter_test extends advanced_testcase {
 
     /**
      * Data provider for {@link test_filter()}.

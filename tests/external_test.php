@@ -14,28 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Unit test for the external functions.
- *
- * @package   filter_embedquestion
- * @copyright 2018 The Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-defined('MOODLE_INTERNAL') || die();
-
-use filter_embedquestion\embed_id;
-use filter_embedquestion\external;
-use filter_embedquestion\token;
-
+namespace filter_embedquestion;
 
 /**
  * Unit tests for the external functions.
  *
+ * @package   filter_embedquestion
  * @copyright  2018 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class filter_embedquestion_external_testcase extends advanced_testcase {
+class external_test extends \advanced_testcase {
 
     public function test_get_sharable_question_choices_working() {
 
@@ -44,11 +32,11 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $this->setAdminUser();
         $generator = $this->getDataGenerator();
         $course = $generator->create_course();
-        /** @var core_question_generator $questiongenerator */
+        /** @var \core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
         $category = $questiongenerator->create_question_category(
                 ['name' => 'Category with idnumber',
-                        'contextid' => context_course::instance($course->id)->id, 'idnumber' => 'abc123']);
+                        'contextid' => \context_course::instance($course->id)->id, 'idnumber' => 'abc123']);
 
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $category->id, 'name' => 'Question 2', 'idnumber' => 'toad']);
@@ -82,14 +70,14 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $course = $generator->create_course();
         $user = $generator->create_user();
         role_change_permission($DB->get_field('role', 'id', ['shortname' => 'editingteacher']),
-                context_system::instance(), 'moodle/question:useall', CAP_INHERIT);
+                \context_system::instance(), 'moodle/question:useall', CAP_INHERIT);
         $generator->enrol_user($user->id, $course->id, 'editingteacher');
 
-        /** @var core_question_generator $questiongenerator */
+        /** @var \core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
         $category = $questiongenerator->create_question_category(
                 ['name' => 'Category with idnumber', 'idnumber' => 'abc123',
-                        'contextid' => context_course::instance($course->id)->id]);
+                        'contextid' => \context_course::instance($course->id)->id]);
 
         $this->setAdminUser();
         $questiongenerator->create_question('shortanswer', null,
@@ -131,11 +119,11 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $this->setAdminUser();
         $generator = $this->getDataGenerator();
         $course = $generator->create_course();
-        /** @var core_question_generator $questiongenerator */
+        /** @var \core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
         $category = $questiongenerator->create_question_category(
                 ['name' => 'Category', 'idnumber' => $catid,
-                        'contextid' => context_course::instance($course->id)->id]);
+                        'contextid' => \context_course::instance($course->id)->id]);
 
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $category->id, 'name' => 'Question', 'idnumber' => $questionid]);
@@ -178,11 +166,11 @@ class filter_embedquestion_external_testcase extends advanced_testcase {
         $this->setAdminUser();
         $generator = $this->getDataGenerator();
         $course = $generator->create_course();
-        /** @var core_question_generator $questiongenerator */
+        /** @var \core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
         $category = $questiongenerator->create_question_category(
                 ['name' => 'Category', 'idnumber' => 'abc123',
-                        'contextid' => context_course::instance($course->id)->id]);
+                        'contextid' => \context_course::instance($course->id)->id]);
 
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $category->id, 'name' => 'Question1', 'idnumber' => 'toad']);

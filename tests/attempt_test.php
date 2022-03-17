@@ -14,30 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+
+namespace filter_embedquestion;
+
 /**
- * Unit test for for attempting questions.
+ * Unit tests for the code for attempting questions.
  *
  * @package    filter_embedquestion
  * @copyright  2019 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
-
-use filter_embedquestion\attempt;
-use filter_embedquestion\embed_id;
-use filter_embedquestion\embed_location;
-use filter_embedquestion\question_options;
-
-/**
- * Unit tests for the code for attempting questions.
- *
- * @copyright  2019 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-class filter_embedquestion_attempt_testcase extends advanced_testcase {
+class attempt_test extends \advanced_testcase {
 
     public function test_start_new_attempt_at_question_will_select_an_unused_question(): void {
         global $DB, $USER;
@@ -45,7 +32,7 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         $this->setAdminUser();
 
         // Create two sharable questions in the same category.
-        /** @var filter_embedquestion_generator $generator */
+        /** @var \filter_embedquestion_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('filter_embedquestion');
         $q1 = $generator->create_embeddable_question('shortanswer');
         $q2 = $generator->create_embeddable_question('shortanswer', null, ['category' => $q1->category]);
@@ -89,7 +76,7 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         $this->setAdminUser();
 
         // Create two sharable questions in the same category.
-        /** @var filter_embedquestion_generator $generator */
+        /** @var \filter_embedquestion_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('filter_embedquestion');
         $question = $generator->create_embeddable_question('calculatedsimple', 'sumwithvariants');
 
@@ -97,7 +84,7 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         // want 2. Therefore, delete the extras.
         $DB->delete_records_select('question_dataset_items', 'itemnumber > 2');
         $DB->set_field('question_dataset_definitions', 'itemcount', 2);
-        question_bank::notify_question_edited($question->id);
+        \question_bank::notify_question_edited($question->id);
 
         // Start an attempt in the way that showattempt.php would.
         [$embedid, $context] = $generator->get_embed_id_and_context($question);
@@ -128,13 +115,13 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         $this->setAdminUser();
 
         // Create a sharable questions in a same category.
-        /** @var filter_embedquestion_generator $generator */
+        /** @var \filter_embedquestion_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('filter_embedquestion');
         $q = $generator->create_embeddable_question('shortanswer');
         $sharedcategory = $DB->get_record('question_categories', ['id' => $q->category], '*', MUST_EXIST);
 
         // Make another category.
-        /** @var core_question_generator $questiongenerator */
+        /** @var \core_question_generator $questiongenerator */
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $unsharedcategory = $questiongenerator->create_question_category(
                 ['name' => 'Not shared category', 'contextid' => $sharedcategory->contextid]);
@@ -150,16 +137,22 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         $this->verify_attempt_valid($attempt);
 
         // Verify that we started an attempt at one of our questions.
-        $this->assertEquals($q->id, $attempt->get_question_usage()->get_question($attempt->get_slot())->id);
+        $question = $attempt->get_question_usage()->get_question($attempt->get_slot());
+        $this->assertEquals($q->id, $question->id);
 
         // Now move the question to the other category.
-        $DB->set_field('question', 'category', $unsharedcategory->id, ['id' => $q->id]);
-        question_bank::notify_question_edited($q->id);
+        if (utils::has_question_versionning()) {
+            $DB->set_field('question_bank_entries', 'questioncategoryid', $unsharedcategory->id,
+                    ['id' => $question->questionbankentryid]);
+        } else {
+            $DB->set_field('question', 'category', $unsharedcategory->id, ['id' => $question->id]);
+        }
+        \question_bank::notify_question_edited($q->id);
 
         // And try to restart. Should give an error.
         $this->expectOutputRegex('~The question with idnumber "embeddableq\d+" ' .
                 'does not exist in category "Test question category \d+ \[embeddablecat\d+\]"\.~');
-        $this->expectException(coding_exception::class);
+        $this->expectException(\coding_exception::class);
         $attempt->start_new_attempt_at_question();
     }
 
@@ -169,7 +162,7 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         $this->setAdminUser();
 
         // Create a sharable questions in a same category.
-        /** @var filter_embedquestion_generator $generator */
+        /** @var \filter_embedquestion_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('filter_embedquestion');
         $q = $generator->create_embeddable_question('shortanswer');
 
@@ -191,7 +184,7 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         $this->setAdminUser();
 
         // Create a sharable questions in a same category.
-        /** @var filter_embedquestion_generator $generator */
+        /** @var \filter_embedquestion_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('filter_embedquestion');
         $q = $generator->create_embeddable_question('shortanswer');
 
@@ -224,7 +217,7 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         $this->setAdminUser();
 
         // Create a sharable questions in a same category.
-        /** @var filter_embedquestion_generator $generator */
+        /** @var \filter_embedquestion_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('filter_embedquestion');
         $q = $generator->create_embeddable_question('shortanswer');
 
@@ -257,7 +250,7 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         $this->setAdminUser();
 
         // Create a sharable questions in the same category.
-        /** @var filter_embedquestion_generator $generator */
+        /** @var \filter_embedquestion_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('filter_embedquestion');
         $q1 = $generator->create_embeddable_question('shortanswer');
 
@@ -272,6 +265,7 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         $this->verify_attempt_valid($attempt);
 
         // Render the question.
+        /** @var output\renderer $renderer */
         $renderer = $PAGE->get_renderer('filter_embedquestion');
         $html = $attempt->render_question($renderer);
 
@@ -279,7 +273,7 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
         $expectedregex = '~<div class="info"><h3 class="no">Question <span class="qno">[^<]+</span>' .
                 '</h3><div class="state">Not complete</div><div class="grade">Marked out of 1.00</div>' .
                 '<div class="editquestion"><a href="[^"]+">' .
-                '<i class="icon fa fa-cog fa-fw iconsmall"  title="Edit"[^>]+></i>Edit question</a></div>' .
+                '<i class="icon fa fa-cog fa-fw iconsmall"  title="Edit"[^>]*></i>Edit question</a></div>' .
                 '<div class="filter_embedquestion-fill-link">' .
                 '<button type="submit" name="fillwithcorrect" value="1" class="btn btn-link">' .
                 '<i class="icon fa fa-check fa-fw iconsmall" aria-hidden="true"  ></i>' .
@@ -298,7 +292,7 @@ class filter_embedquestion_attempt_testcase extends advanced_testcase {
      */
     protected function verify_attempt_valid(attempt $attempt): void {
         if (!$attempt->is_valid()) {
-            throw new coding_exception($attempt->get_problem_description());
+            throw new \coding_exception($attempt->get_problem_description());
         }
     }
 }

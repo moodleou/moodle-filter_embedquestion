@@ -27,6 +27,7 @@ namespace filter_embedquestion;
 defined('MOODLE_INTERNAL') || die();
 use filter_embedquestion\output\error_message;
 use filter_embedquestion\output\renderer;
+use core_question\local\bank\question_version_status;
 
 /**
  * Helper functions for filter_embedquestion.
@@ -35,6 +36,20 @@ use filter_embedquestion\output\renderer;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class utils {
+
+    /**
+     * Are we running in a Moodle version with question versionning.
+     *
+     * @return bool true if the questoin versions exist.
+     */
+    public static function has_question_versionning(): bool {
+        global $DB;
+        static $hasversionning = null;
+        if ($hasversionning === null) {
+            $hasversionning = $DB->get_manager()->table_exists('question_bank_entries');
+        }
+        return $hasversionning;
+    }
 
     /**
      * Display a warning notification if the filter is not enabled in this context.
@@ -159,9 +174,25 @@ class utils {
     public static function get_question_by_idnumber(int $categoryid, string $idnumber): ?\stdClass {
         global $DB;
 
-        $question = $DB->get_record_select('question',
-                "category = ? AND idnumber = ? AND hidden = 0 AND parent = 0",
-                [$categoryid, $idnumber]);
+        if (self::has_question_versionning()) {
+            $question = $DB->get_record_sql('
+                    SELECT q.*, qbe.idnumber, qv.id as versionid, qv.version, qv.questionbankentryid
+                      FROM {question_bank_entries} qbe
+                      JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id AND qv.version = (
+                                      SELECT MAX(version)
+                                        FROM {question_versions}
+                                       WHERE questionbankentryid = qbe.id AND status = :ready
+                                  )
+                      JOIN {question} q ON q.id = qv.questionid
+                     WHERE qbe.questioncategoryid = :category AND qbe.idnumber = :idnumber',
+                    ['ready' => question_version_status::QUESTION_STATUS_READY,
+                            'category' => $categoryid, 'idnumber' => $idnumber]);
+        } else {
+            $question = $DB->get_record_select('question',
+                    "category = ? AND idnumber = ? AND hidden = 0 AND parent = 0",
+                    [$categoryid, $idnumber]);
+
+        }
         if (!$question) {
             return null;
         }
@@ -184,32 +215,64 @@ class utils {
     public static function get_categories_with_sharable_question_choices(\context $context, int $userid = null): array {
         global $DB;
 
-        $params = [];
+        if (self::has_question_versionning()) {
+            $params = [];
+            $creatortest = '';
+            if ($userid) {
+                $creatortest = 'AND qbe.ownerid = ?';
+                $params[] = $userid;
+            }
+            $params[] = question_version_status::QUESTION_STATUS_READY;
+            $params[] = $context->id;
 
-        $creatortest = '';
-        if ($userid) {
-            $creatortest = 'AND q.createdby = ?';
-            $params[] = $userid;
+            $categories = $DB->get_records_sql("
+                    SELECT qc.id, qc.name, qc.idnumber, COUNT(q.id) AS count
+    
+                      FROM {question_categories} qc
+                      JOIN {question_bank_entries} qbe ON qbe.questioncategoryid = qc.id
+                                    AND qbe.idnumber IS NOT NULL $creatortest
+                      JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id AND qv.version = (
+                                    SELECT MAX(version)
+                                      FROM {question_versions}
+                                     WHERE questionbankentryid = qbe.id AND status = ?
+                                    )
+                      JOIN {question} q ON q.id = qv.questionid
+
+                     WHERE qc.contextid = ?
+                       AND qc.idnumber IS NOT NULL
+    
+                  GROUP BY qc.id, qc.name
+                    HAVING COUNT(q.id) > 0
+                  ORDER BY qc.name
+                    ", $params);
+
+        } else {
+            $params = [];
+            $creatortest = '';
+            if ($userid) {
+                $creatortest = 'AND q.createdby = ?';
+                $params[] = $userid;
+            }
+            $params[] = $context->id;
+
+            $categories = $DB->get_records_sql("
+                    SELECT qc.id, qc.name, qc.idnumber, COUNT(q.id) AS count
+    
+                      FROM {question_categories} qc
+                      JOIN {question} q ON q.category = qc.id
+                                        AND q.idnumber IS NOT NULL
+                                        $creatortest
+                                        AND q.hidden = 0
+                                        AND q.parent = 0
+    
+                     WHERE qc.contextid = ?
+                       AND qc.idnumber IS NOT NULL
+    
+                  GROUP BY qc.id, qc.name
+                    HAVING COUNT(q.id) > 0
+                  ORDER BY qc.name
+                    ", $params);
         }
-        $params[] = $context->id;
-
-        $categories = $DB->get_records_sql("
-                SELECT qc.id, qc.name, qc.idnumber, COUNT(q.id) AS count
-
-                  FROM {question_categories} qc
-                  JOIN {question} q ON q.category = qc.id
-                                    AND q.idnumber IS NOT NULL
-                                    $creatortest
-                                    AND q.hidden = 0
-                                    AND q.parent = 0
-
-                 WHERE qc.contextid = ?
-                   AND qc.idnumber IS NOT NULL
-
-              GROUP BY qc.id, qc.name
-                HAVING COUNT(q.id) > 0
-              ORDER BY qc.name
-                ", $params);
 
         $choices = ['' => get_string('choosedots')];
         foreach ($categories as $category) {
@@ -232,28 +295,57 @@ class utils {
     public static function get_sharable_question_ids(int $categoryid, int $userid = null): array {
         global $DB;
 
-        $params = [];
-        $params[] = $categoryid;
+        if (self::has_question_versionning()) {
+            $params = [];
+            $params[] = question_version_status::QUESTION_STATUS_READY;
+            $params[] = $categoryid;
+            $creatortest = '';
+            if ($userid) {
+                $creatortest = 'AND qbe.ownerid = ?';
+                $params[] = $userid;
+            }
 
-        $creatortest = '';
-        if ($userid) {
-            $creatortest = 'AND q.createdby = ?';
-            $params[] = $userid;
+            return $DB->get_records_sql("
+                    SELECT q.id, q.name, qbe.idnumber
+    
+                      FROM {question_bank_entries} qbe
+                      JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id AND qv.version = (
+                                    SELECT MAX(version)
+                                      FROM {question_versions}
+                                     WHERE questionbankentryid = qbe.id AND status = ?
+                                    )
+                      JOIN {question} q ON q.id = qv.questionid
+
+                     WHERE qbe.questioncategoryid = ?
+                       AND qbe.idnumber IS NOT NULL
+                       $creatortest
+    
+                  ORDER BY q.name
+                    ", $params);
+
+        } else {
+            $params = [];
+            $params[] = $categoryid;
+            $creatortest = '';
+            if ($userid) {
+                $creatortest = 'AND q.createdby = ?';
+                $params[] = $userid;
+            }
+
+            return $DB->get_records_sql("
+                    SELECT q.id, q.name, q.idnumber
+    
+                      FROM {question} q
+    
+                     WHERE q.category = ?
+                       AND q.idnumber IS NOT NULL
+                       $creatortest
+                       AND q.hidden = 0
+                       AND q.parent = 0
+    
+                  ORDER BY q.name
+                    ", $params);
         }
-
-        return $DB->get_records_sql("
-                SELECT q.id, q.name, q.idnumber
-
-                  FROM {question} q
-
-                 WHERE q.category = ?
-                   AND q. idnumber IS NOT NULL
-                   $creatortest
-                   AND q.hidden = 0
-                   AND q.parent = 0
-
-              ORDER BY q.name
-                ", $params);
     }
 
     /**
