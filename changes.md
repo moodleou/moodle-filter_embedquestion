@@ -1,6 +1,13 @@
 # Change log for the embed questions filter
 
 
+## Changes in 2.2
+
+* This version works with Moodle 4.0.
+* When an embedded question cannot be shown, the errors for teachers are now more informative.
+* The feature related to migrating idnumbers when you moved form Moodle 3.5 to 3.6 has been removed.
+
+
 ## Changes in 2.1
 
 * Fix the version number, which was wrong in the 2.0 release.

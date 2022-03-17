@@ -115,8 +115,6 @@ Other stuff:
 * classes/task/cleanup_task.php - Scheduled task which cleans up abandoned attempts at
   questions (those not stored by report_embedquestion).
 * db/install.php - when the plugin is installed, generate a random secret for use when generating tokens.
-* db/upgrade.php - handles the migration from ids in name to real idnumber.
-* classes/idnumber_upgrader.php - implements the logic for upgrade.php.
 * lang/en/report_embedquestion.php - standard lang file.
 * classes/privacy/provider.php - null privacy API implementation.
 * remaining files are just the standard metadata and readmes.
