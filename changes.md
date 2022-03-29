@@ -1,6 +1,5 @@
 # Change log for the embed questions filter
 
-
 ## Changes in 2.2
 
 * This version works with Moodle 4.0.

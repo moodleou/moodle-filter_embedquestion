@@ -27,16 +27,16 @@ defined('MOODLE_INTERNAL') || die();
 if ($ADMIN->fulltree) {
     require_once($CFG->libdir . '/questionlib.php');
 
-    $hiddenorvisible = array(
-            question_display_options::HIDDEN => get_string('notshown', 'question'),
-            question_display_options::VISIBLE => get_string('shown', 'question'),
-    );
+    $hiddenorvisible = [
+        question_display_options::HIDDEN => get_string('notshown', 'question'),
+        question_display_options::VISIBLE => get_string('shown', 'question'),
+    ];
 
-    $marksoptions = array(
-            question_display_options::HIDDEN => get_string('notshown', 'question'),
-            question_display_options::MAX_ONLY => get_string('showmaxmarkonly', 'question'),
-            question_display_options::MARK_AND_MAX => get_string('showmarkandmax', 'question'),
-    );
+    $marksoptions = [
+        question_display_options::HIDDEN => get_string('notshown', 'question'),
+        question_display_options::MAX_ONLY => get_string('showmaxmarkonly', 'question'),
+        question_display_options::MARK_AND_MAX => get_string('showmarkandmax', 'question'),
+    ];
 
     // Intro text.
     $settings->add(new admin_setting_heading('filter_embedquestion/defaultinfo',
@@ -88,10 +88,13 @@ if ($ADMIN->fulltree) {
             get_string('responsehistory_desc', 'filter_embedquestion'),
             0, $hiddenorvisible));
 
-     // Authorized secrets.
-     $params = new stdClass();
-     $params->secret = $secret = get_config('filter_embedquestion', 'secret');
-     $settings->add(new admin_setting_configtextarea('filter_embedquestion/authorizedsecrets',
-     get_string('authorizedsecrets', 'filter_embedquestion'),
-     get_string('authorizedsecrets_desc', 'filter_embedquestion', $params), ''));
+    // Security header.
+    $settings->add(new admin_setting_heading('filter_embedquestion/securityinfo',
+            get_string('securityheading', 'filter_embedquestion'), ''));
+
+    // Authorized secrets.
+    $settings->add(new admin_setting_configtextarea('filter_embedquestion/authorizedsecrets',
+            get_string('authorizedsecrets', 'filter_embedquestion'),
+            get_string('authorizedsecrets_desc', 'filter_embedquestion',
+                    get_config('filter_embedquestion', 'secret')), ''));
 }

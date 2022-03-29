@@ -57,21 +57,23 @@ class token {
     }
 
     /**
-     * @param string the security token to be verified
+     * Check whether a token matches using any of the authorised keys.
+     *
+     * @param string the security token to be verified.
      * @param embed_id $embedid the embed code.
      * @return bool if authorized then true, otherwise false.
      */
     public static function is_authorized_secret_token($token, embed_id $embedid): bool {
         $authorizedsecrets = get_config('filter_embedquestion', 'authorizedsecrets');
-        $authorizedsecrets = preg_split('/\n|\r/', $authorizedsecrets, -1, PREG_SPLIT_NO_EMPTY);
+        $authorizedsecrets = preg_split('~\s+~', $authorizedsecrets, -1, PREG_SPLIT_NO_EMPTY);
         array_unshift($authorizedsecrets, get_config('filter_embedquestion', 'secret'));
-        
-        foreach($authorizedsecrets as $item){
-            $secret = hash('sha256', $embedid . '#embed#' . $item);
-            if ($token === $secret) {
+
+        foreach ($authorizedsecrets as $item) {
+            if ($token === hash('sha256', $embedid . '#embed#' . $item)) {
                 return true;
             }
         }
+
         return false;
     }
 }

@@ -26,6 +26,9 @@ defined('MOODLE_INTERNAL') || die();
 
 
 $string['attemptoptions'] = 'Attempt options';
+$string['authorizedsecrets'] = 'Authorized secrets';
+$string['authorizedsecrets_desc'] = 'Add secrets from other servers here, each one per line, so the imported embed questions can work correctly.<br/><br/>The secret of this server is <code>{$a}</code>.';
+$string['chooserandomly'] = 'Choose an embeddable question from this category randomly';
 $string['corruptattempt'] = 'Your previous attempt at a question here has stopped working. If you click continue, it will be removed and a new attempt created.';
 $string['corruptattemptwithreason'] = 'Your previous attempt at a question here has stopped working. ({$a}) If you click continue, it will be removed and a new attempt created.';
 $string['defaultsheading'] = 'Default options for embedding questions';
@@ -65,13 +68,11 @@ $string['questionnolongerincategory'] = 'The question being attempted here is no
 $string['responsehistory_desc'] = 'Whether the response history table should be shown by default for embedded questions.';
 $string['restart'] = 'Start again';
 $string['rightanswer_desc'] = 'Whether the automatically generated display of the right answer is shown by default for embedded questions. We recommend that you do not used this, but instead encoruage question authors to explain the right answer in the general feedback.';
+$string['securityheading'] = 'Security settings';
 $string['specificfeedback_desc'] = 'Whether the feedback specific to the student\'s response should be shown by default in embedded questions.';
-$string['chooserandomly'] = 'Choose an embeddable question from this category randomly';
 $string['taskcleanup'] = 'Clean up old embedded question attempts';
 $string['title'] = 'Embedded question';
 $string['warningfilteroffglobally'] = 'Warning: the embed question filter is disabled in the site-wide filter settings.';
 $string['warningfilteroffhere'] = 'Warning: the the embed question filter is turned off in this course.';
 $string['whethercorrect_desc'] = 'Whether students should be given indications of whether their response was correct in embedded questions. This covers both the textual description \'Correct\', \'Partially correct\' or \'Incorrect\', and any coloured highlighting that conveys the same information.';
 $string['whichquestion'] = 'Which question';
-$string['authorizedsecrets'] = 'Authorized secrets';
-$string['authorizedsecrets_desc'] = 'Add secrets from other servers here, each one per line, so the imported embed questions can work correctly.<br/><br/>The secret of this server is <b>{$a->secret}</b>';
