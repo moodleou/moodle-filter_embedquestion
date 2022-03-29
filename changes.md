@@ -2,7 +2,12 @@
 
 ## Changes in 2.2
 
-* This version works with Moodle 4.0.
+* This version works with Moodle 4.0. However, this is a minimal change to make it work.
+  In future, we can probably improve how it works, to better take advantage of the new
+  question bank features.
+* There is now an admin option where you can add additional 'Authorized secrets'.
+  You need to use this is you are transferring content with embedded questions
+  from other Moodle sites, so that the security checking of those embedded questions works.
 * When an embedded question cannot be shown, the errors for teachers are now more informative.
 * The feature related to migrating idnumbers when you moved form Moodle 3.5 to 3.6 has been removed.
 

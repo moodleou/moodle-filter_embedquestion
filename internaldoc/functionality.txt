@@ -134,7 +134,8 @@ variant will be chosen when the question is restarted.
 Miscellaneous points
 ====================
 
-* Question attempts are stored in the database, but not
+* Unless you install the associated report plugin,
+  Question attempts are stored in the database, but not
   permanently. There is a scheduled task 'Clean up old
   embedded question attempts' which runs once-per-hour
   (by default) to do the necessary clean-up. Attempts are
@@ -142,9 +143,6 @@ Miscellaneous points
 
 * If you leave a page and come back, the question will
   start again from the beginning.
-
-* Hence, this plugin stores no personally identifiable information,
-  and implements the Moodle privacy API to document this.
 
 * Guests are never allowed to interact with embedded questions.
 
@@ -156,5 +154,12 @@ Miscellaneous points
 * If you want to embed questions on site-wide page, they
   need to go in the 'Front page' area of the question bank.
 
-* A a course is backed-up and restored (e.g. roll-forwards)
+* If a course is backed-up and restored (e.g. roll-forwards)
   the embedded questions should work in the new course.
+
+* Because of the security, which ensures that only authorised
+  users can embed questions, if you transfer content using
+  embedded questions from one Moodle site to another, that
+  will not work. If you want it to work, there is an admin
+  setting where you can add additional 'Authorized secrets'
+  to make the restored content work.
