@@ -362,4 +362,37 @@ class utils_test extends \advanced_testcase {
         $this->assertEquals($user->id,
                 $attempt->get_question_usage()->get_question_attempt($attempt->get_slot())->get_last_step()->get_user_id());
     }
+
+    public function test_get_question_bank_url() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course();
+        /** @var \core_question_generator $questiongenerator */
+        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
+
+        // Create a question with two versions.
+        $cat = $questiongenerator->create_question_category(
+            ['contextid' => \context_course::instance($course->id)->id]);
+
+        $saq = $questiongenerator->create_question('shortanswer', null, ['category' => $cat->id]);
+        $firstversion = \question_bank::load_question($saq->id);
+
+        $questiongenerator->update_question($saq);
+        $secondversion = \question_bank::load_question($saq->id);
+
+        // Prepare the expected result.
+        $expectedurl = new \moodle_url('/question/edit.php', [
+                'courseid' => $course->id,
+                'cat' => $secondversion->category . ',' . $secondversion->contextid,
+                'qperpage' => MAXIMUM_QUESTIONS_PER_PAGE,
+                'lastchanged' => $secondversion->id,
+            ]);
+
+        // Check the URL using the first question id.
+        $this->assertEquals($expectedurl, utils::get_question_bank_url($firstversion));
+
+        // Check the URL using the second question id.
+        $this->assertEquals($expectedurl, utils::get_question_bank_url($secondversion));
+    }
 }

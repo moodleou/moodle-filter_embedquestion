@@ -269,11 +269,15 @@ class attempt_test extends \advanced_testcase {
         $renderer = $PAGE->get_renderer('filter_embedquestion');
         $html = $attempt->render_question($renderer);
 
-        // Verify that the edit question and fill with correct links are present.
+        // Verify that the edit question, question bank link and fill with correct links are present.
         $expectedregex = '~<div class="info"><h3 class="no">Question <span class="qno">[^<]+</span>' .
                 '</h3><div class="state">Not complete</div><div class="grade">Marked out of 1.00</div>' .
                 '<div class="editquestion"><a href="[^"]+">' .
                 '<i class="icon fa fa-cog fa-fw iconsmall"  title="Edit"[^>]*></i>Edit question</a></div>' .
+                '<div class="filter_embedquestion-viewquestionbank">' .
+                '<a target="_top" href="[^"]+">' .
+                '<img class="icon iconsmall" alt="" aria-hidden="true" src="[^"]+" />' .
+                'Question bank</a></div>' .
                 '<div class="filter_embedquestion-fill-link">' .
                 '<button type="submit" name="fillwithcorrect" value="1" class="btn btn-link">' .
                 '<i class="icon fa fa-check fa-fw iconsmall" aria-hidden="true"  ></i>' .

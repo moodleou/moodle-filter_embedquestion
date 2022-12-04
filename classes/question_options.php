@@ -54,6 +54,9 @@ class question_options extends \question_display_options {
     /** @var string Accessibility text for the iframe. */
     public $iframedescription = '';
 
+    /** @var int whether the current user is allowed to see the 'Question bank' link. */
+    public $showquestionbank = self::HIDDEN;
+
     /**
      * The question_options constructor.
      *

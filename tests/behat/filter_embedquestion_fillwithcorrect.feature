@@ -48,3 +48,14 @@ Feature: Fill with correct feature for staff
     And I press "Embed question"
     When I switch to "filter_embedquestion-iframe" iframe
     Then I should not see "Fill with correct"
+
+  @javascript
+  Scenario: Teacher can see and use the Question bank link.
+    When I am on the "Course 1" "filter_embedquestion > test" page logged in as teacher
+    And I set the field "Question category" to "Test questions [embed] (2)"
+    And I set the field "id_questionidnumber" to "First question"
+    And I press "Embed question"
+    And I switch to "filter_embedquestion-iframe" iframe
+    And I click on "Question bank" "link"
+    Then I should see "First question"
+    And ".highlight" "css_element" should exist in the "First question" "table_row"

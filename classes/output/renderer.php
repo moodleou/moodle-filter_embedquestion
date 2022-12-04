@@ -17,6 +17,7 @@
 namespace filter_embedquestion\output;
 
 use filter_embedquestion\question_options;
+use filter_embedquestion\utils;
 
 /**
  * The filter_embedquestion renderer.
@@ -66,11 +67,29 @@ class renderer extends \plugin_renderer_base {
         $this->page->requires->js_module('core_question_engine');
         $output = $quba->render_question($slot, $options, $displaynumber);
 
+        if ($options->showquestionbank) {
+            $output = $this->add_questionbank_link($quba, $slot, $output);
+        }
+
         if ($options->fillwithcorrect) {
             $output = $this->add_fill_with_correct_link($output);
         }
 
         return $output;
+    }
+
+    /**
+     * Render view the question bank element and append to info class.
+     *
+     * @param \question_usage_by_activity $quba Containing the question to display.
+     * @param int $slot Slot number of the question to display.
+     * @param string $output Template string.
+     * @return string New template string.
+     */
+    protected function add_questionbank_link(\question_usage_by_activity $quba, int $slot, string $output): string {
+
+        $questionbank = $this->render_questionbank_link($quba, $slot);
+        return $this->insert_html_into_info_section($output, $questionbank);
     }
 
     /**
@@ -82,18 +101,7 @@ class renderer extends \plugin_renderer_base {
     protected function add_fill_with_correct_link(string $questionhtml): string {
 
         $fillbutton = $this->render_fill_with_correct();
-
-        // If we can, insert at the end of the info section.
-        if (preg_match('~<div class="info">.*</div><div class="content">~', $questionhtml)) {
-            $questionhtml = preg_replace('~(<div class="info">.*)(</div><div class="content">)~',
-                    '$1' . $fillbutton . '$2', $questionhtml, 1);
-
-        } else {
-            // Otherwise, just add at the end.
-            $questionhtml .= $fillbutton;
-        }
-
-        return $questionhtml;
+        return $this->insert_html_into_info_section($questionhtml, $fillbutton);
     }
 
     /**
@@ -103,10 +111,50 @@ class renderer extends \plugin_renderer_base {
      */
     public function render_fill_with_correct(): string {
         return \html_writer::div(\html_writer::tag('button',
-                    $this->pix_icon('e/tick', '', 'moodle', ['class' => 'iconsmall']) .
-                            \html_writer::span(get_string('fillcorrect', 'mod_quiz')),
-                    ['type' => 'submit', 'name' => 'fillwithcorrect', 'value' => 1,
-                            'class' => 'btn btn-link']),
-                'filter_embedquestion-fill-link');
+            $this->pix_icon('e/tick', '', 'moodle', ['class' => 'iconsmall']) .
+            \html_writer::span(get_string('fillcorrect', 'mod_quiz')),
+            ['type' => 'submit', 'name' => 'fillwithcorrect', 'value' => 1,
+                'class' => 'btn btn-link']),
+            'filter_embedquestion-fill-link');
+    }
+
+    /**
+     * Render question bank link.
+     *
+     * @param \question_usage_by_activity $quba Containing the question to display.
+     * @param int $slot Slot number of the question to display.
+     * @return string Question bank HTML string.
+     */
+    public function render_questionbank_link(\question_usage_by_activity $quba, int $slot): string {
+        $question = $quba->get_question_attempt($slot)->get_question(false);
+
+        return \html_writer::tag('div',
+            \html_writer::link(
+                utils::get_question_bank_url($question),
+                $this->pix_icon('qbank', '', 'filter_embedquestion',
+                    ['class' => 'iconsmall']) . get_string('questionbank', 'filter_embedquestion'),
+                ['target' => '_top']
+            ),
+            ['class' => 'filter_embedquestion-viewquestionbank']
+        );
+    }
+
+    /**
+     * Insert a template element into info element.
+     *
+     * @params string $template Info template.
+     * @params string $childtemplate Child template.
+     * @return string The combined template.
+     */
+    protected function insert_html_into_info_section(string $template, string $childtemplate): string {
+        // If we can, insert at the end of the info section.
+        if (preg_match('~<div class="info">.*</div><div class="content">~', $template)) {
+            $template = preg_replace('~(<div class="info">.*)(</div><div class="content">)~',
+                '$1' . $childtemplate . '$2', $template, 1);
+        } else {
+            // Otherwise, just add at the end.
+            $template .= $childtemplate;
+        }
+        return $template;
     }
 }

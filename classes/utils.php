@@ -412,11 +412,43 @@ class utils {
      * @return string Iframe description.
      */
     public static function make_unique_iframe_description(): string {
-        // Number of embed question needing an auto-increasing description.
-        static $untitilediframecounter = 0;
-
         self::$untitilediframecounter += 1;
         return get_string('iframetitleauto', 'filter_embedquestion', self::$untitilediframecounter);
+    }
+
+    /**
+     * Get the URL of this question in the question bank.
+     *
+     * @param \question_definition $question
+     * @return \moodle_url
+     */
+    public static function get_question_bank_url(\question_definition $question): \moodle_url {
+        global $CFG, $DB;
+        // To get MAXIMUM_QUESTIONS_PER_PAGE.
+        require_once($CFG->dirroot . '/question/editlib.php');
+
+        $context = \context::instance_by_id($question->contextid);
+        if ($context->contextlevel != CONTEXT_COURSE) {
+            throw new \coding_exception('Unexpected. Only questions from the course question bank should be embedded.');
+        }
+
+        $latestquestionid = $DB->get_field_sql("
+                SELECT qv.questionid
+                 FROM {question_versions} qv
+                WHERE qv.questionbankentryid = ?
+                  AND qv.version = (
+                        SELECT MAX(v.version)
+                          FROM {question_versions} v
+                         WHERE v.questionbankentryid = ?
+                  )
+                ", [$question->questionbankentryid, $question->questionbankentryid,]);
+
+        return new \moodle_url('/question/edit.php', [
+                'courseid' => $context->instanceid,
+                'cat' => $question->category . ',' . $question->contextid,
+                'qperpage' => MAXIMUM_QUESTIONS_PER_PAGE,
+                'lastchanged' => $latestquestionid,
+            ]);
     }
 
     /**

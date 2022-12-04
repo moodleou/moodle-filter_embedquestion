@@ -416,7 +416,6 @@ class attempt {
      * @return string HTML to display.
      */
     public function render_question(\filter_embedquestion\output\renderer $renderer): string {
-
         // Work out the question number to display.
         if ($this->current_question()->length) {
             $displaynumber = "\u{00a0}"; // Non-breaking space.
@@ -437,10 +436,16 @@ class attempt {
         }
 
         // Show an 'Edit question' action to those with permissions.
+        $relevantcourseid = utils::get_relevant_courseid($this->embedlocation->context);
         if (question_has_capability_on($this->current_question(), 'edit')) {
             $this->options->editquestionparams = ['returnurl' => $this->embedlocation->pageurl,
-                    'courseid' => utils::get_relevant_courseid($this->embedlocation->context)];
+                    'courseid' => $relevantcourseid];
+
         }
+
+        // Show an 'Question bank' action to those with permissions.
+        $contexts = new \core_question\local\bank\question_edit_contexts(\context_course::instance($relevantcourseid));
+        $this->options->showquestionbank = $contexts->have_one_edit_tab_cap('questions');
 
         // Show a 'Fill with correct' action to those with permissions.
         if (question_has_capability_on($this->current_question(), 'use') &&
