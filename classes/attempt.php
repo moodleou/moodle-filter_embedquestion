@@ -250,8 +250,6 @@ class attempt {
      * After calling this method, don't try to do anything else. Just redirect.
      */
     public function discard_broken_attempt() {
-        global $DB;
-
         if (!empty($this->slot) && $this->slot > 1) {
             // The corrupt attempt is part of a usage with other previous attempts
             // that might be important. Therefore, just abandon the current
@@ -484,6 +482,27 @@ class attempt {
      */
     protected function current_question(): \question_definition {
         return $this->quba->get_question($this->slot);
+    }
+
+    /**
+     * Should the current attempt be re-started?
+     *
+     * @return bool true if it should.
+     */
+    public function should_switch_to_new_version(): bool {
+        if (!utils::has_question_versionning()) {
+            // Auto-restart is only relevant in Moodle 4.0+.
+            return false;
+        }
+
+        $question = $this->current_question();
+        if (!question_has_capability_on($question, 'edit')) {
+            // Only auto-restart for users who can edit the question.
+            return false;
+        }
+
+        // Need to auto-restart if this is not the latest version.
+        return !utils::is_latest_version($question);
     }
 
     /**

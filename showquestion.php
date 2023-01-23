@@ -100,6 +100,13 @@ try {
     }
 }
 
+// If the user can edit questions, and the question has been edited since their attempt
+// started, start a new attempt.
+if ($attempt->should_switch_to_new_version()) {
+    $attempt->discard_broken_attempt();
+    redirect($PAGE->url);
+}
+
 // Process any actions from the buttons at the bottom of the form.
 if (data_submitted() && confirm_sesskey()) {
     try {

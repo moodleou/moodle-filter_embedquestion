@@ -193,6 +193,25 @@ class utils {
     }
 
     /**
+     * Is a particular question the latest version of that question bank entry.
+     *
+     * This method can only be called if you have already verified that
+     * {@see has_question_versionning()} returns true.
+     *
+     * @param \question_definition the question.
+     * @return bool is this the latest ready version of this question?
+     */
+    public static function is_latest_version(\question_definition $question): bool {
+        global $DB;
+
+        $latestversion = $DB->get_field('question_versions', 'MAX(version)',
+                ['questionbankentryid' => $question->questionbankentryid,
+                   'status' => question_version_status::QUESTION_STATUS_READY]);
+
+        return $question->version == $latestversion;
+    }
+
+    /**
      * Get a list of the question categories in a particular context that
      * contain sharable questions (and which have an idnumber set).
      *
