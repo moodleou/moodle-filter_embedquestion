@@ -25,6 +25,9 @@ namespace filter_embedquestion;
  */
 class external_test extends \advanced_testcase {
 
+    /**
+     * @runInSeparateProcess
+     */
     public function test_get_sharable_question_choices_working() {
 
         $this->resetAfterTest();
@@ -53,6 +56,9 @@ class external_test extends \advanced_testcase {
                 external::get_sharable_question_choices($course->id, 'abc123'));
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function test_get_sharable_question_choices_no_permissions() {
         $this->resetAfterTest();
         $this->setGuestUser();
@@ -61,6 +67,9 @@ class external_test extends \advanced_testcase {
         external::get_sharable_question_choices(SITEID, 'abc123');
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function test_get_sharable_question_choices_only_user() {
         global $DB;
 
@@ -106,6 +115,8 @@ class external_test extends \advanced_testcase {
 
     /**
      * Test getting the embed code for a particular question.
+     *
+     * @runInSeparateProcess
      *
      * @param string $catid idnumber to use for the category.
      * @param string $questionid idnumber to use for the question.
@@ -159,6 +170,9 @@ class external_test extends \advanced_testcase {
         $this->assertEquals($expected, $actual);
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function test_get_embed_code_working_with_random_questions() {
 
         $this->resetAfterTest();
@@ -227,6 +241,8 @@ class external_test extends \advanced_testcase {
 
     /**
      * Test function token::is_authorized_secret_token
+     *
+     * @runInSeparateProcess
      *
      * @param string $catid idnumber to use for the category.
      * @param string $questionid idnumber to use for the question.

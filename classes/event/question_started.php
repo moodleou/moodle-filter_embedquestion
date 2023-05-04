@@ -40,10 +40,6 @@ class question_started extends \core\event\base {
                 "'$this->objectid' in course '$this->courseid'.";
     }
 
-    protected function get_legacy_logdata() {
-        return array($this->courseid, 'filter_embedquestion', 'start', '', $this->objectid);
-    }
-
     public static function get_objectid_mapping() {
         return array('db' => 'question', 'restore' => 'question');
     }
