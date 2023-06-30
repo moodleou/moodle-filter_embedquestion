@@ -20,6 +20,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/filter/embedquestion/filter.php');
+require_once($CFG->dirroot . '/question/editlib.php');
 
 use core_question\local\bank\question_version_status;
 
@@ -378,8 +379,8 @@ class utils_test extends \advanced_testcase {
         $saq = $questiongenerator->create_question('shortanswer', null, ['category' => $cat->id]);
         $firstversion = \question_bank::load_question($saq->id);
 
-        $questiongenerator->update_question($saq);
-        $secondversion = \question_bank::load_question($saq->id);
+        $saqv2 = $questiongenerator->update_question($saq);
+        $secondversion = \question_bank::load_question($saqv2->id);
 
         // Prepare the expected result.
         $expectedurl = new \moodle_url('/question/edit.php', [
