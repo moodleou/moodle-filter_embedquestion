@@ -89,7 +89,7 @@ class embed_location {
     }
 
     /**
-     * Should only be used by test code (@link report_embedquestion_generator}.
+     * Should only be used by test code {@see report_embedquestion_generator}.
      *
      * Make an instance with specific properies.
      *

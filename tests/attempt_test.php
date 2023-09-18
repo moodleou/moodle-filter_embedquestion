@@ -20,9 +20,11 @@ namespace filter_embedquestion;
 /**
  * Unit tests for the code for attempting questions.
  *
- * @package    filter_embedquestion
- * @copyright  2019 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   filter_embedquestion
+ * @copyright 2019 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers    \filter_embedquestion\attempt
+ * @covers    \filter_embedquestion\attempt_storage
  */
 class attempt_test extends \advanced_testcase {
 
@@ -274,6 +276,7 @@ class attempt_test extends \advanced_testcase {
                 '</h3><div class="state">Not complete</div><div class="grade">Marked out of 1.00</div>' .
                 '<div class="editquestion"><a href="[^"]+">' .
                 '<i class="icon fa fa-cog fa-fw iconsmall"  title="Edit"[^>]*></i>Edit question</a></div>' .
+                '(<span class="badge bg-primary text-light">v1 \(latest\)</span>)?' .
                 '<div class="filter_embedquestion-viewquestionbank">' .
                 '<a target="_top" href="[^"]+">' .
                 '<img class="icon iconsmall" alt="" aria-hidden="true" src="[^"]+" />' .

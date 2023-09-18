@@ -66,7 +66,8 @@ function filter_embedquestion_question_pluginfile($givencourse, $context, $compo
     $fs = get_file_storage();
     $relativepath = implode('/', $args);
     $fullpath = "/{$context->id}/{$component}/{$filearea}/{$relativepath}";
-    if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
+    $file = $fs->get_file_by_hash(sha1($fullpath));
+    if (!$file || $file->is_directory()) {
         send_file_not_found();
     }
 

@@ -28,7 +28,10 @@ use renderer_base;
  */
 class embed_iframe implements \renderable, \templatable {
     /** @var \moodle_url for the iframe src attribute. */
-    private $showquestionurl;
+    public $showquestionurl;
+
+    /** @var string Accessibility text for the iframe. */
+    public $iframedescription = '';
 
     /**
      * The error_message constructor.

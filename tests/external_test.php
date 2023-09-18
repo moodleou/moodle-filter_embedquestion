@@ -20,8 +20,9 @@ namespace filter_embedquestion;
  * Unit tests for the external functions.
  *
  * @package   filter_embedquestion
- * @copyright  2018 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2018 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers    \filter_embedquestion\external
  */
 class external_test extends \advanced_testcase {
 
@@ -95,7 +96,7 @@ class external_test extends \advanced_testcase {
     }
 
     /**
-     *
+     * Test cases for {@see test_get_embed_code_working()} and {@see test_is_authorized_secret_token()}.
      */
     public function get_embed_code_cases(): array {
         return [

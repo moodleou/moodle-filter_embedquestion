@@ -14,26 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// NOTE: no MOODLE_INTERNAL test because this file is required by Behat.
+
+require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
+
+use Behat\Mink\Exception\ExpectationException;
+use Behat\Gherkin\Node\TableNode;
+
 /**
  * Behat steps for filter_embedquestion.
  *
  * @package   filter_embedquestion
  * @copyright 2018 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-// NOTE: no MOODLE_INTERNAL test because this file is required by Behat.
-
-require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
-
-use Behat\Mink\Exception\ExpectationException as ExpectationException,
-        Behat\Gherkin\Node\TableNode as TableNode;
-
-/**
- * Behat steps for filter_embedquestion.
- *
- * @copyright 2018 The Open University
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class behat_filter_embedquestion extends behat_base {
 
@@ -96,7 +89,7 @@ class behat_filter_embedquestion extends behat_base {
      *
      * response       The response that was submitted. How this is interpreted depends on
      *                the question type. It gets passed to
-     *                {@link core_question_generator::get_simulated_post_data_for_question_attempt()}
+     *                {@see core_question_generator::get_simulated_post_data_for_question_attempt()}
      *                and therefore to the un_summarise_response method of the question to decode.
      *
      * Then there should be a number of rows of data, one for each question you want to add.
@@ -244,18 +237,5 @@ class behat_filter_embedquestion extends behat_base {
         }
 
         return $attemptcontext;
-    }
-
-    /**
-     * Check that the given Question type already installed.
-     *
-     * @Given /^I check the "(?P<question_type_string>(?:[^"]|\\")*)" question type already installed for embed question$/
-     */
-    public function check_question_type_installed($questiontype) {
-        $qtypes = question_bank::get_creatable_qtypes();
-        if (!array_key_exists($questiontype, $qtypes)) {
-            // Question type not available.
-            throw new \Moodle\BehatExtension\Exception\SkippedException();
-        }
     }
 }

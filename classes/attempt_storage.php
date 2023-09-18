@@ -30,7 +30,7 @@ namespace filter_embedquestion;
 class attempt_storage {
 
     /**
-     * Private constructor. Use {@link instance()} to get an instance.
+     * Private constructor. Use {@see instance()} to get an instance.
      */
     protected function __construct() {
     }
@@ -77,7 +77,7 @@ class attempt_storage {
      * Make a new usage. Will only be called if find_existing_attempt has not found anything.
      *
      * Do not try to save the new usage yet. That won't work until MDL-66685 is fixed.
-     * {@link new_usage_saved()} will be called once the usage id is known.
+     * {@see new_usage_saved()} will be called once the usage id is known.
      *
      * @param embed_id $embedid identity of the question(s) being embedded in this place.
      * @param embed_location $embedlocation where the question(s) are being embedded.
@@ -94,7 +94,7 @@ class attempt_storage {
     /**
      * New usage has been saved so we now know its id.
      *
-     * Called after {@link make_new_usage()} and after the at least one
+     * Called after {@see make_new_usage()} and after the at least one
      * question_attempt has been added.
      *
      * @param \question_usage_by_activity $quba the usage that has just been saved.

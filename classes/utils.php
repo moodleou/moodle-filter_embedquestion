@@ -198,7 +198,7 @@ class utils {
      * This method can only be called if you have already verified that
      * {@see has_question_versionning()} returns true.
      *
-     * @param \question_definition the question.
+     * @param \question_definition $question the question.
      * @return bool is this the latest ready version of this question?
      */
     public static function is_latest_version(\question_definition $question): bool {
@@ -423,7 +423,7 @@ class utils {
     }
 
     /** @var int Use to create unique iframe names. */
-    protected  static $untitilediframecounter = 0;
+    protected static $untitilediframecounter = 0;
 
     /**
      * Make a unique name, for anonymous iframes.
@@ -460,7 +460,7 @@ class utils {
                           FROM {question_versions} v
                          WHERE v.questionbankentryid = ?
                   )
-                ", [$question->questionbankentryid, $question->questionbankentryid,]);
+                ", [$question->questionbankentryid, $question->questionbankentryid]);
 
         return new \moodle_url('/question/edit.php', [
                 'courseid' => $context->instanceid,

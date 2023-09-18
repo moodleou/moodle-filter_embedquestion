@@ -53,10 +53,10 @@ class filter_embedquestion_generator extends component_generator_base {
      * Do not specify both isset($overrides['category'] and $categoryrecord.
      * (Generally, you don't want to specify either.)
      *
-     * @param string $qtype as for {@link core_question_generator::create_question()}
-     * @param string|null $which as for {@link core_question_generator::create_question()}
-     * @param array|null $overrides as for {@link core_question_generator::create_question()}.
-     * @param array $categoryrecord as for {@link core_question_generator::create_question_category()}.
+     * @param string $qtype as for {@see core_question_generator::create_question()}
+     * @param string|null $which as for {@see core_question_generator::create_question()}
+     * @param array|null $overrides as for {@see core_question_generator::create_question()}.
+     * @param array $categoryrecord as for {@see core_question_generator::create_question_category()}.
      * @return stdClass the data for the newly created question.
      */
     public function create_embeddable_question(string $qtype, string $which = null,

@@ -30,6 +30,11 @@ class custom_string_manager extends \core_string_manager_standard {
     /** @var string language to force. */
     protected $forcedlanguage;
 
+    /**
+     * Force all UI text to this language from now on.
+     *
+     * @param string $lang Moodle language code, e.g. 'fr'.
+     */
     public static function force_page_language($lang) {
         global $CFG;
 

@@ -24,13 +24,13 @@ require_once($CFG->dirroot . '/question/editlib.php');
 
 use core_question\local\bank\question_version_status;
 
-
 /**
  * Unit tests for the util methods.
  *
- * @package    filter_embedquestion
- * @copyright  2018 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   filter_embedquestion
+ * @copyright 2018 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers    \filter_embedquestion\utils
  */
 class utils_test extends \advanced_testcase {
 
@@ -255,7 +255,7 @@ class utils_test extends \advanced_testcase {
      *
      * @param string $qtype the question type to create an example of.
      * @param string|null $which as for the corresponding argument of
-     *      {@link question_test_helper::get_question_form_data}. null for the default one.
+     *      {@see question_test_helper::get_question_form_data}. null for the default one.
      * @param array|null $overrides any fields that should be different from the base example.
      * @return \stdClass the question data.
      */

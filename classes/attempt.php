@@ -200,6 +200,8 @@ class attempt {
     }
 
     /**
+     * Start a new attempt at a question in the current usage.
+     *
      * @param \question_usage_by_activity|null $quba usage to use. If null will continue using the same usage.
      */
     public function start_new_attempt_at_question(
@@ -410,7 +412,7 @@ class attempt {
     /**
      * Render the currently active question, including the required form.
      *
-     * @param \filter_embedquestion\output\renderer instance of our renderer to use.
+     * @param \filter_embedquestion\output\renderer $renderer instance of our renderer to use.
      * @return string HTML to display.
      */
     public function render_question(\filter_embedquestion\output\renderer $renderer): string {

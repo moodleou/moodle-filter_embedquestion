@@ -22,13 +22,14 @@ global $CFG;
 require_once($CFG->dirroot . '/filter/embedquestion/filter.php');
 
 /**
- * Unit tests for \filter_embedquestion.
+ * Unit tests for filter_embedquestion.
  *
  * Test the delimiter parsing used by the embedquestion filter.
  *
- * @package    \filter_embedquestion
- * @copyright  2018 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   filter_embedquestion
+ * @copyright 2018 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers    \filter_embedquestion
  */
 class filter_test extends \advanced_testcase {
 
@@ -38,7 +39,7 @@ class filter_test extends \advanced_testcase {
     }
 
     /**
-     * Data provider for {@link test_filter()}.
+     * Data provider for {@see test_filter()}.
      * @return array the test cases.
      */
     public function get_cases_for_test_filter(): array {

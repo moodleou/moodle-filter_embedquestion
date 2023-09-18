@@ -142,8 +142,10 @@ class renderer extends \plugin_renderer_base {
     /**
      * Insert a template element into info element.
      *
-     * @params string $template Info template.
-     * @params string $childtemplate Child template.
+     * If the info div is not found, the content is just added at the end.
+     *
+     * @param string $template HTML of the rendered question, containing at least the info <div>.
+     * @param string $childtemplate HTML to insert at the end of, and inside, the info div.
      * @return string The combined template.
      */
     protected function insert_html_into_info_section(string $template, string $childtemplate): string {

@@ -37,7 +37,7 @@ class token {
     }
 
     /**
-     * Helper used by @link{add_iframe_token_to_url()}.
+     * Helper used by {@see add_iframe_token_to_url()}.
      *
      * @param string $otherurlparams the URL params to 'sign'.
      * @return string the security token.
@@ -48,9 +48,9 @@ class token {
     }
 
     /**
-     * Do not call this directly. It is expected that this will only be called by @link{utils::get_show_url()}.
+     * Do not call this directly. It is expected that this will only be called by {@see utils::get_show_url()}.
      *
-     * @param \moodle_url $url.
+     * @param \moodle_url $url The URL to add the token to.
      */
     public static function add_iframe_token_to_url(\moodle_url $url): void {
         $url->param('token', self::make_iframe_token($url->get_query_string(false)));
@@ -59,7 +59,7 @@ class token {
     /**
      * Check whether a token matches using any of the authorised keys.
      *
-     * @param string the security token to be verified.
+     * @param string $token the security token to be verified.
      * @param embed_id $embedid the embed code.
      * @return bool if authorized then true, otherwise false.
      */
