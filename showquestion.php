@@ -39,6 +39,7 @@ $contextid = required_param('contextid', PARAM_INT);
 list($context, $course, $cm) = get_context_info_array($contextid);
 require_login($course, false, $cm);
 $PAGE->set_pagelayout('embedded');
+$PAGE->activityheader->disable();
 $PAGE->requires->js_call_amd('filter_embedquestion/question', 'init');
 
 if (isguestuser()) {
