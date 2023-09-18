@@ -16,12 +16,10 @@
 
 namespace filter_embedquestion;
 
-use core_external\external_api;
-use core_external\external_description;
-use core_external\external_function_parameters;
-use core_external\external_multiple_structure;
-use core_external\external_single_structure;
-use core_external\external_value;
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External API for AJAX calls.
@@ -30,29 +28,29 @@ use core_external\external_value;
  * @copyright 2018 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class external extends external_api {
+class external extends \external_api {
     /**
      * Returns parameter types for get_status function.
      *
-     * @return external_function_parameters Parameters
+     * @return \external_function_parameters Parameters
      */
-    public static function get_sharable_question_choices_parameters(): external_function_parameters {
-        return new external_function_parameters([
-                'courseid' => new external_value(PARAM_INT, 'Course id.'),
-                'categoryidnumber' => new external_value(PARAM_RAW, 'Idnumber of the question category.'),
+    public static function get_sharable_question_choices_parameters(): \external_function_parameters {
+        return new \external_function_parameters([
+                'courseid' => new \external_value(PARAM_INT, 'Course id.'),
+                'categoryidnumber' => new \external_value(PARAM_RAW, 'Idnumber of the question category.'),
         ]);
     }
 
     /**
      * Returns result type for get_status function.
      *
-     * @return external_description Result type
+     * @return \external_description Result type
      */
-    public static function get_sharable_question_choices_returns(): external_description {
-        return new external_multiple_structure(
-            new external_single_structure([
-                    'value' => new external_value(PARAM_RAW, 'Choice value to return from the form.'),
-                    'label' => new external_value(PARAM_RAW, 'Choice name, to display to users.'),
+    public static function get_sharable_question_choices_returns(): \external_description {
+        return new \external_multiple_structure(
+            new \external_single_structure([
+                    'value' => new \external_value(PARAM_RAW, 'Choice value to return from the form.'),
+                    'label' => new \external_value(PARAM_RAW, 'Choice name, to display to users.'),
             ]));
     }
 
@@ -107,41 +105,41 @@ class external extends external_api {
     /**
      * Returns parameter types for get_embed_code function.
      *
-     * @return external_function_parameters Parameters
+     * @return \external_function_parameters Parameters
      */
-    public static function get_embed_code_parameters(): external_function_parameters {
+    public static function get_embed_code_parameters(): \external_function_parameters {
         // We can't use things like PARAM_INT for things like variant, because it is
         // and int of '' for not set.
-        return new external_function_parameters([
-                'courseid' => new external_value(PARAM_INT,
+        return new \external_function_parameters([
+                'courseid' => new \external_value(PARAM_INT,
                         'Course id.'),
-                'categoryidnumber' => new external_value(PARAM_RAW,
+                'categoryidnumber' => new \external_value(PARAM_RAW,
                         'Id number of the question category.'),
-                'questionidnumber' => new external_value(PARAM_RAW,
+                'questionidnumber' => new \external_value(PARAM_RAW,
                         'Id number of the question.'),
-                'iframedescription' => new external_value(PARAM_TEXT,
+                'iframedescription' => new \external_value(PARAM_TEXT,
                         'Iframe description.'),
-                'behaviour' => new external_value(PARAM_RAW,
+                'behaviour' => new \external_value(PARAM_RAW,
                         'Question behaviour.'),
-                'maxmark' => new external_value(PARAM_RAW_TRIMMED,
+                'maxmark' => new \external_value(PARAM_RAW_TRIMMED,
                         'Question maximum mark (float or "").'),
-                'variant' => new external_value(PARAM_RAW_TRIMMED,
+                'variant' => new \external_value(PARAM_RAW_TRIMMED,
                         'Question variant (int or "").'),
-                'correctness' => new external_value(PARAM_RAW_TRIMMED,
+                'correctness' => new \external_value(PARAM_RAW_TRIMMED,
                         'Whether to show question correctness (1/0/"") for show, hide or default.'),
-                'marks' => new external_value(PARAM_RAW_TRIMMED,
+                'marks' => new \external_value(PARAM_RAW_TRIMMED,
                         'Wheter to show mark information (0/1/2/"") for hide, show max only, show mark and max or default.'),
-                'markdp' => new external_value(PARAM_RAW_TRIMMED,
+                'markdp' => new \external_value(PARAM_RAW_TRIMMED,
                         'Decimal places to use when outputting grades.'),
-                'feedback' => new external_value(PARAM_RAW_TRIMMED,
+                'feedback' => new \external_value(PARAM_RAW_TRIMMED,
                         'Whether to show specific feedback (1/0/"") for show, hide or default.'),
-                'generalfeedback' => new external_value(PARAM_RAW_TRIMMED,
+                'generalfeedback' => new \external_value(PARAM_RAW_TRIMMED,
                         'Whether to show general feedback (1/0/"") for show, hide or default.'),
-                'rightanswer' => new external_value(PARAM_RAW_TRIMMED,
+                'rightanswer' => new \external_value(PARAM_RAW_TRIMMED,
                         'Whether to show the automatically generated right answer display (1/0/"") for show, hide or default.'),
-                'history' => new external_value(PARAM_RAW_TRIMMED,
+                'history' => new \external_value(PARAM_RAW_TRIMMED,
                         'Whether to show the response history (1/0/"") for show, hide or default.'),
-                'forcedlanguage' => new external_value(PARAM_LANG,
+                'forcedlanguage' => new \external_value(PARAM_LANG,
                         'Whether to force the UI language of the question. Lang code or empty string.'),
         ]);
     }
@@ -149,10 +147,10 @@ class external extends external_api {
     /**
      * Returns result type for for get_embed_code function.
      *
-     * @return external_description Result type
+     * @return \external_description Result type
      */
-    public static function get_embed_code_returns(): external_description {
-        return new external_value(PARAM_RAW, 'Embed code to show this question with those options.');
+    public static function get_embed_code_returns(): \external_description {
+        return new \external_value(PARAM_RAW, 'Embed code to show this question with those options.');
     }
 
     /**

@@ -23,6 +23,7 @@ namespace filter_embedquestion;
  * @copyright 2018 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers    \filter_embedquestion\external
+ * @runTestsInSeparateProcesses
  */
 class external_test extends \advanced_testcase {
 
