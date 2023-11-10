@@ -396,8 +396,8 @@ class attempt {
         attempt_storage::instance()->update_timemodified($this->quba->get_id());
 
         // Log the submit.
-        \filter_embedquestion\event\question_attempted::create(['context' => $this->embedlocation->context,
-                'objectid' => $this->current_question()->id])->trigger();
+        \filter_embedquestion\event\question_attempted::create(
+            ['context' => $this->embedlocation->context, 'objectid' => $this->current_question()->id])->trigger();
         $transaction->allow_commit();
     }
 
@@ -405,8 +405,8 @@ class attempt {
      * Log that the user is viewing the question.
      */
     public function log_view() {
-        \filter_embedquestion\event\question_viewed::create(['context' => $this->embedlocation->context,
-                'objectid' => $this->current_question()->id])->trigger();
+        \filter_embedquestion\event\question_viewed::create(
+            ['context' => $this->embedlocation->context, 'objectid' => $this->current_question()->id])->trigger();
     }
 
     /**
@@ -429,18 +429,21 @@ class attempt {
         // If the question is finished, add a Start again button.
         if ($this->is_question_finished()) {
             $this->options->extrainfocontent = \html_writer::div(
-                    \html_writer::empty_tag('input', ['type' => 'submit', 'name' => 'restart',
-                            'value' => get_string('restart', 'filter_embedquestion'),
-                            'class' => 'btn btn-secondary', 'data-formchangechecker-non-submit' => 1])
+                    \html_writer::empty_tag('input', [
+                        'type' => 'submit',
+                        'name' => 'restart',
+                        'value' => get_string('restart', 'filter_embedquestion'),
+                        'class' => 'btn btn-secondary',
+                        'data-formchangechecker-non-submit' => 1,
+                    ])
                 );
         }
 
         // Show an 'Edit question' action to those with permissions.
         $relevantcourseid = utils::get_relevant_courseid($this->embedlocation->context);
         if (question_has_capability_on($this->current_question(), 'edit')) {
-            $this->options->editquestionparams = ['returnurl' => $this->embedlocation->pageurl,
-                    'courseid' => $relevantcourseid];
-
+            $this->options->editquestionparams =
+                ['returnurl' => $this->embedlocation->pageurl, 'courseid' => $relevantcourseid];
         }
 
         // Show an 'Question bank' action to those with permissions.
@@ -456,9 +459,12 @@ class attempt {
 
         // Start the question form.
         $output = '';
-        $output .= \html_writer::start_tag('form',
-                ['method' => 'post', 'action' => $this->get_action_url(),
-                'enctype' => 'multipart/form-data', 'id' => 'responseform']);
+        $output .= \html_writer::start_tag('form', [
+            'method' => 'post',
+            'action' => $this->get_action_url(),
+            'enctype' => 'multipart/form-data',
+            'id' => 'responseform',
+        ]);
         $output .= \html_writer::start_tag('div');
         $output .= \html_writer::empty_tag('input',
                 ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);

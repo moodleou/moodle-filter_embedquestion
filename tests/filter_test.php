@@ -42,9 +42,11 @@ class filter_test extends \advanced_testcase {
      * Data provider for {@see test_filter()}.
      * @return array the test cases.
      */
-    public function get_cases_for_test_filter(): array {
-        $tokenerror = ['<div class="filter_embedquestion-error">',
-                'This embedded question is incorrectly configured.'];
+    public static function get_cases_for_test_filter(): array {
+        $tokenerror = [
+            '<div class="filter_embedquestion-error">',
+            'This embedded question is incorrectly configured.',
+        ];
 
         $cases = [
             'noembed' => ['Frog', 'Frog'],
@@ -55,23 +57,54 @@ class filter_test extends \advanced_testcase {
         $title = 'Embedded question 1';
 
         $requiredtoken = token::make_secret_token(new embed_id('cat', 'q'));
-        $expectedurl = new \moodle_url('/filter/embedquestion/showquestion.php', [
-                'catid' => 'cat', 'qid' => 'q', 'contextid' => '1', 'pageurl' => '/', 'pagetitle' => 'System',
-                'behaviour' => 'interactive', 'correctness' => '1', 'marks' => '2', 'markdp' => '2',
-                'feedback' => '1', 'generalfeedback' => '1', 'rightanswer' => '0', 'history' => '0']);
+        $expectedurl = new \moodle_url(
+            '/filter/embedquestion/showquestion.php',
+            [
+                'catid' => 'cat',
+                'qid' => 'q',
+                'contextid' => '1',
+                'pageurl' => '/',
+                'pagetitle' => 'System',
+                'behaviour' => 'interactive',
+                'correctness' => '1',
+                'marks' => '2',
+                'markdp' => '2',
+                'feedback' => '1',
+                'generalfeedback' => '1',
+                'rightanswer' => '0',
+                'history' => '0',
+            ]
+        );
         token::add_iframe_token_to_url($expectedurl);
-        $cases['defaultoptions'] = ['{Q{cat/q|' . $requiredtoken . '}Q}',
-                '<iframe
+        $cases['defaultoptions'] = [
+            '{Q{cat/q|' . $requiredtoken . '}Q}',
+            '<iframe
     class="filter_embedquestion-iframe" allowfullscreen
     title="' . $title . '"
     src="' . $expectedurl . '"
-    id="cat/q"></iframe>'];
+    id="cat/q"></iframe>',
+        ];
 
         $requiredtoken = token::make_secret_token(new embed_id('A/V questions', '|<--- 100%'));
-        $expectedurl = new \moodle_url('/filter/embedquestion/showquestion.php', [
-                'catid' => 'A/V questions', 'qid' => '|<--- 100%', 'contextid' => '1', 'pageurl' => '/', 'pagetitle' => 'System',
-                'behaviour' => 'immediatefeedback', 'correctness' => '1', 'marks' => '10', 'markdp' => '3',
-                'feedback' => '1', 'generalfeedback' => '0', 'rightanswer' => '0', 'history' => '0', 'forcedlanguage' => 'en']);
+        $expectedurl = new \moodle_url(
+            '/filter/embedquestion/showquestion.php',
+            [
+                'catid' => 'A/V questions',
+                'qid' => '|<--- 100%',
+                'contextid' => '1',
+                'pageurl' => '/',
+                'pagetitle' => 'System',
+                'behaviour' => 'immediatefeedback',
+                'correctness' => '1',
+                'marks' => '10',
+                'markdp' => '3',
+                'feedback' => '1',
+                'generalfeedback' => '0',
+                'rightanswer' => '0',
+                'history' => '0',
+                'forcedlanguage' => 'en',
+            ]
+        );
         token::add_iframe_token_to_url($expectedurl);
         $cases['givenoptions'] = ['{Q{A%2FV questions/%7C&lt;--- 100%25|' .
                 'behaviour=immediatefeedback|marks=10|markdp=3|generalfeedback=0|forcedlanguage=en|' .
@@ -80,7 +113,8 @@ class filter_test extends \advanced_testcase {
     class="filter_embedquestion-iframe" allowfullscreen
     title="' . $title . '"
     src="' . $expectedurl . '"
-    id="AVquestions/---100"></iframe>'];
+    id="AVquestions/---100"></iframe>',
+        ];
 
         return $cases;
     }

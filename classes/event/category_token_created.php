@@ -41,6 +41,6 @@ class category_token_created extends \core\event\base {
     }
 
     public static function get_objectid_mapping() {
-        return array('db' => 'question_categories', 'restore' => 'question_categories');
+        return ['db' => 'question_categories', 'restore' => 'question_categories'];
     }
 }

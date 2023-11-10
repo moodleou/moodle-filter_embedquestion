@@ -41,6 +41,6 @@ class question_started extends \core\event\base {
     }
 
     public static function get_objectid_mapping() {
-        return array('db' => 'question', 'restore' => 'question');
+        return ['db' => 'question', 'restore' => 'question'];
     }
 }

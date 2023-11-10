@@ -110,12 +110,19 @@ class renderer extends \plugin_renderer_base {
      * @return string HTML string
      */
     public function render_fill_with_correct(): string {
-        return \html_writer::div(\html_writer::tag('button',
-            $this->pix_icon('e/tick', '', 'moodle', ['class' => 'iconsmall']) .
-            \html_writer::span(get_string('fillcorrect', 'mod_quiz')),
-            ['type' => 'submit', 'name' => 'fillwithcorrect', 'value' => 1,
-                'class' => 'btn btn-link']),
-            'filter_embedquestion-fill-link');
+        return \html_writer::div(
+            \html_writer::tag(
+                'button',
+                $this->pix_icon('e/tick', '', 'moodle', ['class' => 'iconsmall']) .
+                        \html_writer::span(get_string('fillcorrect', 'mod_quiz')),
+                [
+                    'type' => 'submit',
+                    'name' => 'fillwithcorrect', 'value' => 1,
+                    'class' => 'btn btn-link',
+                ],
+            ),
+            'filter_embedquestion-fill-link',
+        );
     }
 
     /**

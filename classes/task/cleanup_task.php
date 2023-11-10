@@ -45,21 +45,28 @@ class cleanup_task extends scheduled_task {
         $lastmodifiedcutoff = time() - self::MAX_AGE;
 
         mtrace("\n  Cleaning up old embedded question attempts...", '');
-        $oldattempts = new \qubaid_join('{question_usages} quba', 'quba.id',
-                'quba.component = :qubacomponent
-                    AND NOT EXISTS (
-                        SELECT 1
-                          FROM {question_attempts}      subq_qa
-                          JOIN {question_attempt_steps} subq_qas ON subq_qas.questionattemptid = subq_qa.id
-                          JOIN {question_usages}        subq_qu  ON subq_qu.id = subq_qa.questionusageid
-                         WHERE subq_qa.questionusageid = quba.id
-                           AND subq_qu.component = :qubacomponent2
-                           AND (subq_qa.timemodified > :qamodifiedcutoff
-                                    OR subq_qas.timecreated > :stepcreatedcutoff)
-                    )
+        $oldattempts = new \qubaid_join(
+            '{question_usages} quba',
+            'quba.id',
+            'quba.component = :qubacomponent
+                AND NOT EXISTS (
+                    SELECT 1
+                      FROM {question_attempts}      subq_qa
+                      JOIN {question_attempt_steps} subq_qas ON subq_qas.questionattemptid = subq_qa.id
+                      JOIN {question_usages}        subq_qu  ON subq_qu.id = subq_qa.questionusageid
+                     WHERE subq_qa.questionusageid = quba.id
+                       AND subq_qu.component = :qubacomponent2
+                       AND (subq_qa.timemodified > :qamodifiedcutoff
+                                OR subq_qas.timecreated > :stepcreatedcutoff)
+                )
             ',
-                array('qubacomponent' => 'filter_embedquestion', 'qubacomponent2' => 'filter_embedquestion',
-                        'qamodifiedcutoff' => $lastmodifiedcutoff, 'stepcreatedcutoff' => $lastmodifiedcutoff));
+            [
+                'qubacomponent' => 'filter_embedquestion',
+                'qubacomponent2' => 'filter_embedquestion',
+                'qamodifiedcutoff' => $lastmodifiedcutoff,
+                'stepcreatedcutoff' => $lastmodifiedcutoff,
+            ],
+        );
 
         \question_engine::delete_questions_usage_by_activities($oldattempts);
         mtrace('done.');

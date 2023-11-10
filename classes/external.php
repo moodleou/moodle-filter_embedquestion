@@ -75,7 +75,7 @@ class external extends \external_api {
         global $USER;
 
         self::validate_parameters(self::get_sharable_question_choices_parameters(),
-                array('courseid' => $courseid, 'categoryidnumber' => $categoryidnumber));
+                ['courseid' => $courseid, 'categoryidnumber' => $categoryidnumber]);
 
         $context = \context_course::instance($courseid);
         self::validate_context($context);
@@ -190,13 +190,26 @@ class external extends \external_api {
             string $forcedlanguage): string {
         global $CFG;
 
-        self::validate_parameters(self::get_embed_code_parameters(),
-                array('courseid' => $courseid, 'categoryidnumber' => $categoryidnumber, 'questionidnumber' => $questionidnumber,
-                        'iframedescription' => $iframedescription,
-                        'behaviour' => $behaviour, 'maxmark' => $maxmark, 'variant' => $variant, 'correctness' => $correctness,
-                        'marks' => $marks, 'markdp' => $markdp, 'feedback' => $feedback, 'generalfeedback' => $generalfeedback,
-                        'rightanswer' => $rightanswer, 'history' => $history, 'forcedlanguage' => $forcedlanguage,
-                ));
+        self::validate_parameters(
+            self::get_embed_code_parameters(),
+            [
+                'courseid' => $courseid,
+                'categoryidnumber' => $categoryidnumber,
+                'questionidnumber' => $questionidnumber,
+                'iframedescription' => $iframedescription,
+                'behaviour' => $behaviour,
+                'maxmark' => $maxmark,
+                'variant' => $variant,
+                'correctness' => $correctness,
+                'marks' => $marks,
+                'markdp' => $markdp,
+                'feedback' => $feedback,
+                'generalfeedback' => $generalfeedback,
+                'rightanswer' => $rightanswer,
+                'history' => $history,
+                'forcedlanguage' => $forcedlanguage,
+            ]
+        );
 
         $context = \context_course::instance($courseid);
         self::validate_context($context);

@@ -131,18 +131,18 @@ class behat_filter_embedquestion extends behat_base {
 
             if (!array_key_exists($questioninfo['pagename'], $datas)) {
                 $datas[$questioninfo['pagename']] = [
-                        'context' => $attemptcontext,
-                        'user' => $user,
-                        'slots' => []
+                    'context' => $attemptcontext,
+                    'user' => $user,
+                    'slots' => [],
                 ];
             }
 
             $question = $generator->get_question_from_embed_id($questioninfo['question']);
 
             $datas[$questioninfo['pagename']]['slots'][] = [
-                    'no' => $questioninfo['slot'],
-                    'question' => $question,
-                    'response' => $questioninfo['response']
+                'no' => $questioninfo['slot'],
+                'question' => $question,
+                'response' => $questioninfo['response'],
             ];
         }
 

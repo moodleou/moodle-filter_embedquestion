@@ -27,7 +27,7 @@ namespace filter_embedquestion;
  */
 class external_test extends \advanced_testcase {
 
-    public function test_get_sharable_question_choices_working() {
+    public function test_get_sharable_question_choices_working(): void {
 
         $this->resetAfterTest();
 
@@ -36,9 +36,11 @@ class external_test extends \advanced_testcase {
         $course = $generator->create_course();
         /** @var \core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
-        $category = $questiongenerator->create_question_category(
-                ['name' => 'Category with idnumber',
-                        'contextid' => \context_course::instance($course->id)->id, 'idnumber' => 'abc123']);
+        $category = $questiongenerator->create_question_category([
+                'name' => 'Category with idnumber',
+                'contextid' => \context_course::instance($course->id)->id,
+                'idnumber' => 'abc123',
+            ]);
 
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $category->id, 'name' => 'Question 2', 'idnumber' => 'toad']);
@@ -51,11 +53,12 @@ class external_test extends \advanced_testcase {
                 ['value' => '', 'label' => 'Choose...'],
                 ['value' => 'frog', 'label' => 'Question 1 [frog]'],
                 ['value' => 'toad', 'label' => 'Question 2 [toad]'],
-                ['value' => '*', 'label' => get_string('chooserandomly', 'filter_embedquestion')]],
-                external::get_sharable_question_choices($course->id, 'abc123'));
+                ['value' => '*', 'label' => get_string('chooserandomly', 'filter_embedquestion')],
+            ],
+            external::get_sharable_question_choices($course->id, 'abc123'));
     }
 
-    public function test_get_sharable_question_choices_no_permissions() {
+    public function test_get_sharable_question_choices_no_permissions(): void {
         $this->resetAfterTest();
         $this->setGuestUser();
         $this->expectException('coding_exception');
@@ -63,7 +66,7 @@ class external_test extends \advanced_testcase {
         external::get_sharable_question_choices(SITEID, 'abc123');
     }
 
-    public function test_get_sharable_question_choices_only_user() {
+    public function test_get_sharable_question_choices_only_user(): void {
         global $DB;
 
         $this->resetAfterTest();
@@ -77,9 +80,11 @@ class external_test extends \advanced_testcase {
 
         /** @var \core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
-        $category = $questiongenerator->create_question_category(
-                ['name' => 'Category with idnumber', 'idnumber' => 'abc123',
-                        'contextid' => \context_course::instance($course->id)->id]);
+        $category = $questiongenerator->create_question_category([
+                'name' => 'Category with idnumber',
+                'idnumber' => 'abc123',
+                'contextid' => \context_course::instance($course->id)->id,
+            ]);
 
         $this->setAdminUser();
         $questiongenerator->create_question('shortanswer', null,
@@ -92,14 +97,15 @@ class external_test extends \advanced_testcase {
 
         $this->assertEquals([
                 ['value' => '', 'label' => 'Choose...'],
-                ['value' => 'frog', 'label' => 'Question 1 [frog]']],
-                external::get_sharable_question_choices($course->id, 'abc123'));
+                ['value' => 'frog', 'label' => 'Question 1 [frog]'],
+            ],
+            external::get_sharable_question_choices($course->id, 'abc123'));
     }
 
     /**
      * Test cases for {@see test_get_embed_code_working()} and {@see test_is_authorized_secret_token()}.
      */
-    public function get_embed_code_cases(): array {
+    public static function get_embed_code_cases(): array {
         return [
             ['abc123', 'toad', 'abc123/toad'],
             ['A/V questions', '|---> 100%', 'A%2FV questions/%7C---> 100%25'],
@@ -112,7 +118,7 @@ class external_test extends \advanced_testcase {
      * @param string $catid idnumber to use for the category.
      * @param string $questionid idnumber to use for the question.
      * @param string $expectedembedid what the embed id in the output should be.
-     * @dataProvider get_embed_code_cases()
+     * @dataProvider get_embed_code_cases
      */
     public function test_get_embed_code_working(string $catid, string $questionid, string $expectedembedid): void {
 
@@ -124,8 +130,7 @@ class external_test extends \advanced_testcase {
         /** @var \core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
         $category = $questiongenerator->create_question_category(
-                ['name' => 'Category', 'idnumber' => $catid,
-                        'contextid' => \context_course::instance($course->id)->id]);
+                ['name' => 'Category', 'idnumber' => $catid, 'contextid' => \context_course::instance($course->id)->id]);
 
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $category->id, 'name' => 'Question', 'idnumber' => $questionid]);
@@ -162,7 +167,7 @@ class external_test extends \advanced_testcase {
         $this->assertEquals($expected, $actual);
     }
 
-    public function test_get_embed_code_working_with_random_questions() {
+    public function test_get_embed_code_working_with_random_questions(): void {
 
         $this->resetAfterTest();
 
@@ -172,8 +177,7 @@ class external_test extends \advanced_testcase {
         /** @var \core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
         $category = $questiongenerator->create_question_category(
-                ['name' => 'Category', 'idnumber' => 'abc123',
-                        'contextid' => \context_course::instance($course->id)->id]);
+                ['name' => 'Category', 'idnumber' => 'abc123', 'contextid' => \context_course::instance($course->id)->id]);
 
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $category->id, 'name' => 'Question1', 'idnumber' => 'toad']);
@@ -236,7 +240,7 @@ class external_test extends \advanced_testcase {
      *
      * @param string $catid idnumber to use for the category.
      * @param string $questionid idnumber to use for the question.
-     * @dataProvider get_embed_code_cases()
+     * @dataProvider get_embed_code_cases
      */
     public function test_is_authorized_secret_token(string $catid, string $questionid): void {
 

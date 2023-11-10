@@ -88,7 +88,7 @@ class question_options extends \question_display_options {
      * @return array names and param types of the options we read from the request.
      */
     public static function get_field_types(): array {
-        return array(
+        return [
             'iframedescription' => PARAM_TEXT,
             'behaviour' => PARAM_ALPHA,
             'maxmark' => PARAM_FLOAT,
@@ -101,7 +101,7 @@ class question_options extends \question_display_options {
             'rightanswer' => PARAM_BOOL,
             'history' => PARAM_BOOL,
             'forcedlanguage' => PARAM_LANG,
-        );
+        ];
     }
 
     /**

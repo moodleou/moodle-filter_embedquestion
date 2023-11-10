@@ -250,8 +250,8 @@ class filter_embedquestion_generator extends component_generator_base {
         $prefix = $quba->get_field_prefix($slot);
 
         $fulldata = [
-                'slots' => $slot,
-                $prefix . ':sequencecheck' => $quba->get_question_attempt($slot)->get_sequence_check_count()
+            'slots' => $slot,
+            $prefix . ':sequencecheck' => $quba->get_question_attempt($slot)->get_sequence_check_count(),
         ];
 
         foreach ($data as $name => $value) {
@@ -316,10 +316,10 @@ class filter_embedquestion_generator extends component_generator_base {
         $this->save_file_to_draft_area($usercontextid, $attachementsdraftid, 'greeting.txt', $response);
 
         $userresponse = [
-                'answer' => $response,
-                'answerformat' => FORMAT_HTML,
-                'answer:itemid' => $editordraftid,
-                'attachments' => $attachementsdraftid
+            'answer' => $response,
+            'answerformat' => FORMAT_HTML,
+            'answer:itemid' => $editordraftid,
+            'attachments' => $attachementsdraftid,
         ];
 
         return $this->process_response_data_to_post($quba, $slot, $userresponse);
@@ -341,12 +341,12 @@ class filter_embedquestion_generator extends component_generator_base {
             throw new coding_exception('Draft item id not found.');
         }
         $userresponse = [
-                'recording' => $matches[1],
-                '-submit' => '1',
-                '-selfcomment' => 'Sounds OK',
-                '-selfcommentformat' => FORMAT_HTML,
-                '-stars' => '4',
-                '-rate' => '1'
+            'recording' => $matches[1],
+            '-submit' => '1',
+            '-selfcomment' => 'Sounds OK',
+            '-selfcommentformat' => FORMAT_HTML,
+            '-stars' => '4',
+            '-rate' => '1',
         ];
 
         qtype_recordrtc_test_helper::add_recording_to_draft_area($userresponse['recording'], 'moodle-tim.ogg', 'recording.ogg');

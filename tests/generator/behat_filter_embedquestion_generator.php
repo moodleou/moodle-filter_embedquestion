@@ -30,12 +30,12 @@ class behat_filter_embedquestion_generator extends behat_generator_base {
      */
     protected function get_creatable_entities(): array {
         $entities = [
-                'Pages with embedded question' => [
-                        'singular' => 'Page with embedded question',
-                        'datagenerator' => 'embeddedpage',
-                        'required' => ['name', 'idnumber', 'course', 'question'],
-                        'switchids' => ['course' => 'course']
-                ]
+            'Pages with embedded question' => [
+                'singular' => 'Page with embedded question',
+                'datagenerator' => 'embeddedpage',
+                'required' => ['name', 'idnumber', 'course', 'question'],
+                'switchids' => ['course' => 'course'],
+            ],
         ];
 
         return $entities;

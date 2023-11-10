@@ -168,18 +168,21 @@ class utils {
 
         if (self::has_question_versionning()) {
             $question = $DB->get_record_sql('
-                    SELECT q.*, qbe.idnumber, qbe.questioncategoryid AS category,
-                           qv.id AS versionid, qv.version, qv.questionbankentryid
-                      FROM {question_bank_entries} qbe
-                      JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id AND qv.version = (
-                                      SELECT MAX(version)
-                                        FROM {question_versions}
-                                       WHERE questionbankentryid = qbe.id AND status = :ready
-                                  )
-                      JOIN {question} q ON q.id = qv.questionid
-                     WHERE qbe.questioncategoryid = :category AND qbe.idnumber = :idnumber',
-                            ['ready' => question_version_status::QUESTION_STATUS_READY,
-                            'category' => $categoryid, 'idnumber' => $idnumber]);
+                SELECT q.*, qbe.idnumber, qbe.questioncategoryid AS category,
+                       qv.id AS versionid, qv.version, qv.questionbankentryid
+                  FROM {question_bank_entries} qbe
+                  JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id AND qv.version = (
+                                  SELECT MAX(version)
+                                    FROM {question_versions}
+                                   WHERE questionbankentryid = qbe.id AND status = :ready
+                              )
+                  JOIN {question} q ON q.id = qv.questionid
+                 WHERE qbe.questioncategoryid = :category AND qbe.idnumber = :idnumber',
+                [
+                    'ready' => question_version_status::QUESTION_STATUS_READY,
+                    'category' => $categoryid, 'idnumber' => $idnumber,
+                ],
+            );
         } else {
             $question = $DB->get_record_select('question',
                     "category = ? AND idnumber = ? AND hidden = 0 AND parent = 0",
@@ -204,9 +207,14 @@ class utils {
     public static function is_latest_version(\question_definition $question): bool {
         global $DB;
 
-        $latestversion = $DB->get_field('question_versions', 'MAX(version)',
-                ['questionbankentryid' => $question->questionbankentryid,
-                   'status' => question_version_status::QUESTION_STATUS_READY]);
+        $latestversion = $DB->get_field(
+            'question_versions',
+            'MAX(version)',
+            [
+                'questionbankentryid' => $question->questionbankentryid,
+                'status' => question_version_status::QUESTION_STATUS_READY,
+            ]
+        );
 
         return $question->version == $latestversion;
     }
