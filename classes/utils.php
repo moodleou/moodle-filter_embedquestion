@@ -253,7 +253,7 @@ class utils {
                      WHERE qc.contextid = ?
                        AND qc.idnumber IS NOT NULL
 
-                  GROUP BY qc.id, qc.name
+                  GROUP BY qc.id, qc.name, qc.idnumber
                     HAVING COUNT(q.id) > 0
                   ORDER BY qc.name
                     ", $params);
@@ -280,7 +280,7 @@ class utils {
                      WHERE qc.contextid = ?
                        AND qc.idnumber IS NOT NULL
 
-                  GROUP BY qc.id, qc.name
+                  GROUP BY qc.id, qc.name, qc.idnumber
                     HAVING COUNT(q.id) > 0
                   ORDER BY qc.name
                     ", $params);
