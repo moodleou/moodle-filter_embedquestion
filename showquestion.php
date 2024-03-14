@@ -39,10 +39,11 @@ $contextid = required_param('contextid', PARAM_INT);
 list($context, $course, $cm) = get_context_info_array($contextid);
 require_login($course, false, $cm);
 $PAGE->set_pagelayout('embedded');
-$PAGE->activityheader->disable();
 $PAGE->requires->js_call_amd('filter_embedquestion/question', 'init');
 
 if (isguestuser()) {
+    $PAGE->set_url('/');
+    $PAGE->activityheader->disable();
     throw new moodle_exception('noguests', 'filter_embedquestion');
 }
 
@@ -60,6 +61,7 @@ $embedid = new embed_id($categoryidnumber, $questionidnumber);
 $embedlocation = embed_location::make_from_url_params();
 
 $PAGE->set_url(utils::get_show_url($embedid, $embedlocation, $options));
+$PAGE->activityheader->disable();
 
 $token = required_param('token', PARAM_RAW);
 if ($token !== $PAGE->url->param('token')) {
