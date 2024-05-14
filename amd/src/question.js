@@ -22,7 +22,7 @@
  * @copyright 2018 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define([], function() {
+define(['core_form/changechecker',], function(FormChangeChecker) {
     var t = {
         /**
          * The last height we set on the iframe, so we only try to change it when it changes.
@@ -62,9 +62,7 @@ define([], function() {
                 }
             });
 
-            Y.use('moodle-core-formchangechecker', function() {
-                M.core_formchangechecker.init({formid: 'responseform'});
-            });
+            FormChangeChecker.watchFormById('responseform');
         },
 
         /**
