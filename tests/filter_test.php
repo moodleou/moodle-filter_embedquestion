@@ -79,7 +79,7 @@ class filter_test extends \advanced_testcase {
         $cases['defaultoptions'] = [
             '{Q{cat/q|' . $requiredtoken . '}Q}',
             '<iframe
-    class="filter_embedquestion-iframe" allowfullscreen
+    class="filter_embedquestion-iframe" allowfullscreen loading="lazy"
     title="' . $title . '"
     src="' . $expectedurl . '"
     id="cat/q"></iframe>',
@@ -110,7 +110,7 @@ class filter_test extends \advanced_testcase {
                 'behaviour=immediatefeedback|marks=10|markdp=3|generalfeedback=0|forcedlanguage=en|' .
                 $requiredtoken . '}Q}',
                 '<iframe
-    class="filter_embedquestion-iframe" allowfullscreen
+    class="filter_embedquestion-iframe" allowfullscreen loading="lazy"
     title="' . $title . '"
     src="' . $expectedurl . '"
     id="AVquestions/---100"></iframe>',
