@@ -288,7 +288,7 @@ class attempt_test extends \advanced_testcase {
         if (method_exists($this, 'assertMatchesRegularExpression')) {
             $this->assertMatchesRegularExpression($expectedregex, $html);
         } else {
-            $this->assertRegExp($expectedregex, $html);
+            $this->assertMatchesRegularExpression($expectedregex, $html);
         }
     }
 
