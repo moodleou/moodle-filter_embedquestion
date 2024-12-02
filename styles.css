@@ -21,9 +21,6 @@ body#page-filter-embedquestion-showquestion #region-main,
 body#page-filter-embedquestion-showquestion #osep-mainwrapper {
     padding: 0;
 }
-body#page-filter-embedquestion-showquestion #osep-bottomclearer {
-    display: none;
-}
 
 body#page-filter-embedquestion-showquestion .que {
     margin: 0;
