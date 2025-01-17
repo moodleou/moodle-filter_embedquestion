@@ -111,7 +111,7 @@ Feature: Add an activity and embed a question inside that activity
     And I should see "The answer is true."
 
   @javascript
-  Scenario: Test display of Save button for embedded recordrtc question.
+  Scenario: Test display of Check button for embedded recordrtc question.
     Given the following "questions" exist:
       | questioncategory | qtype     | name                | idnumber | template |
       | Test questions   | recordrtc | Record AV question  | test1    | audio    |
@@ -122,4 +122,4 @@ Feature: Add an activity and embed a question inside that activity
     And I set the field "How the question behaves" to "Immediate feedback"
     And I press "Embed question"
     And I switch to "filter_embedquestion-iframe" iframe
-    And I should see "Save"
+    And I should see "Check"
