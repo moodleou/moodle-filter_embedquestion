@@ -89,7 +89,7 @@ jobs:
 
       - name: Moodle Code Checker
         if: ${{ always() }}
-        run: moodle-plugin-ci phpcs --max-warnings 0
+        run: moodle-plugin-ci phpcs --test-version ${{ matrix.php }} --max-warnings 0
 
       - name: Moodle PHPDoc Checker
         if: ${{ always() }}
