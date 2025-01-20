@@ -18,6 +18,7 @@ namespace filter_embedquestion\output;
 
 use filter_embedquestion\question_options;
 use filter_embedquestion\utils;
+use report_embedquestion;
 
 /**
  * The filter_embedquestion renderer.
@@ -75,7 +76,53 @@ class renderer extends \plugin_renderer_base {
             $output = $this->add_fill_with_correct_link($output);
         }
 
+        if (class_exists(report_embedquestion\attempt_summary_table::class)) {
+            $output = $this->add_embedded_question_report_link($quba, $slot, $output);
+        }
+
         return $output;
+    }
+
+    /**
+     * Add a link to navigate to the embedded question progress report.
+     *
+     * @param \question_usage_by_activity $quba Containing the question to display.
+     * @param int $slot Slot number of the question to display.
+     * @param string $output Template string.
+     * @return string Updated question rendering.
+     */
+    protected function add_embedded_question_report_link(\question_usage_by_activity $quba, int $slot,
+            string $output): string {
+
+        $reportlink = $this->render_embedded_question_report_link($quba, $slot);
+        return $this->insert_html_into_info_section($output, $reportlink);
+    }
+
+    /**
+     * Render embedded question report link.
+     *
+     * @param \question_usage_by_activity $quba containing the question to display.
+     * @param int $slot slot number of the question to display.
+     * @return string Embedded question report link HTML string.
+     */
+    public function render_embedded_question_report_link(\question_usage_by_activity $quba, int $slot): string {
+        global $USER;
+
+        $displayoption = new \report_embedquestion\report_display_options($this->page->course->id, $this->page->cm);
+        $url = $displayoption->get_url();
+        $url->params([
+            'userid' => $USER->id,
+            'usageid' => $quba->get_question_attempt($slot)->get_usage_id(),
+        ]);
+
+        return \html_writer::div(
+            \html_writer::link(
+                $url,
+                \html_writer::span(get_string('previousattempts', 'filter_embedquestion')),
+                ['target' => '_top']
+            ),
+            'link-wrapper-class'
+        );
     }
 
     /**
