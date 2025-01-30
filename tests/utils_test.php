@@ -19,7 +19,6 @@ namespace filter_embedquestion;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/filter/embedquestion/filter.php');
 require_once($CFG->dirroot . '/question/editlib.php');
 
 use core_question\local\bank\question_version_status;
