@@ -16,11 +16,6 @@
 
 namespace filter_embedquestion;
 
-defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
-require_once($CFG->dirroot . '/filter/embedquestion/filter.php');
-
 /**
  * Unit tests for filter_embedquestion.
  *
@@ -132,7 +127,7 @@ class filter_test extends \advanced_testcase {
         global $PAGE;
 
         $context = \context_course::instance(SITEID);
-        $filter = new \filter_embedquestion($context, []);
+        $filter = new \filter_embedquestion\text_filter($context, []);
         $PAGE->set_url('/');
         $filter->setup($PAGE, $context);
 
@@ -159,7 +154,7 @@ class filter_test extends \advanced_testcase {
 
         $embedid = new embed_id('cat', 'q');
         $context = \context_course::instance(SITEID);
-        $filter = new \filter_embedquestion($context, []);
+        $filter = new \filter_embedquestion\text_filter($context, []);
         $filter->setup($PAGE, $context);
 
         $actualoutput = $filter->filter('{Q{cat/q|' . token::make_secret_token($embedid) . '}Q}');
