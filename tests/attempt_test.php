@@ -275,7 +275,7 @@ class attempt_test extends \advanced_testcase {
         $expectedregex = '~<div class="info"><h3 class="no">Question <span class="qno">[^<]+</span>' .
                 '</h3><div class="state">Not complete</div><div class="grade">Marked out of 1.00</div>' .
                 '<div class="editquestion"><a href="[^"]+">' .
-                '<i class="icon fa fa-cog fa-fw iconsmall"  title="Edit"[^>]*></i>Edit question</a></div>' .
+                '<i class="icon fa fa-pen fa-fw iconsmall"  title="Edit"[^>]*></i>Edit question</a></div>' .
                 '(<span class="badge bg-primary text-light">v1 \(latest\)</span>)?' .
                 '<div class="filter_embedquestion-viewquestionbank">' .
                 '<a target="_top" href="[^"]+">' .
