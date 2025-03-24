@@ -76,7 +76,7 @@ class renderer extends \plugin_renderer_base {
             $output = $this->add_fill_with_correct_link($output);
         }
 
-        if (class_exists(report_embedquestion\attempt_summary_table::class)) {
+        if (class_exists(report_embedquestion\attempt_summary_table::class) && $quba->question_count() > 0) {
             $output = $this->add_embedded_question_report_link($quba, $slot, $output);
         }
 
@@ -95,7 +95,15 @@ class renderer extends \plugin_renderer_base {
             string $output): string {
 
         $reportlink = $this->render_embedded_question_report_link($quba, $slot);
-        return $this->insert_html_into_info_section($output, $reportlink);
+        if (preg_match('~<div class="info">.*</div><div class="content">~', $output)) {
+            // Insert the report link before the edit question div.
+            $output = preg_replace('~(<div class="editquestion">)~', $reportlink . '$1' , $output, 1);
+        } else {
+            // Otherwise, just add at the end.
+            $output .= $reportlink;
+        }
+
+        return $output;
     }
 
     /**
