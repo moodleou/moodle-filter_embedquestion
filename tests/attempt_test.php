@@ -17,6 +17,8 @@
 
 namespace filter_embedquestion;
 
+use report_embedquestion;
+
 /**
  * Unit tests for the code for attempting questions.
  *
@@ -271,20 +273,27 @@ class attempt_test extends \advanced_testcase {
         $renderer = $PAGE->get_renderer('filter_embedquestion');
         $html = $attempt->render_question($renderer);
 
+        $previousattemptlink = '';
+        if (class_exists(report_embedquestion\attempt_summary_table::class)) {
+            $previousattemptlink = '<div class="link-wrapper-class"><a target="_top" href="[^"]+">' .
+                '<span>Previous attempts</span></a></div>';
+        }
+
         // Verify that the edit question, question bank link and fill with correct links are present.
         $expectedregex = '~<div class="info"><h3 class="no">Question <span class="qno">[^<]+</span>' .
-                '</h3><div class="state">Not complete</div><div class="grade">Marked out of 1.00</div>' .
-                '<div class="editquestion"><a href="[^"]+">' .
-                '<i class="icon fa fa-pen fa-fw iconsmall"  title="Edit"[^>]*></i>Edit question</a></div>' .
-                '(<span class="badge bg-primary text-light">v1 \(latest\)</span>)?' .
-                '<div class="filter_embedquestion-viewquestionbank">' .
-                '<a target="_top" href="[^"]+">' .
-                '<img class="icon iconsmall" alt="" aria-hidden="true" src="[^"]+" />' .
-                'Question bank</a></div>' .
-                '<div class="filter_embedquestion-fill-link">' .
-                '<button type="submit" name="fillwithcorrect" value="1" class="btn btn-link">' .
-                '<i class="icon fa fa-check fa-fw iconsmall" aria-hidden="true"  ></i>' .
-                '<span>Fill with correct</span></button></div></div>~';
+            '</h3><div class="state">Not complete</div><div class="grade">Marked out of 1.00</div>' .
+            $previousattemptlink .
+            '<div class="editquestion"><a href="[^"]+">' .
+            '<i class="icon fa fa-pen fa-fw iconsmall"  title="Edit"[^>]*></i>Edit question</a></div>' .
+            '(<span class="badge bg-primary text-light">v1 \(latest\)</span>)?' .
+            '<div class="filter_embedquestion-viewquestionbank">' .
+            '<a target="_top" href="[^"]+">' .
+            '<img class="icon iconsmall" alt="" aria-hidden="true" src="[^"]+" />' .
+            'Question bank</a></div>' .
+            '<div class="filter_embedquestion-fill-link">' .
+            '<button type="submit" name="fillwithcorrect" value="1" class="btn btn-link">' .
+            '<i class="icon fa fa-check fa-fw iconsmall" aria-hidden="true"  ></i>' .
+            '<span>Fill with correct</span></button></div></div>~';
         if (method_exists($this, 'assertMatchesRegularExpression')) {
             $this->assertMatchesRegularExpression($expectedregex, $html);
         } else {
