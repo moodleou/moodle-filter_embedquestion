@@ -282,7 +282,6 @@ class attempt_test extends \advanced_testcase {
         // Verify that the edit question, question bank link and fill with correct links are present.
         $expectedregex = '~<div class="info"><h3 class="no">Question <span class="qno">[^<]+</span>' .
             '</h3><div class="state">Not complete</div><div class="grade">Marked out of 1.00</div>' .
-            $previousattemptlink .
             '<div class="editquestion"><a href="[^"]+">' .
             '<i class="icon fa fa-pen fa-fw iconsmall"  title="Edit"[^>]*></i>Edit question</a></div>' .
             '(<span class="badge bg-primary text-light">v1 \(latest\)</span>)?' .
@@ -294,11 +293,35 @@ class attempt_test extends \advanced_testcase {
             '<button type="submit" name="fillwithcorrect" value="1" class="btn btn-link">' .
             '<i class="icon fa fa-check fa-fw iconsmall" aria-hidden="true"  ></i>' .
             '<span>Fill with correct</span></button></div></div>~';
-        if (method_exists($this, 'assertMatchesRegularExpression')) {
-            $this->assertMatchesRegularExpression($expectedregex, $html);
-        } else {
-            $this->assertMatchesRegularExpression($expectedregex, $html);
-        }
+        $this->assertMatchesRegularExpression($expectedregex, $html);
+        // Create an authenticated user.
+        $user = $this->getDataGenerator()->create_user();
+        $this->setUser($user);
+        // Start an attempt in the way that showattempt.php would.
+        [$embedid, $context] = $generator->get_embed_id_and_context($q1);
+        $embedlocation = embed_location::make_for_test($context, $context->get_url(), 'Test embed location');
+        $options = new question_options();
+        $options->behaviour = 'immediatefeedback';
+        $attempt = new attempt($embedid, $embedlocation, $USER, $options);
+        $this->verify_attempt_valid($attempt);
+        $attempt->find_or_create_attempt();
+        $this->verify_attempt_valid($attempt);
+
+        $html = $attempt->render_question($renderer);
+        // Verify that the edit question, question bank link and fill with correct links are not present.
+        $expectedregex = '~<div class="info"><h3 class="no">Question <span class="qno">[^<]+</span>' .
+            '</h3><div class="state">Not complete</div><div class="grade">Marked out of 1.00</div>' .
+            '</div>~';
+        $this->assertMatchesRegularExpression($expectedregex, $html);
+
+        // Verify that the Previous attempts link is displayed for the second attempt.
+        $attempt->start_new_attempt_at_question();
+        $html = $attempt->render_question($renderer);
+        $expectedregex = '~<div class="info"><h3 class="no">Question <span class="qno">[^<]+</span>' .
+            '</h3><div class="state">Not complete</div><div class="grade">Marked out of 1.00</div>' .
+            $previousattemptlink .
+            '</div>~';
+        $this->assertMatchesRegularExpression($expectedregex, $html);
     }
 
     /**
