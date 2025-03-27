@@ -76,7 +76,8 @@ class renderer extends \plugin_renderer_base {
             $output = $this->add_fill_with_correct_link($output);
         }
 
-        if (class_exists(report_embedquestion\attempt_summary_table::class) && $quba->question_count() > 0) {
+        // We want to display the Previous attempts link only if there is atleast one completed attempt.
+        if (class_exists(report_embedquestion\attempt_summary_table::class) && $quba->question_count() > 1) {
             $output = $this->add_embedded_question_report_link($quba, $slot, $output);
         }
 
@@ -97,7 +98,11 @@ class renderer extends \plugin_renderer_base {
         $reportlink = $this->render_embedded_question_report_link($quba, $slot);
         if (preg_match('~<div class="info">.*</div><div class="content">~', $output)) {
             // Insert the report link before the edit question div.
-            $output = preg_replace('~(<div class="editquestion">)~', $reportlink . '$1' , $output, 1);
+            $output = preg_replace('~(<div class="editquestion">)~', $reportlink . '$1' , $output, 1, $count);
+            // If The editquestion div isn't exist, insert into the end of info section.
+            if ($count === 0) {
+                $output = $this->insert_html_into_info_section($output, $reportlink);
+            }
         } else {
             // Otherwise, just add at the end.
             $output .= $reportlink;
