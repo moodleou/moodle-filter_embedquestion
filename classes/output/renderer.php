@@ -73,9 +73,18 @@ class renderer extends \plugin_renderer_base {
             $output = $this->add_fill_with_correct_link($output);
         }
 
-        // We want to display the Previous attempts link only if there is atleast one completed attempt.
-        if (class_exists(report_embedquestion\attempt_summary_table::class) && $quba->question_count() > 1) {
-            $output = $this->add_embedded_question_report_link($quba, $slot, $output);
+        if (class_exists(report_embedquestion\attempt_summary_table::class)) {
+            // We want to display the Previous attempts link only if there is at least one completed attempt.
+            $hasattempts = false;
+            foreach ($quba->get_attempt_iterator() as $qa) {
+                if ($qa->get_state() !== \question_state::$todo) {
+                    $hasattempts = true;
+                    break;
+                }
+            }
+            if ($hasattempts) {
+                $output = $this->add_embedded_question_report_link($quba, $slot, $output);
+            }
         }
 
         return $output;

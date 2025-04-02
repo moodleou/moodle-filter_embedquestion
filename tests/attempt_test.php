@@ -317,8 +317,14 @@ final class attempt_test extends \advanced_testcase {
             '</div>~';
         $this->assertMatchesRegularExpression($expectedregex, $html);
 
-        // Verify that the Previous attempts link is displayed for the second attempt.
+        /** @var \core_question_generator $questiongenerator */
+        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $attempt->start_new_attempt_at_question();
+        $postdata = $questiongenerator->get_simulated_post_data_for_questions_in_usage($attempt->get_question_usage(),
+            [1 => 'Sample answer'], true);
+        $attempt->process_submitted_actions($postdata);
+
+        // Verify that the Previous attempts link is displayed for the second attempt.
         $html = $attempt->render_question($renderer);
         $expectedregex = '~<div class="info"><h3 class="no">Question <span class="qno">[^<]+</span>' .
             '</h3><div class="state">Not complete</div><div class="grade">Marked out of 1.00</div>' .
