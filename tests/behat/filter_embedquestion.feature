@@ -112,10 +112,11 @@ Feature: Add an activity and embed a question inside that activity
 
   @javascript
   Scenario: Test display of Save button for embedded recordrtc question.
-    Given the following "questions" exist:
+    Given the qtype_recordrtc plugin is installed
+    When the following "questions" exist:
       | questioncategory | qtype     | name                | idnumber | template |
       | Test questions   | recordrtc | Record AV question  | test1    | audio    |
-    When I am on the "Course 1" "filter_embedquestion > test" page logged in as teacher
+    And I am on the "Course 1" "filter_embedquestion > test" page logged in as teacher
     And I expand all fieldsets
     And I set the field "Question category" to "Test questions [embed] (1)"
     And I set the field "id_questionidnumber" to "Record AV question"
