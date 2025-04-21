@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 namespace filter_embedquestion;
 
 use report_embedquestion;
@@ -28,7 +27,7 @@ use report_embedquestion;
  * @covers    \filter_embedquestion\attempt
  * @covers    \filter_embedquestion\attempt_storage
  */
-class attempt_test extends \advanced_testcase {
+final class attempt_test extends \advanced_testcase {
 
     public function test_start_new_attempt_at_question_will_select_an_unused_question(): void {
         global $DB, $USER;
@@ -279,7 +278,7 @@ class attempt_test extends \advanced_testcase {
                 '<span>Previous attempts</span></a></div>';
         }
         $icon = '<i class="icon fa fa-pen fa-fw iconsmall"  title="Edit"[^>]*></i>Edit question</a></div>';
-        if  (utils::moodle_version_is("<=", "45")) {
+        if (utils::moodle_version_is("<=", "44")) {
             $icon = '<i class="icon fa fa-cog fa-fw iconsmall"  title="Edit"[^>]*></i>Edit question</a></div>';
         }
 

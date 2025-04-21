@@ -42,6 +42,7 @@ class custom_string_manager extends \core_string_manager_standard {
         get_string_manager(true)->forcedlanguage = $lang;
     }
 
+    #[\Override]
     public function get_string($identifier, $component = '', $a = null, $lang = null) {
         return parent::get_string($identifier, $component, $a, $lang ?? $this->forcedlanguage);
     }

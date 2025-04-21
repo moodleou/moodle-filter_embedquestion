@@ -44,7 +44,13 @@ class embed_iframe implements \renderable, \templatable {
         $this->iframedescription = $iframedescription;
     }
 
-    public function export_for_template(renderer_base $output) {
+    /**
+     * Export the data for template rendering.
+     *
+     * @param renderer_base $output The renderer to use.
+     * @return array The data to export.
+     */
+    public function export_for_template(renderer_base $output): array {
         $data = [
             'showquestionurl' => $this->showquestionurl,
             'name' => null,

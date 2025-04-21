@@ -26,7 +26,7 @@ use filter_embedquestion\task\cleanup_task;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers    \filter_embedquestion\task\cleanup_task
  */
-class cleanup_task_test extends \advanced_testcase {
+final class cleanup_task_test extends \advanced_testcase {
 
     public function test_cleanup_task(): void {
 
