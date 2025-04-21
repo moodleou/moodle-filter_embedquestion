@@ -37,11 +37,19 @@ class cleanup_task extends scheduled_task {
      */
     const MAX_AGE = 24 * 60 * 60;
 
-    public function get_name() {
+    /**
+     * Get a descriptive name for this task (shown to admins).
+     *
+     * @return string The name of the task.
+     */
+    public function get_name(): string {
         return get_string('taskcleanup', 'filter_embedquestion');
     }
 
-    public function execute() {
+    /**
+     * Execute the main cleanup task.
+     */
+    public function execute(): void {
         $lastmodifiedcutoff = time() - self::MAX_AGE;
 
         mtrace("\n  Cleaning up old embedded question attempts...", '');

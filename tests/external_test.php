@@ -25,14 +25,7 @@ namespace filter_embedquestion;
  * @covers    \filter_embedquestion\external
  * @runTestsInSeparateProcesses
  */
-class external_test extends \advanced_testcase {
-
-    public function setUp(): void {
-        global $SCRIPT;
-        // With @runTestsInSeparateProcesses, if you have auth_saml installed
-        // then it gives an error about $SCRIPT being null.
-        $SCRIPT = '';
-    }
+final class external_test extends \advanced_testcase {
 
     public function test_get_sharable_question_choices_working(): void {
 

@@ -29,17 +29,20 @@ namespace filter_embedquestion\event;
  */
 class category_token_created extends \core\event\base {
 
+    #[\Override]
     protected function init() {
         $this->data['objecttable'] = 'question_categories';
         $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
     }
 
+    #[\Override]
     public function get_description() {
         return "The user with id '$this->userid' created a token for embedded a question " .
                 "picked at random from category '$this->objectid' in course '$this->courseid'.";
     }
 
+    #[\Override]
     public static function get_objectid_mapping() {
         return ['db' => 'question_categories', 'restore' => 'question_categories'];
     }

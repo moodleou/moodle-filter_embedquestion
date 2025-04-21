@@ -26,7 +26,7 @@ namespace filter_embedquestion;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers    \filter_embedquestion
  */
-class filter_test extends \advanced_testcase {
+final class filter_test extends \advanced_testcase {
 
     public function setUp(): void {
         parent::setUp();

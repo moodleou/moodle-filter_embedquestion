@@ -232,7 +232,8 @@ class utils {
      * @param int|null $userid (optional) if set, only count questions created by this user.
      * @return array category idnumber => Category name (question count).
      */
-    public static function get_categories_with_sharable_question_choices(\context $context, int $userid = null): array {
+    public static function get_categories_with_sharable_question_choices(\context $context,
+            int|null $userid = null): array {
         global $DB;
 
         if (self::has_question_versionning()) {
@@ -312,7 +313,7 @@ class utils {
      * @param int|null $userid (optional) if set, only count questions created by this user.
      * @return \stdClass[] question id => object with fields question id, name and idnumber.
      */
-    public static function get_sharable_question_ids(int $categoryid, int $userid = null): array {
+    public static function get_sharable_question_ids(int $categoryid, int|null $userid = null): array {
         global $DB;
 
         if (self::has_question_versionning()) {
@@ -380,7 +381,7 @@ class utils {
      * @param int|null $userid (optional) if set, only count questions created by this user.
      * @return array question idnumber => question name.
      */
-    public static function get_sharable_question_choices(int $categoryid, int $userid = null): array {
+    public static function get_sharable_question_choices(int $categoryid, int|null $userid = null): array {
         $questions = self::get_sharable_question_ids($categoryid, $userid);
 
         $choices = ['' => get_string('choosedots')];

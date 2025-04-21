@@ -29,18 +29,21 @@ namespace filter_embedquestion\event;
  */
 class question_attempted extends \core\event\base {
 
+    #[\Override]
     protected function init() {
         $this->data['objecttable'] = 'question';
         $this->data['crud'] = 'u';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
     }
 
-    public function get_description() {
+    #[\Override]
+    public function get_description(): string {
         return "The user with id '$this->userid' has submitted data to the embedded question " .
                 "'$this->objectid' in course '$this->courseid'.";
     }
 
-    public static function get_objectid_mapping() {
+    #[\Override]
+    public static function get_objectid_mapping(): array {
         return ['db' => 'question', 'restore' => 'question'];
     }
 }

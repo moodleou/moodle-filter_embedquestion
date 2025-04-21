@@ -24,7 +24,7 @@ namespace filter_embedquestion;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers    \filter_embedquestion\token
  */
-class token_test extends \advanced_testcase {
+final class token_test extends \advanced_testcase {
 
     public function test_is_authorized_secret_token(): void {
         $this->resetAfterTest();

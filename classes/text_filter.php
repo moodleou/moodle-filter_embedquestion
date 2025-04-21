@@ -51,6 +51,11 @@ class text_filter extends \moodle_text_filter {
      */
     protected $page;
 
+    /**
+     * Set up the filter.
+     * @param \moodle_page $page the page object.
+     * @param \context $context the context object.
+     */
     public function setup($page, $context) {
         $this->page = $page;
     }
@@ -66,7 +71,15 @@ class text_filter extends \moodle_text_filter {
                 preg_quote(self::STRING_SUFFIX, '~') . '~';
     }
 
-    public function filter($text, array $options = []) {
+    /**
+     * Filter the text, replacing any {Q{...}Q} tokens with the appropriate HTML.
+     *
+     * @param string $text the text to filter.
+     * @param array $options any options for the filter.
+     *
+     * @return string the filtered text.
+     */
+    public function filter($text, array $options = []): string {
         return preg_replace_callback(self::get_filter_regexp(),
                 [$this, 'embed_question_callback'], $text);
     }
@@ -126,7 +139,7 @@ class text_filter extends \moodle_text_filter {
      *
      * @return string HTML for the error.
      */
-    protected function display_error(string $string, array $a = null): string {
+    protected function display_error(string $string, array|null $a = null): string {
         return $this->renderer->render(new error_message(
                 get_string($string, 'filter_embedquestion', $a)));
     }

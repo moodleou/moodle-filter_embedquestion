@@ -38,6 +38,8 @@ use filter_embedquestion\question_options;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class embed_options_form extends \moodleform {
+
+    #[\Override]
     public function definition() {
         global $PAGE;
 
@@ -158,6 +160,7 @@ class embed_options_form extends \moodleform {
         return ['' => get_string('defaultx', 'filter_embedquestion', $options[$default])] + $options;
     }
 
+    #[\Override]
     public function definition_after_data() {
         parent::definition_after_data();
         $mform = $this->_form;
@@ -199,6 +202,7 @@ class embed_options_form extends \moodleform {
         }
     }
 
+    #[\Override]
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         $context = $this->_customdata['context'];
@@ -235,6 +239,7 @@ class embed_options_form extends \moodleform {
         return $errors;
     }
 
+    #[\Override]
     public function get_data() {
         $data = parent::get_data();
 

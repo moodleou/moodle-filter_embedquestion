@@ -31,7 +31,7 @@ use core_question\local\bank\question_version_status;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers    \filter_embedquestion\utils
  */
-class utils_test extends \advanced_testcase {
+final class utils_test extends \advanced_testcase {
 
     public function test_get_category_by_idnumber(): void {
         $this->resetAfterTest();
@@ -251,7 +251,8 @@ class utils_test extends \advanced_testcase {
      * @param array|null $overrides any fields that should be different from the base example.
      * @return \stdClass the question data.
      */
-    protected function create_hidden_question(string $qtype, string $which = null, array $overrides = null): \stdClass {
+    protected function create_hidden_question(string $qtype, string|null $which = null,
+            array|null $overrides = null): \stdClass {
         global $DB;
 
         /** @var \core_question_generator $questiongenerator */
