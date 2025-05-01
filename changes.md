@@ -1,5 +1,16 @@
 # Change log for the embed questions filter
 
+## Changes in 2.3
+
+* This version works with Moodle 4.4.
+* Moved deprecated filter.php class to classes/text_filter.php as part of Moodle 4.5 deprecation cleanup,
+  retaining support for older Moodle versions.
+* Added a new feature in the embedded question UI that provides students with a link to view a
+  summary of their previous attempts.
+* Theme update: staff icons changed from grey to black.
+* Fixes some coding style issues. 
+
+
 ## Changes in 2.2
 
 * This version works with Moodle 4.0. However, this is a minimal change to make it work.
