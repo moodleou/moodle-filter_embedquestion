@@ -38,12 +38,7 @@ class error_message implements \renderable, \templatable {
         $this->message = $message;
     }
 
-    /**
-     * Export the data for template rendering.
-     *
-     * @param renderer_base $output The renderer to use.
-     * @return array The message.
-     */
+    #[\Override]
     public function export_for_template(renderer_base $output): array {
         return ['message' => $this->message];
     }

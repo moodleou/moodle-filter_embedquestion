@@ -51,11 +51,7 @@ class text_filter extends \moodle_text_filter {
      */
     protected $page;
 
-    /**
-     * Set up the filter.
-     * @param \moodle_page $page the page object.
-     * @param \context $context the context object.
-     */
+    #[\Override]
     public function setup($page, $context) {
         $this->page = $page;
     }
