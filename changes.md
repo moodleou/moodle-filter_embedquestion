@@ -2,7 +2,7 @@
 
 ## Changes in 2.3
 
-* This version works with Moodle 4.4.
+* This version works with Moodle 4.5.
 * Moved deprecated filter.php class to classes/text_filter.php as part of Moodle 4.5 deprecation cleanup,
   retaining support for older Moodle versions.
 * Added a new feature in the embedded question UI that provides students with a link to view a
