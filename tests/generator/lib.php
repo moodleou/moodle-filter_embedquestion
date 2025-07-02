@@ -124,9 +124,9 @@ class filter_embedquestion_generator extends component_generator_base {
      * Get an embeddable question from its id.
      *
      * @param string $embedid string like 'catid/qid'.
-     * @return stdClass $question the question object.
+     * @return null|stdClass $question the question object.
      */
-    public function get_question_from_embed_id(string $embedid): stdClass {
+    public function get_question_from_embed_id(string $embedid): null|stdClass {
         global $DB;
         [$categoryidnumber, $questionidnumber] = explode('/', $embedid);
         $categoryid = $DB->get_field('question_categories', 'id', ['idnumber' => $categoryidnumber], MUST_EXIST);
