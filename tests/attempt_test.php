@@ -294,7 +294,7 @@ final class attempt_test extends \advanced_testcase {
             'Question bank</a></div>' .
             '<div class="filter_embedquestion-fill-link">' .
             '<button type="submit" name="fillwithcorrect" value="1" class="btn btn-link">' .
-            '<i class="icon fa fa-check fa-fw iconsmall" aria-hidden="true"  ></i>' .
+            '<i class="icon fa fa-check fa-fw iconsmall" aria-hidden="true" ></i>' .
             '<span>Fill with correct</span></button></div></div>~';
         $this->assertMatchesRegularExpression($expectedregex, $html);
         // Create an authenticated user.
