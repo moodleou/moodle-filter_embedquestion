@@ -34,11 +34,18 @@ $functions = [
         'ajax' => true,
     ],
 
+    'filter_embedquestion_get_sharable_categories_choices' => [
+        'classname' => 'filter_embedquestion\external\get_sharable_categories_choices',
+        'description' => 'Use by form autocomplete for selecting a sharable qbank.',
+        'type' => 'read',
+        'ajax' => true,
+    ],
+
     'filter_embedquestion_get_embed_code' => [
         'classname' => 'filter_embedquestion\external',
         'methodname' => 'get_embed_code',
         'classpath' => '',
-        'description' => 'Use by atto-editer embedquestion button.',
+        'description' => 'Use by tiny/atto embedquestion button.',
         'type' => 'read',
         'ajax' => true,
     ],
