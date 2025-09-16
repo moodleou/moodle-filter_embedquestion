@@ -55,6 +55,8 @@ final class filter_test extends \advanced_testcase {
         $expectedurl = new \moodle_url(
             '/filter/embedquestion/showquestion.php',
             [
+                'courseshortname' => '',
+                'questionbankidnumber' => '',
                 'catid' => 'cat',
                 'qid' => 'q',
                 'contextid' => '1',
@@ -84,6 +86,8 @@ final class filter_test extends \advanced_testcase {
         $expectedurl = new \moodle_url(
             '/filter/embedquestion/showquestion.php',
             [
+                'courseshortname' => '',
+                'questionbankidnumber' => '',
                 'catid' => 'A/V questions',
                 'qid' => '|<--- 100%',
                 'contextid' => '1',

@@ -42,11 +42,12 @@ final class external_test extends \advanced_testcase {
         $this->setAdminUser();
         $generator = $this->getDataGenerator();
         $course = $generator->create_course();
+        $qbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id, 'idnumber' => 'abc123']);
         /** @var \core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
         $category = $questiongenerator->create_question_category([
                 'name' => 'Category with idnumber',
-                'contextid' => \context_course::instance($course->id)->id,
+                'contextid' => \context_module::instance($qbank->cmid)->id,
                 'idnumber' => 'abc123',
             ]);
 
@@ -63,15 +64,26 @@ final class external_test extends \advanced_testcase {
                 ['value' => 'toad', 'label' => 'Question 2 [toad]'],
                 ['value' => '*', 'label' => get_string('chooserandomly', 'filter_embedquestion')],
             ],
-            external::get_sharable_question_choices($course->id, 'abc123'));
+            external::get_sharable_question_choices($qbank->cmid, 'abc123'));
     }
 
     public function test_get_sharable_question_choices_no_permissions(): void {
+        global $DB;
         $this->resetAfterTest();
-        $this->setGuestUser();
         $this->expectException('coding_exception');
         $this->expectExceptionMessage('This user is not allowed to embed questions.');
-        external::get_sharable_question_choices(SITEID, 'abc123');
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $user = $generator->create_user();
+        role_change_permission($DB->get_field('role', 'id', ['shortname' => 'editingteacher']),
+            \context_system::instance(), 'moodle/question:useall', CAP_PREVENT);
+        role_change_permission($DB->get_field('role', 'id', ['shortname' => 'editingteacher']),
+            \context_system::instance(), 'moodle/question:usemine', CAP_PREVENT);
+        $generator->enrol_user($user->id, $course->id, 'editingteacher');
+        $this->setUser($user);
+        $qbank1 = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id]);
+
+        external::get_sharable_question_choices($qbank1->cmid, 'abc123');
     }
 
     public function test_get_sharable_question_choices_only_user(): void {
@@ -88,10 +100,11 @@ final class external_test extends \advanced_testcase {
 
         /** @var \core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
+        $qbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id, 'idnumber' => 'abc123']);
         $category = $questiongenerator->create_question_category([
                 'name' => 'Category with idnumber',
                 'idnumber' => 'abc123',
-                'contextid' => \context_course::instance($course->id)->id,
+                'contextid' => \context_module::instance($qbank->cmid)->id,
             ]);
 
         $this->setAdminUser();
@@ -107,7 +120,7 @@ final class external_test extends \advanced_testcase {
                 ['value' => '', 'label' => 'Choose...'],
                 ['value' => 'frog', 'label' => 'Question 1 [frog]'],
             ],
-            external::get_sharable_question_choices($course->id, 'abc123'));
+            external::get_sharable_question_choices($qbank->cmid, 'abc123'));
     }
 
     /**
@@ -115,8 +128,14 @@ final class external_test extends \advanced_testcase {
      */
     public static function get_embed_code_cases(): array {
         return [
-            ['abc123', 'toad', 'abc123/toad'],
-            ['A/V questions', '|---> 100%', 'A%2FV questions/%7C---> 100%25'],
+            ['abc123', 'toad', '', '', 'abc123/toad'],
+            ['abc123', 'toad', '', 'id1', 'id1/abc123/toad'],
+            ['abc123', 'toad', 'c1', 'id1', 'c1/id1/abc123/toad'],
+            ['abc123', 'toad', 'c1', '', 'c1/abc123/toad'],
+            ['A/V questions', '|---> 100%', '', '', 'A%2FV questions/%7C---> 100%25'],
+            ['A/V questions', '|---> 100%', '', 'id1', 'id1/A%2FV questions/%7C---> 100%25'],
+            ['A/V questions', '|---> 100%', 'c1', 'id1', 'c1/id1/A%2FV questions/%7C---> 100%25'],
+            ['A/V questions', '|---> 100%', 'c1', '', 'c1/A%2FV questions/%7C---> 100%25'],
         ];
     }
 
@@ -125,25 +144,27 @@ final class external_test extends \advanced_testcase {
      *
      * @param string $catid idnumber to use for the category.
      * @param string $questionid idnumber to use for the question.
+     * @param string $courseshortname the course shortname.
+     * @param string $qbankidnumber the question bank idnumber.
      * @param string $expectedembedid what the embed id in the output should be.
      * @dataProvider get_embed_code_cases
      */
-    public function test_get_embed_code_working(string $catid, string $questionid, string $expectedembedid): void {
-
+    public function test_get_embed_code_working(string $catid, string $questionid,
+            string $courseshortname, string $qbankidnumber, string $expectedembedid): void {
         $this->resetAfterTest();
 
         $this->setAdminUser();
         $generator = $this->getDataGenerator();
-        $course = $generator->create_course();
+        $course = $generator->create_course(['shortname' => $courseshortname]);
         /** @var \core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
+        $qbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id], ['idnumber' => $qbankidnumber]);
         $category = $questiongenerator->create_question_category(
-                ['name' => 'Category', 'idnumber' => $catid, 'contextid' => \context_course::instance($course->id)->id]);
+                ['name' => 'Category', 'idnumber' => $catid, 'contextid' => \context_module::instance($qbank->cmid)->id]);
 
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $category->id, 'name' => 'Question', 'idnumber' => $questionid]);
-
-        $embedid = new embed_id($catid, $questionid);
+        $embedid = new embed_id($catid, $questionid, $qbankidnumber, $courseshortname);
         $iframedescription = '';
         $behaviour = '';
         $maxmark = '';
@@ -161,7 +182,7 @@ final class external_test extends \advanced_testcase {
         $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
                 $embedid->questionidnumber, $iframedescription, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback,
-                $generalfeedback, $rightanswer, $history, '');
+                $generalfeedback, $rightanswer, $history, '', $courseshortname, $qbankidnumber);
 
         $this->assertEquals($expected, $actual);
 
@@ -170,7 +191,7 @@ final class external_test extends \advanced_testcase {
         $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
                 $embedid->questionidnumber, $iframedescription, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback,
-                $rightanswer, $history, '');
+                $rightanswer, $history, '', $courseshortname, $qbankidnumber);
 
         $this->assertEquals($expected, $actual);
     }
@@ -182,10 +203,12 @@ final class external_test extends \advanced_testcase {
         $this->setAdminUser();
         $generator = $this->getDataGenerator();
         $course = $generator->create_course();
+        $qbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id, 'idnumber' => 'abc123']);
+
         /** @var \core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
         $category = $questiongenerator->create_question_category(
-                ['name' => 'Category', 'idnumber' => 'abc123', 'contextid' => \context_course::instance($course->id)->id]);
+                ['name' => 'Category', 'idnumber' => 'abc123', 'contextid' => \context_module::instance($qbank->cmid)->id]);
 
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $category->id, 'name' => 'Question1', 'idnumber' => 'toad']);
@@ -263,4 +286,5 @@ final class external_test extends \advanced_testcase {
 
         $this->assertEquals(true, token::is_authorized_secret_token($token, $embedid));
     }
+
 }
