@@ -16,9 +16,12 @@ Feature: Add an activity and embed a question inside that activity
       | user    | course | role           |
       | teacher | C1     | editingteacher |
       | student | C1     | student        |
+    And the following "activities" exist:
+      | activity   | name    | intro              | course | idnumber |
+      | qbank      | Qbank 1 | Question bank 1    | C1     | qbank1   |
     And the following "question categories" exist:
-      | contextlevel | reference | name          | idnumber |
-      | Course       | C1        | Test questions| embed    |
+      | contextlevel    | reference | name           | idnumber|
+      | Activity module | qbank1    | Test questions | embed   |
     And the "embedquestion" filter is "on"
 
   @javascript
@@ -27,6 +30,7 @@ Feature: Add an activity and embed a question inside that activity
       | questioncategory | qtype     | name           | idnumber |
       | Test questions   | truefalse | First question | test1    |
     When I am on the "Course 1" "filter_embedquestion > test" page logged in as teacher
+    And I set the field "Question bank" to "Qbank 1 [qbank1]"
     And I set the field "Question category" to "Test questions [embed] (1)"
     And I set the field "id_questionidnumber" to "First question"
     And I press "Embed question"
@@ -54,6 +58,7 @@ Feature: Add an activity and embed a question inside that activity
       | Test questions   | truefalse | Q3   | test3    |
       | Test questions   | truefalse | Q4   | test4    |
     When I am on the "Course 1" "filter_embedquestion > test" page logged in as teacher
+    And I set the field "Question bank" to "Qbank 1 [qbank1]"
     And I set the field "Question category" to "Test questions [embed] (4)"
     And I set the field "id_questionidnumber" to "Choose an embeddable question from this category randomly"
     And I set the field "Iframe description" to "Embed question for behat testing"
@@ -73,6 +78,7 @@ Feature: Add an activity and embed a question inside that activity
       | questioncategory | qtype     | name           | idnumber |
       | Test questions   | truefalse | First question | test1    |
     When I am on the "Course 1" "filter_embedquestion > test" page logged in as teacher
+    And I set the field "Question bank" to "Qbank 1 [qbank1]"
     And I set the field "Question category" to "Test questions [embed] (1)"
     And I set the field "id_questionidnumber" to "First question"
     And I press "Embed question"
@@ -83,6 +89,7 @@ Feature: Add an activity and embed a question inside that activity
     And I press "id_submitbutton"
     # Because of the way the test page works, we need to re-select the question.
     Then I should see "Generate the code to embed a question"
+    And I set the field "Question bank" to "Qbank 1 [qbank1]"
     And I set the field "Question category" to "Test questions [embed] (1)"
     And I set the field "id_questionidnumber" to "First question"
     And I press "Embed question"
@@ -95,6 +102,7 @@ Feature: Add an activity and embed a question inside that activity
       | questioncategory | qtype     | name           | idnumber |
       | Test questions   | truefalse | First question | test1    |
     When I am on the "Course 1" "filter_embedquestion > test" page logged in as teacher
+    And I set the field "Question bank" to "Qbank 1 [qbank1]"
     And I set the field "Question category" to "Test questions [embed] (1)"
     And I set the field "id_questionidnumber" to "First question"
     And I press "Embed question"
@@ -104,6 +112,7 @@ Feature: Add an activity and embed a question inside that activity
     And I press "Cancel"
     # Because of the way the test page works, we need to re-select the question.
     Then I should see "Generate the code to embed a question"
+    And I set the field "Question bank" to "Qbank 1 [qbank1]"
     And I set the field "Question category" to "Test questions [embed] (1)"
     And I set the field "id_questionidnumber" to "First question"
     And I press "Embed question"
@@ -118,6 +127,7 @@ Feature: Add an activity and embed a question inside that activity
       | Test questions   | recordrtc | Record AV question  | test1    | audio    |
     And I am on the "Course 1" "filter_embedquestion > test" page logged in as teacher
     And I expand all fieldsets
+    And I set the field "Question bank" to "Qbank 1 [qbank1]"
     And I set the field "Question category" to "Test questions [embed] (1)"
     And I set the field "id_questionidnumber" to "Record AV question"
     And I set the field "How the question behaves" to "Immediate feedback"

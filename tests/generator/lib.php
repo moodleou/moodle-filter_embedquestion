@@ -73,11 +73,9 @@ class filter_embedquestion_generator extends component_generator_base {
                 $categoryrecord['idnumber'] = 'embeddablecat' . (self::$uniqueid++);
             }
             if (isset($categoryrecord['contextid'])) {
-                if (context::instance_by_id($categoryrecord['contextid'])->contextlevel !== CONTEXT_COURSE) {
-                    throw new coding_exception('Categorycontextid must refer to a course context.');
+                if (context::instance_by_id($categoryrecord['contextid'])->contextlevel !== CONTEXT_MODULE) {
+                    throw new coding_exception('Categorycontextid must refer to a module context.');
                 }
-            } else {
-                $categoryrecord['contextid'] = context_course::instance(SITEID)->id;
             }
             $category = $this->questiongenerator->create_question_category($categoryrecord);
             $overrides['category'] = $category->id;
@@ -113,8 +111,9 @@ class filter_embedquestion_generator extends component_generator_base {
         }
 
         $context = context::instance_by_id($category->contextid);
-        if ($context->contextlevel !== CONTEXT_COURSE) {
-            throw new coding_exception('Categorycontextid must refer to a course context.');
+
+        if ($context->contextlevel !== CONTEXT_MODULE) {
+            throw new coding_exception('Categorycontextid must refer to a module context.');
         }
 
         return [new embed_id($category->idnumber, $question->idnumber), $context];
@@ -145,6 +144,8 @@ class filter_embedquestion_generator extends component_generator_base {
         $fakeformdata = (object) [
             'categoryidnumber' => $embedid->categoryidnumber,
             'questionidnumber' => $embedid->questionidnumber,
+            'questionbankidnumber' => $embedid->questionbankidnumber,
+            'courseshortname' => $embedid->courseshortname,
         ];
         return question_options::get_embed_from_form_options($fakeformdata);
     }
@@ -167,17 +168,12 @@ class filter_embedquestion_generator extends component_generator_base {
             $isfinish = true): attempt {
         global $USER, $CFG;
 
-        [$embedid, $coursecontext] = $this->get_embed_id_and_context($question);
+        [$embedid, $qbankcontext] = $this->get_embed_id_and_context($question);
 
         if ($attemptcontext) {
-            if ($attemptcontext->id !== $coursecontext->id &&
-                    $attemptcontext->get_parent_context()->id !== $coursecontext->id) {
-                throw new coding_exception('The attempt context must either be the course ' .
-                        'context where the question is, or one of the activities in that course.');
-            }
             $context = $attemptcontext;
         } else {
-            $context = $coursecontext;
+            $context = $qbankcontext;
         }
         if ($pagename) {
             $pn = explode(':', $pagename);

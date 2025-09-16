@@ -14,9 +14,12 @@ Feature: Fill with correct feature for staff
     And the following "course enrolments" exist:
       | user    | course | role           |
       | teacher | C1     | editingteacher |
+    And the following "activities" exist:
+      | activity   | name    | intro              | course | idnumber |
+      | qbank      | Qbank 1 | Question bank 1    | C1     | qbank1   |
     And the following "question categories" exist:
-      | contextlevel | reference | name          | idnumber |
-      | Course       | C1        | Test questions| embed    |
+      | contextlevel    | reference | name           | idnumber|
+      | Activity module | qbank1    | Test questions | embed   |
     And the following "questions" exist:
       | questioncategory | qtype     | name            | idnumber |
       | Test questions   | truefalse | First question  | test1    |
@@ -26,6 +29,7 @@ Feature: Fill with correct feature for staff
   @javascript
   Scenario: Teacher can see and use the Fill with correct link
     When I am on the "Course 1" "filter_embedquestion > test" page logged in as teacher
+    And I set the field "Question bank" to "Qbank 1 [qbank1]"
     And I set the field "Question category" to "Test questions [embed] (2)"
     And I set the field "id_questionidnumber" to "First question"
     And I press "Embed question"
@@ -43,6 +47,7 @@ Feature: Fill with correct feature for staff
   @javascript
   Scenario: Teacher can not see the Fill with correct link for open question
     When I am on the "Course 1" "filter_embedquestion > test" page logged in as teacher
+    And I set the field "Question bank" to "Qbank 1 [qbank1]"
     And I set the field "Question category" to "Test questions [embed] (2)"
     And I set the field "id_questionidnumber" to "Second question"
     And I press "Embed question"
@@ -52,6 +57,7 @@ Feature: Fill with correct feature for staff
   @javascript
   Scenario: Teacher can see and use the Question bank link.
     When I am on the "Course 1" "filter_embedquestion > test" page logged in as teacher
+    And I set the field "Question bank" to "Qbank 1 [qbank1]"
     And I set the field "Question category" to "Test questions [embed] (2)"
     And I set the field "id_questionidnumber" to "First question"
     And I press "Embed question"
