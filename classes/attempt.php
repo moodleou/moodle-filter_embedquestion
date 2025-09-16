@@ -41,6 +41,11 @@ class attempt {
     protected $user;
 
     /**
+     * @var \context the context in which the question is belong to.
+     */
+    protected $context;
+
+    /**
      * @var \stdClass the question category we are in.
      */
     protected $category;
@@ -88,18 +93,42 @@ class attempt {
         $this->embedlocation = $embedlocation;
         $this->user = $user;
         $this->options = $options;
-        $this->category = $this->find_category($embedid->categoryidnumber);
+        $this->category = $this->find_category($embedid->categoryidnumber, $embedid->courseshortname,
+                $embedid->questionbankidnumber);
     }
 
     /**
      * Find the category for a category idnumber, if it exists.
      *
      * @param string $categoryidnumber idnumber of the category to use.
+     * @param string|null $courseshortname the short name of the course, if relevant.
+     * @param string|null $qbankidnumber the idnumber of the question bank,
      * @return \stdClass if the category was OK. If not null and problem and problemdetails are set.
      */
-    private function find_category(string $categoryidnumber): ?\stdClass {
-        $coursecontext = \context_course::instance(utils::get_relevant_courseid($this->embedlocation->context));
-        $category = utils::get_category_by_idnumber($coursecontext, $categoryidnumber);
+    private function find_category(string $categoryidnumber, ?string $courseshortname = null,
+            ?string $qbankidnumber = null): ?\stdClass {
+        $cmid = utils::get_qbank_by_idnumber(utils::get_relevant_courseid($this->embedlocation->context),
+                $courseshortname, $qbankidnumber);
+        if (!$cmid || $cmid === -1) {
+            if ($cmid === -1) {
+                $this->problem = 'invalidquestionbank';
+                return null;
+            } else {
+                if ($qbankidnumber) {
+                    $this->problem = 'invalidqbankidnumber';
+                    $this->problemdetails = [
+                        'qbankidnumber' => $qbankidnumber,
+                        'contextname' => $this->embedlocation->context_name_for_errors(),
+                    ];
+                } else {
+                    $this->problem = 'invalidquestionbank';
+                }
+                return null;
+            }
+        }
+        $context = \context_module::instance($cmid);
+        $this->context = $context;
+        $category = utils::get_category_by_idnumber($context, $categoryidnumber);
         if (!$category) {
             $this->problem = 'invalidcategory';
             $this->problemdetails = [
@@ -443,7 +472,7 @@ class attempt {
         $relevantcourseid = utils::get_relevant_courseid($this->embedlocation->context);
         if (question_has_capability_on($this->current_question(), 'edit')) {
             $this->options->editquestionparams =
-                ['returnurl' => $this->embedlocation->pageurl, 'courseid' => $relevantcourseid];
+                ['returnurl' => $this->embedlocation->pageurl, 'cmid' => $this->context->instanceid];
         }
 
         // Show an 'Question bank' action to those with permissions.

@@ -51,7 +51,9 @@ class embed_iframe implements \renderable, \templatable {
             'name' => null,
             'iframedescription' => format_string($this->iframedescription),
             'embedid' => (new embed_id($this->showquestionurl->param('catid'),
-                    $this->showquestionurl->param('qid')))->to_html_id(),
+                    $this->showquestionurl->param('qid'),
+                    $this->showquestionurl->param('questionbankidnumber'),
+                    $this->showquestionurl->param('courseshortname')))->to_html_id(),
         ];
         if (defined('BEHAT_SITE_RUNNING')) {
             $data['name'] = 'filter_embedquestion-iframe';

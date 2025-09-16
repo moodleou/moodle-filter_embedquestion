@@ -41,10 +41,11 @@ final class utils_test extends \advanced_testcase {
         $catwithidnumber = $questiongenerator->create_question_category(
                 ['name' => 'Category with idnumber', 'idnumber' => 'abc123']);
         $questiongenerator->create_question_category();
+        $context = \context::instance_by_id($catwithidnumber->contextid);
 
         $this->assertEquals($catwithidnumber->id,
                 utils::get_category_by_idnumber(
-                        \context_system::instance(), 'abc123')->id);
+                    $context, 'abc123')->id);
     }
 
     public function test_get_category_by_idnumber_not_existing(): void {
@@ -97,10 +98,11 @@ final class utils_test extends \advanced_testcase {
 
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $catwithid2->id, 'name' => 'Question', 'idnumber' => 'frog']);
+        $context = \context::instance_by_id($catwithid2->contextid);
 
         $this->assertEquals(
                 ['' => 'Choose...', 'pqr789' => 'Second category [pqr789] (1)'],
-                utils::get_categories_with_sharable_question_choices(\context_system::instance()));
+                utils::get_categories_with_sharable_question_choices($context));
     }
 
     public function test_get_categories_with_sharable_question_choices_only_user(): void {
@@ -122,11 +124,11 @@ final class utils_test extends \advanced_testcase {
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $catwithid2->id, 'name' => 'Question', 'idnumber' => 'frog']);
         $this->setAdminUser();
-
+        $context = \context::instance_by_id($catwithid1->contextid);
         $this->assertEquals([
                 '' => 'Choose...',
                 'abc123' => 'Category with idnumber [abc123] (1)',
-            ], utils::get_categories_with_sharable_question_choices(\context_system::instance(), $USER->id));
+            ], utils::get_categories_with_sharable_question_choices($context, $USER->id));
     }
 
     public function test_get_sharable_question_choices(): void {
@@ -234,12 +236,13 @@ final class utils_test extends \advanced_testcase {
 
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $catwithid2->id, 'name' => 'Question', 'idnumber' => 'frog']);
+        $context = \context::instance_by_id($catwithid2->contextid);
 
         // The random question should not appear in the counts.
         $this->assertEquals([
                 '' => 'Choose...',
                 'pqr789' => 'Second category with [pqr789] (1)',
-            ], utils::get_categories_with_sharable_question_choices(\context_system::instance()));
+            ], utils::get_categories_with_sharable_question_choices($context));
     }
 
     /**
@@ -299,17 +302,17 @@ final class utils_test extends \advanced_testcase {
         $catwithid2 = $questiongenerator->create_question_category(
                 ['name' => 'Second category with', 'idnumber' => 'pqr789']);
         $questiongenerator->create_question_category();
-
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $catwithid2->id, 'name' => 'Question', 'idnumber' => 'frog']);
         $this->create_hidden_question('shortanswer', null,
                 ['category' => $catwithid2->id, 'name' => 'Question (hidden)', 'idnumber' => 'toad']);
+        $context = \context::instance_by_id($catwithid2->contextid);
 
         // The hidden question should not appear in the counts.
         $this->assertEquals([
                 '' => 'Choose...',
                 'pqr789' => 'Second category with [pqr789] (1)',
-            ], utils::get_categories_with_sharable_question_choices(\context_system::instance()));
+            ], utils::get_categories_with_sharable_question_choices($context));
     }
 
     public function test_behaviour_choices(): void {
@@ -327,6 +330,7 @@ final class utils_test extends \advanced_testcase {
      *
      */
     public function test_create_attempt_at_embedded_question(): void {
+        global $COURSE;
         $this->setAdminUser();
         $this->resetAfterTest();
 
@@ -337,9 +341,12 @@ final class utils_test extends \advanced_testcase {
 
         // Create course.
         $course = $generator->create_course(['fullname' => 'Course 1', 'shortname' => 'C1']);
-        $coursecontext = \context_course::instance($course->id);
+        // In unit test, the global $COURSE is always set to SITE, so we need to set it to the course we created.
+        $COURSE = $course;
+        $qbank = $generator->create_module('qbank', ['course' => $course->id], ['idnumber' => 'qbank1']);
+        $context = \context_module::instance($qbank->cmid);
         // Create embed question.
-        $question = $attemptgenerator->create_embeddable_question('truefalse', null, [], ['contextid' => $coursecontext->id]);
+        $question = $attemptgenerator->create_embeddable_question('truefalse', null, [], ['contextid' => $context->id]);
         // Create page page that embeds a question.
         $page = $generator->create_module('page', [
             'course' => $course->id,
@@ -364,10 +371,11 @@ final class utils_test extends \advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
         /** @var \core_question_generator $questiongenerator */
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $qbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id]);
+        $context = \context_module::instance($qbank->cmid);
 
         // Create a question with two versions.
-        $cat = $questiongenerator->create_question_category(
-            ['contextid' => \context_course::instance($course->id)->id]);
+        $cat = $questiongenerator->create_question_category(['contextid' => $context->id]);
 
         $saq = $questiongenerator->create_question('shortanswer', null, ['category' => $cat->id]);
         $firstversion = \question_bank::load_question($saq->id);
@@ -377,7 +385,7 @@ final class utils_test extends \advanced_testcase {
 
         // Prepare the expected result.
         $expectedurl = new \moodle_url('/question/edit.php', [
-                'courseid' => $course->id,
+                'cmid' => $context->instanceid,
                 'cat' => $secondversion->category . ',' . $secondversion->contextid,
                 'qperpage' => MAXIMUM_QUESTIONS_PER_PAGE,
                 'lastchanged' => $secondversion->id,
@@ -388,5 +396,69 @@ final class utils_test extends \advanced_testcase {
 
         // Check the URL using the second question id.
         $this->assertEquals($expectedurl, utils::get_question_bank_url($secondversion));
+    }
+
+    /**
+     * Test getting shareable question banks.
+     */
+    public function test_get_shareable_question_banks(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Create a course.
+        $course = $this->getDataGenerator()->create_course(['fullname' => 'Course 1', 'shortname' => 'C1']);
+        // Create a question bank.
+        $qbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id], ['idnumber' => '']);
+        $qbank2 = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id], ['idnumber' => 'qbank2']);
+        $generator = $this->getDataGenerator();
+        $attemptgenerator = $generator->get_plugin_generator('filter_embedquestion');
+        $attemptgenerator->create_embeddable_question('truefalse', null, [],
+            ['contextid' => \context_module::instance($qbank->cmid)->id]);
+        $attemptgenerator->create_embeddable_question('truefalse', null, [],
+            ['contextid' => \context_module::instance($qbank2->cmid)->id]);
+
+        $banks = utils::get_shareable_question_banks($course->id);
+        $this->assertArrayHasKey($qbank->cmid, $banks);
+        $this->assertArrayHasKey($qbank2->cmid, $banks);
+
+        $banks = utils::get_shareable_question_banks($course->id, $course->shortname, null, 'qbank2');
+        $this->assertArrayHasKey($qbank2->cmid, $banks);
+        $this->assertArrayNotHasKey($qbank->cmid, $banks);
+    }
+    /**
+     * Test getting a question bank by idnumber.
+     */
+    public function test_get_qbank_by_idnumber(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Create a course.
+        $course = $this->getDataGenerator()->create_course(['fullname' => 'Course 1', 'shortname' => 'C1']);
+        // Create a question bank.
+        $qbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id], ['idnumber' => '']);
+        $qbank2 = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id], ['idnumber' => 'abcd1234']);
+
+        $generator = $this->getDataGenerator();
+        $attemptgenerator = $generator->get_plugin_generator('filter_embedquestion');
+        $attemptgenerator->create_embeddable_question('truefalse', null, [],
+            ['contextid' => \context_module::instance($qbank->cmid)->id]);
+        $attemptgenerator->create_embeddable_question('truefalse', null, [],
+            ['contextid' => \context_module::instance($qbank2->cmid)->id]);
+
+        // Check that we can get the question bank.
+        $this->assertEquals($qbank->cmid, utils::get_qbank_by_idnumber($course->id));
+        $this->assertEquals($qbank2->cmid, utils::get_qbank_by_idnumber($course->id, '', 'abcd1234'));
+        // We can get the question bank by with idnumber using course short name.
+        $this->assertEquals($qbank2->cmid, utils::get_qbank_by_idnumber(SITEID, 'C1', 'abcd1234'));
+
+        $qbank3 = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id], ['idnumber' => '']);
+        $attemptgenerator->create_embeddable_question('truefalse', null, [],
+            ['contextid' => \context_module::instance($qbank3->cmid)->id]);
+        // Can't get the correct question bank if there are multiple banks without idnumber.
+        $this->assertEquals(-1, utils::get_qbank_by_idnumber($course->id));
+        // Can't get a question bank doesn't exist in the course.
+        $this->assertEquals(null, utils::get_qbank_by_idnumber($course->id, 'C2'));
+        // Can't get a question bank with an idnumber that does not exist.
+        $this->assertEquals(null, utils::get_qbank_by_idnumber($course->id, '', 'randomidnumber'));
     }
 }

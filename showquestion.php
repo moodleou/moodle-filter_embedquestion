@@ -56,7 +56,9 @@ if ($options->forcedlanguage) {
 // Process other parameters.
 $categoryidnumber = required_param('catid', PARAM_RAW);
 $questionidnumber = required_param('qid', PARAM_RAW);
-$embedid = new embed_id($categoryidnumber, $questionidnumber);
+$questionbankidnumber = optional_param('questionbankidnumber', '', PARAM_RAW);
+$courseshortname = optional_param('courseshortname', '', PARAM_RAW);
+$embedid = new embed_id($categoryidnumber, $questionidnumber, $questionbankidnumber, $courseshortname);
 
 $embedlocation = embed_location::make_from_url_params();
 

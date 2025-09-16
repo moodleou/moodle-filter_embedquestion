@@ -138,6 +138,51 @@ class utils {
     }
 
     /**
+     * Find a question bank with a given idnumber in a given course.
+     *
+     * @param int $currentcourseid the id of the course to look in.
+     * @param string|null $courseshortname the shortname of the course to look in.
+     * @param string|null $qbankidnumber the idnumber of the question bank to look for.
+     * @param int|null $userid if set, only count question banks created by this user.
+     * @return int|null cmid or null if not found.
+     *                  If there are multiple question banks in the course, and no idnumber is given, return -1 only if there is no
+     *                  question bank with no idnumber created by system.
+     */
+    public static function get_qbank_by_idnumber(int $currentcourseid, ?string $courseshortname = null,
+        ?string $qbankidnumber = null, ?int $userid = null): ?int {
+        $qbanks = self::get_shareable_question_banks($currentcourseid, $courseshortname, $userid, $qbankidnumber);
+        if (empty($qbanks)) {
+            return null;
+        } else if (count($qbanks) === 1) {
+            $cmid = reset($qbanks)->cmid;
+        } else {
+            if (!$qbankidnumber || $qbankidnumber === '*') {
+                // Multiple qbanks in this course.
+                $qbankswithoutidnumber = array_filter($qbanks, function($qbank) {
+                    return empty($qbank->qbankidnumber);
+                });
+                if (count($qbankswithoutidnumber) === 1) {
+                    $cmid = reset($qbankswithoutidnumber)->cmid;
+                } else {
+                    // There are multiple question banks without id number and we can't determine which one to use.
+                    return -1;
+                }
+            } else {
+                // We have a qbankidnumber, so we can filter the list.
+                $match = array_filter($qbanks, fn($q) => $q->qbankidnumber === $qbankidnumber);
+                if (count($match) === 1) {
+                    $cmid = reset($match)->cmid;
+                } else {
+                    // There are multiple question banks with id number and we can't determine which one to use.
+                    return -1;
+                }
+            }
+        }
+
+        return $cmid;
+    }
+
+    /**
      * Find a category with a given idnumber in a given context.
      *
      * @param \context $context a context.
@@ -157,6 +202,91 @@ class utils {
     }
 
     /**
+     * Get a list of the question banks that have sharable questions in the specific course.
+     *
+     * The list is returned in a form suitable for using in a select menu.
+     *
+     * @param int $currentcourseid the id of the course to look in.
+     * @param string|null $courseshortname the shortname of the course to look in.
+     * @param int|null $userid if set, only count question banks created by this user.
+     * @param string|null $qbankidnumber if set, only count question banks with this idnumber.
+     * @return array course module id => object with fields cmid, qbankidnumber, courseid, qbankid.
+     */
+    public static function get_shareable_question_banks(int $currentcourseid, ?string $courseshortname = null,
+            ?int $userid = null, ?string $qbankidnumber = null): array {
+        global $DB;
+        $params = [
+            'modulename' => 'qbank',
+            'courseshortname' => $courseshortname ?: null,
+            'currentcourseid' => $courseshortname ? null : $currentcourseid,
+            'contextlevel' => CONTEXT_MODULE,
+            'ready' => question_version_status::QUESTION_STATUS_READY,
+        ];
+
+        $creatortest = '';
+        if ($userid) {
+            $creatortest = 'AND qbe.ownerid = :userid';
+            $params['userid'] = $userid;
+        }
+
+        $idnumber = '';
+        if ($qbankidnumber && $qbankidnumber !== '*') {
+            $idnumber = 'AND cm.idnumber = :qbankidnumber';
+            $params['qbankidnumber'] = $qbankidnumber;
+        }
+
+        $sql = "SELECT cm.id AS cmid,
+                       cm.idnumber AS qbankidnumber,
+                       qbank.id AS qbankid,
+                       qbank.name,
+                       qbank.type
+                  FROM {course} c
+                  JOIN {course_modules} cm ON cm.course = c.id
+                  JOIN {modules} m ON m.id = cm.module AND m.name = :modulename
+                  JOIN {qbank} qbank ON qbank.id = cm.instance
+                  JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :contextlevel
+                  JOIN {question_categories} qc ON qc.contextid = ctx.id
+                  JOIN {question_bank_entries} qbe ON qbe.questioncategoryid = qc.id
+                       AND qbe.idnumber IS NOT NULL
+                       $creatortest
+                  JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
+                                    AND qv.version = (SELECT MAX(qv2.version)
+                                                           FROM {question_versions} qv2
+                                                          WHERE qv2.questionbankentryid = qbe.id
+                                                                AND qv2.status = :ready
+                                                     )
+                  JOIN {question} q ON q.id = qv.questionid
+                 WHERE (c.shortname = :courseshortname OR c.id = :currentcourseid)
+                       AND qc.idnumber IS NOT NULL
+                       AND qc.idnumber <> ''
+                       $idnumber
+              GROUP BY cm.id, cm.idnumber, qbank.id, qbank.name
+                       HAVING COUNT(q.id) > 0
+              ORDER BY cm.id";
+        $qbanks = $DB->get_records_sql($sql, $params);
+        return $qbanks;
+    }
+
+    /**
+     * Create a list of question banks in a form suitable for using in a select menu.
+     *
+     * @param array $qbanks the question banks, as returned by {@see get_shareable_question_banks()}.
+     * @return array course module id => question bank name (and idnumber if set).
+     */
+    public static function create_select_qbank_choices(array $qbanks): array {
+        $choices = ['' => get_string('choosedots')];
+        foreach ($qbanks as $cmid => $qbank) {
+            if ($qbank->qbankidnumber) {
+                $choices[$cmid] = get_string('nameandidnumber', 'filter_embedquestion',
+                        ['name' => format_string($qbank->name), 'idnumber' => s($qbank->qbankidnumber)]);
+            } else {
+                $choices[$cmid] = format_string($qbank->name);
+            }
+        }
+        return $choices;
+    }
+
+    /**
      * Find a question with a given idnumber in a given context.
      *
      * @param int $categoryid id of the question category to look in.
@@ -166,29 +296,22 @@ class utils {
     public static function get_question_by_idnumber(int $categoryid, string $idnumber): ?\stdClass {
         global $DB;
 
-        if (self::has_question_versionning()) {
-            $question = $DB->get_record_sql('
-                SELECT q.*, qbe.idnumber, qbe.questioncategoryid AS category,
-                       qv.id AS versionid, qv.version, qv.questionbankentryid
-                  FROM {question_bank_entries} qbe
-                  JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id AND qv.version = (
-                                  SELECT MAX(version)
-                                    FROM {question_versions}
-                                   WHERE questionbankentryid = qbe.id AND status = :ready
-                              )
-                  JOIN {question} q ON q.id = qv.questionid
-                 WHERE qbe.questioncategoryid = :category AND qbe.idnumber = :idnumber',
-                [
-                    'ready' => question_version_status::QUESTION_STATUS_READY,
-                    'category' => $categoryid, 'idnumber' => $idnumber,
-                ],
-            );
-        } else {
-            $question = $DB->get_record_select('question',
-                    "category = ? AND idnumber = ? AND hidden = 0 AND parent = 0",
-                    [$categoryid, $idnumber]);
-
-        }
+        $question = $DB->get_record_sql('
+            SELECT q.*, qbe.idnumber, qbe.questioncategoryid AS category,
+                   qv.id AS versionid, qv.version, qv.questionbankentryid
+              FROM {question_bank_entries} qbe
+              JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id AND qv.version = (
+                              SELECT MAX(version)
+                                FROM {question_versions}
+                               WHERE questionbankentryid = qbe.id AND status = :ready
+                          )
+              JOIN {question} q ON q.id = qv.questionid
+             WHERE qbe.questioncategoryid = :category AND qbe.idnumber = :idnumber',
+            [
+                'ready' => question_version_status::QUESTION_STATUS_READY,
+                'category' => $categoryid, 'idnumber' => $idnumber,
+            ],
+        );
         if (!$question) {
             return null;
         }
@@ -235,65 +358,42 @@ class utils {
     public static function get_categories_with_sharable_question_choices(\context $context,
             int|null $userid = null): array {
         global $DB;
-
-        if (self::has_question_versionning()) {
-            $params = [];
-            $creatortest = '';
-            if ($userid) {
-                $creatortest = 'AND qbe.ownerid = ?';
-                $params[] = $userid;
-            }
-            $params[] = question_version_status::QUESTION_STATUS_READY;
-            $params[] = $context->id;
-
-            $categories = $DB->get_records_sql("
-                    SELECT qc.id, qc.name, qc.idnumber, COUNT(q.id) AS count
-
-                      FROM {question_categories} qc
-                      JOIN {question_bank_entries} qbe ON qbe.questioncategoryid = qc.id
-                                    AND qbe.idnumber IS NOT NULL $creatortest
-                      JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id AND qv.version = (
-                                    SELECT MAX(version)
-                                      FROM {question_versions}
-                                     WHERE questionbankentryid = qbe.id AND status = ?
-                                    )
-                      JOIN {question} q ON q.id = qv.questionid
-
-                     WHERE qc.contextid = ?
-                       AND qc.idnumber IS NOT NULL
-
-                  GROUP BY qc.id, qc.name, qc.idnumber
-                    HAVING COUNT(q.id) > 0
-                  ORDER BY qc.name
-                    ", $params);
-
-        } else {
-            $params = [];
-            $creatortest = '';
-            if ($userid) {
-                $creatortest = 'AND q.createdby = ?';
-                $params[] = $userid;
-            }
-            $params[] = $context->id;
-
-            $categories = $DB->get_records_sql("
-                    SELECT qc.id, qc.name, qc.idnumber, COUNT(q.id) AS count
-
-                      FROM {question_categories} qc
-                      JOIN {question} q ON q.category = qc.id
-                                        AND q.idnumber IS NOT NULL
-                                        $creatortest
-                                        AND q.hidden = 0
-                                        AND q.parent = 0
-
-                     WHERE qc.contextid = ?
-                       AND qc.idnumber IS NOT NULL
-
-                  GROUP BY qc.id, qc.name, qc.idnumber
-                    HAVING COUNT(q.id) > 0
-                  ORDER BY qc.name
-                    ", $params);
+        $params = [];
+        $creatortest = '';
+        if ($userid) {
+            $creatortest = 'AND qbe.ownerid = :userid';
+            $params['userid'] = $userid;
         }
+        $params['status'] = question_version_status::QUESTION_STATUS_READY;
+        $params['cmid'] = $context->instanceid;
+        $params['contextlevel'] = CONTEXT_MODULE;
+        $params['modulename'] = 'qbank';
+
+        $categories = $DB->get_records_sql("
+                SELECT qc.id, qc.name, qc.idnumber, COUNT(q.id) AS count
+
+                  FROM {question_categories} qc
+                  JOIN {context} ctx ON ctx.id = qc.contextid
+                  JOIN {course_modules} cm ON cm.id = ctx.instanceid
+                  JOIN {modules} m ON m.id = cm.module AND m.name = :modulename
+                  JOIN {qbank} qbank ON qbank.id = cm.instance
+                  JOIN {question_bank_entries} qbe ON qbe.questioncategoryid = qc.id
+                       AND qbe.idnumber IS NOT NULL $creatortest
+                  JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id AND qv.version = (
+                                SELECT MAX(version)
+                                  FROM {question_versions}
+                                 WHERE questionbankentryid = qbe.id AND status = :status
+                                )
+                  JOIN {question} q ON q.id = qv.questionid
+
+                 WHERE cm.id = :cmid
+                       AND ctx.contextlevel = :contextlevel
+                       AND qc.idnumber IS NOT NULL
+                       AND qc.idnumber <> ''
+              GROUP BY qc.id, qc.name, qc.idnumber
+                       HAVING COUNT(q.id) > 0
+              ORDER BY qc.name
+                ", $params);
 
         $choices = ['' => get_string('choosedots')];
         foreach ($categories as $category) {
@@ -316,57 +416,32 @@ class utils {
     public static function get_sharable_question_ids(int $categoryid, int|null $userid = null): array {
         global $DB;
 
-        if (self::has_question_versionning()) {
-            $params = [];
-            $params[] = question_version_status::QUESTION_STATUS_READY;
-            $params[] = $categoryid;
-            $creatortest = '';
-            if ($userid) {
-                $creatortest = 'AND qbe.ownerid = ?';
-                $params[] = $userid;
-            }
-
-            return $DB->get_records_sql("
-                    SELECT q.id, q.name, qbe.idnumber
-
-                      FROM {question_bank_entries} qbe
-                      JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id AND qv.version = (
-                                    SELECT MAX(version)
-                                      FROM {question_versions}
-                                     WHERE questionbankentryid = qbe.id AND status = ?
-                                    )
-                      JOIN {question} q ON q.id = qv.questionid
-
-                     WHERE qbe.questioncategoryid = ?
-                       AND qbe.idnumber IS NOT NULL
-                       $creatortest
-
-                  ORDER BY q.name
-                    ", $params);
-
-        } else {
-            $params = [];
-            $params[] = $categoryid;
-            $creatortest = '';
-            if ($userid) {
-                $creatortest = 'AND q.createdby = ?';
-                $params[] = $userid;
-            }
-
-            return $DB->get_records_sql("
-                    SELECT q.id, q.name, q.idnumber
-
-                      FROM {question} q
-
-                     WHERE q.category = ?
-                       AND q.idnumber IS NOT NULL
-                       $creatortest
-                       AND q.hidden = 0
-                       AND q.parent = 0
-
-                  ORDER BY q.name
-                    ", $params);
+        $params = [];
+        $params[] = question_version_status::QUESTION_STATUS_READY;
+        $params[] = $categoryid;
+        $creatortest = '';
+        if ($userid) {
+            $creatortest = 'AND qbe.ownerid = ?';
+            $params[] = $userid;
         }
+
+        return $DB->get_records_sql("
+                SELECT q.id, q.name, qbe.idnumber
+
+                  FROM {question_bank_entries} qbe
+                  JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id AND qv.version = (
+                                SELECT MAX(version)
+                                  FROM {question_versions}
+                                 WHERE questionbankentryid = qbe.id AND status = ?
+                                )
+                  JOIN {question} q ON q.id = qv.questionid
+
+                 WHERE qbe.questioncategoryid = ?
+                   AND qbe.idnumber IS NOT NULL
+                   $creatortest
+
+              ORDER BY q.name
+                ", $params);
     }
 
     /**
@@ -456,9 +531,6 @@ class utils {
         require_once($CFG->dirroot . '/question/editlib.php');
 
         $context = \context::instance_by_id($question->contextid);
-        if ($context->contextlevel != CONTEXT_COURSE) {
-            throw new \coding_exception('Unexpected. Only questions from the course question bank should be embedded.');
-        }
 
         $latestquestionid = $DB->get_field_sql("
                 SELECT qv.questionid
@@ -472,7 +544,7 @@ class utils {
                 ", [$question->questionbankentryid, $question->questionbankentryid]);
 
         return new \moodle_url('/question/edit.php', [
-                'courseid' => $context->instanceid,
+                'cmid' => $context->instanceid,
                 'cat' => $question->category . ',' . $question->contextid,
                 'qperpage' => MAXIMUM_QUESTIONS_PER_PAGE,
                 'lastchanged' => $latestquestionid,

@@ -277,10 +277,7 @@ final class attempt_test extends \advanced_testcase {
             $previousattemptlink = '<div class="link-wrapper-class"><a target="_top" href="[^"]+">' .
                 '<span>Previous attempts</span></a></div>';
         }
-        $icon = '<i class="icon fa fa-pen fa-fw iconsmall"  title="Edit"[^>]*></i>Edit question</a></div>';
-        if (utils::moodle_version_is("<=", "44")) {
-            $icon = '<i class="icon fa fa-cog fa-fw iconsmall"  title="Edit"[^>]*></i>Edit question</a></div>';
-        }
+        $icon = '<i class="icon fa fa-pen fa-fw iconsmall"  title="Edit"[^>]*></i>\s*Edit question\s*</a>\s*</div>';
 
         // Verify that the edit question, question bank link and fill with correct links are present.
         $expectedregex = '~<div class="info"><h3 class="no">Question <span class="qno">[^<]+</span>' .
@@ -294,8 +291,8 @@ final class attempt_test extends \advanced_testcase {
             'Question bank</a></div>' .
             '<div class="filter_embedquestion-fill-link">' .
             '<button type="submit" name="fillwithcorrect" value="1" class="btn btn-link">' .
-            '<i class="icon fa fa-check fa-fw iconsmall" aria-hidden="true"  ></i>' .
-            '<span>Fill with correct</span></button></div></div>~';
+            '<i class="icon fa fa-check fa-fw iconsmall" aria-hidden="true" ></i>' .
+            '<span>Fill with correct</span></button></div></div>~s';
         $this->assertMatchesRegularExpression($expectedregex, $html);
         // Create an authenticated user.
         $user = $this->getDataGenerator()->create_user();

@@ -73,3 +73,19 @@ function filter_embedquestion_question_pluginfile($givencourse, $context, $compo
 
     send_stored_file($file, 0, 0, $forcedownload, $fileoptions);
 }
+
+/**
+ * Allow update of user preferences via AJAX.
+ *
+ * @return array[]
+ */
+function filter_embedquestion_user_preferences(): array {
+    return [
+        'filter_embedquestion_userdefaultqbank' => [
+            'type' => PARAM_RAW,
+            'null' => NULL_NOT_ALLOWED,
+            'default' => '{}',
+            'permissioncallback' => [core_user::class, 'is_current_user'],
+        ],
+    ];
+}

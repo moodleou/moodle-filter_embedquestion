@@ -16,6 +16,8 @@
 
 namespace filter_embedquestion\privacy;
 
+use core_privacy\local\metadata\collection;
+use core_privacy\local\request\writer;
 /**
  * Privacy Subsystem for filter_embedquestion implementing null_provider.
  *
@@ -23,15 +25,23 @@ namespace filter_embedquestion\privacy;
  * @copyright  2018 The Open Univesity
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider implements \core_privacy\local\metadata\null_provider {
+class provider implements \core_privacy\local\metadata\provider,
+    \core_privacy\local\request\user_preference_provider {
+    #[\Override]
+    public static function get_metadata(collection $collection): collection {
+        $collection->add_user_preference('filter_embedquestion_userdefaultqbank', 'privacy:preference:defaultqbank');
+    }
 
-    /**
-     * Get the language string identifier with the component's language
-     * file to explain why this plugin stores no data.
-     *
-     * @return string The language string identifier with the component's language.
-     */
-    public static function get_reason(): string {
-        return 'privacy:metadata';
+    #[\Override]
+    public static function export_user_preferences(int $userid): void {
+        $defaultqbanks = get_user_preferences('filter_embedquestion_userdefaultqbank', '{}', $userid);
+        if ($defaultqbanks !== '{}') {
+            writer::export_user_preference(
+                'filter_embedquestion',
+                'userdefaultqbank',
+                $defaultqbanks,
+                get_string('defaultqbank', 'filter_embedquestion')
+            );
+        }
     }
 }
