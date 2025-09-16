@@ -7,7 +7,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:14
+        image: postgres:15
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
@@ -30,8 +30,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { php: '8.2', moodle-branch: MOODLE_404_STABLE, database: mariadb }
-          - { php: '8.3', moodle-branch: MOODLE_405_STABLE, database: pgsql }
+          - { php: '8.2', moodle-branch: MOODLE_500_STABLE, database: mariadb }
+          - { php: '8.3', moodle-branch: main, database: pgsql }
 
     steps:
       - name: Check out repository code
