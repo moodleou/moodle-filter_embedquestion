@@ -1,5 +1,14 @@
 # Change log for the embed questions filter
 
+## Changes in 2.4
+
+* This version works with Moodle 5.0+
+* Add switch question bank dialog to the embedded question UI, so that teachers can
+  select question bank from any course they have access to.
+* Add user preference to control whether the embedded question UI to select default question bank
+  from current course
+
+
 ## Changes in 2.3
 
 * This version works with Moodle 4.5.
