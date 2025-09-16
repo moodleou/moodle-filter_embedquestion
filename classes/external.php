@@ -16,6 +16,8 @@
 
 namespace filter_embedquestion;
 
+use core\exception\moodle_exception;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -36,7 +38,7 @@ class external extends \external_api {
      */
     public static function get_sharable_question_choices_parameters(): \external_function_parameters {
         return new \external_function_parameters([
-                'courseid' => new \external_value(PARAM_INT, 'Course id.'),
+                'cmid' => new \external_value(PARAM_INT, 'Course module ID'),
                 'categoryidnumber' => new \external_value(PARAM_RAW, 'Idnumber of the question category.'),
         ]);
     }
@@ -66,18 +68,18 @@ class external extends \external_api {
     /**
      * Get the list of sharable questions in a category.
      *
-     * @param int $courseid the course whose question bank we are sharing from.
+     * @param int $cmid the course module id.
      * @param string $categoryidnumber the idnumber of the question category.
      *
      * @return array of arrays with two elements, keys value and label.
      */
-    public static function get_sharable_question_choices(int $courseid, string $categoryidnumber): array {
+    public static function get_sharable_question_choices(int $cmid, string $categoryidnumber): array {
         global $USER;
 
         self::validate_parameters(self::get_sharable_question_choices_parameters(),
-                ['courseid' => $courseid, 'categoryidnumber' => $categoryidnumber]);
+                ['cmid' => $cmid, 'categoryidnumber' => $categoryidnumber]);
 
-        $context = \context_course::instance($courseid);
+        $context = \context_module::instance($cmid);
         self::validate_context($context);
 
         if (has_capability('moodle/question:useall', $context)) {
@@ -141,6 +143,10 @@ class external extends \external_api {
                         'Whether to show the response history (1/0/"") for show, hide or default.'),
                 'forcedlanguage' => new \external_value(PARAM_LANG,
                         'Whether to force the UI language of the question. Lang code or empty string.'),
+                'courseshortname' => new \external_value(PARAM_RAW,
+                    'Course short name.', VALUE_OPTIONAL),
+                'questionbankidnumber' => new \external_value(PARAM_RAW,
+                    'Qbank idnumber.', VALUE_OPTIONAL),
         ]);
     }
 
@@ -166,7 +172,7 @@ class external extends \external_api {
      * Given the course id, category and question idnumbers, and any display options,
      * return the {Q{...}Q} code needed to embed this question.
      *
-     * @param int $courseid the id of the course we are embedding questions from.
+     * @param int $courseid the course id.
      * @param string $categoryidnumber the idnumber of the question category.
      * @param string $questionidnumber the idnumber of the question to be embedded, or '*' to mean a question picked at random.
      * @param string $iframedescription the iframe description.
@@ -181,13 +187,15 @@ class external extends \external_api {
      * @param string $rightanswer 0, 1 or ''.
      * @param string $history 0, 1 or ''.
      * @param string $forcedlanguage moodle lang pack (e.g. 'fr') or ''.
+     * @param string|null $courseshortname the course shortname, optional.
+     * @param string|null $questionbankidnumber the question bank idnumber, optional.
      *
      * @return string the embed code.
      */
     public static function get_embed_code(int $courseid, string $categoryidnumber, string $questionidnumber,
             string $iframedescription, string $behaviour, string $maxmark, string $variant, string $correctness,
             string $marks, string $markdp, string $feedback, string $generalfeedback, string $rightanswer, string $history,
-            string $forcedlanguage): string {
+            string $forcedlanguage, ?string $courseshortname = null, ?string $questionbankidnumber = null): string {
         global $CFG;
 
         self::validate_parameters(
@@ -208,25 +216,38 @@ class external extends \external_api {
                 'rightanswer' => $rightanswer,
                 'history' => $history,
                 'forcedlanguage' => $forcedlanguage,
+                'courseshortname' => $courseshortname,
+                'questionbankidnumber' => $questionbankidnumber,
             ]
         );
 
-        $context = \context_course::instance($courseid);
+        $cmid = utils::get_qbank_by_idnumber($courseid, $courseshortname, $questionbankidnumber);
+        if ($cmid === -1) {
+            throw new moodle_exception('invalidquestionbank', 'filter_embedquestion');
+        }
+        $context = \context_module::instance($cmid);
         self::validate_context($context);
-
         // Check permissions.
         require_once($CFG->libdir . '/questionlib.php');
         $category = utils::get_category_by_idnumber($context, $categoryidnumber);
         if ($questionidnumber === '*') {
-            $context = \context_course::instance($courseid);
             require_capability('moodle/question:useall', $context);
         } else {
             $questiondata = utils::get_question_by_idnumber($category->id, $questionidnumber);
             $question = \question_bank::load_question($questiondata->id);
             question_require_capability_on($question, 'use');
         }
+        // When we get the question bank created by system in a different course, usually they don't have idnumber
+        // So we need to add '*' to questionbankidnumber to make sure the question bank can be found.
+        if (empty($questionbankidnumber) && $courseshortname) {
+            $course = get_course($courseid);
+            if ($courseshortname !== $course->shortname) {
+                $questionbankidnumber = '*';
+            }
+        }
         $fromform = new \stdClass();
-        $fromform->courseid = $courseid;
+        $fromform->questionbankidnumber = $questionbankidnumber;
+        $fromform->courseshortname = $courseshortname;
         $fromform->categoryidnumber = $categoryidnumber;
         $fromform->questionidnumber = $questionidnumber;
         $fromform->iframedescription = $iframedescription;
