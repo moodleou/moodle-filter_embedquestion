@@ -50,13 +50,14 @@ echo $OUTPUT->header();
 utils::warn_if_filter_disabled($context);
 
 if ($fromform = $form->get_data()) {
-    $category = utils::get_category_by_idnumber($context, $fromform->categoryidnumber);
+    $qbankcontext = context_module::instance($fromform->qbankcmid);
+    $category = utils::get_category_by_idnumber($qbankcontext, $fromform->categoryidnumber);
 
     if ($fromform->questionidnumber === '*') {
         echo $OUTPUT->heading('Information for embedding question selected randomly from ' . format_string($category->name));
 
         \filter_embedquestion\event\category_token_created::create(
-                ['context' => $context, 'objectid' => $category->id])->trigger();
+                ['context' => $qbankcontext, 'objectid' => $category->id])->trigger();
 
     } else {
         $questiondata = utils::get_question_by_idnumber($category->id, $fromform->questionidnumber);
@@ -67,7 +68,8 @@ if ($fromform = $form->get_data()) {
         \filter_embedquestion\event\token_created::create(
                 ['context' => $context, 'objectid' => $question->id])->trigger();
     }
-
+    $fromform->questionbankidnumber = '';
+    $fromform->courseshortname = '';
     $embedcode = question_options::get_embed_from_form_options($fromform);
     echo html_writer::tag('p', 'Code to embed the question: ' . s($embedcode));
 
