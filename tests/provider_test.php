@@ -39,8 +39,11 @@ final class provider_test extends advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->setUser($user);
 
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $qbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id, 'idnumber' => 'abc123']);
         // Simulate saved user preference JSON.
-        $example = ['1' => '2', '2' => '3'];
+        $example = [$course->id  => $qbank->id];
         set_user_preference('filter_embedquestion_userdefaultqbank', json_encode($example), $user->id);
         provider::export_user_preferences($user->id);
         $writer = writer::with_context(\context_system::instance());
