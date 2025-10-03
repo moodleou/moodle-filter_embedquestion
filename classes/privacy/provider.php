@@ -30,6 +30,7 @@ class provider implements \core_privacy\local\metadata\provider,
     #[\Override]
     public static function get_metadata(collection $collection): collection {
         $collection->add_user_preference('filter_embedquestion_userdefaultqbank', 'privacy:preference:defaultqbank');
+        return $collection;
     }
 
     #[\Override]

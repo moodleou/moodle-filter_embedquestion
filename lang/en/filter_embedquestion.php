@@ -72,7 +72,6 @@ $string['noguests'] = 'Guest users do not have permission to interact with embed
 $string['notyourattempt'] = 'This is not your attempt.';
 $string['pluginname'] = 'Embed questions';
 $string['previousattempts'] = 'Previous attempts';
-$string['privacy:metadata'] = 'The Embed questions filter does not store any personal data.';
 $string['privacy:preference:defaultqbank'] = 'Stores default qbank mapping from course ID to selected question bank (JSON-encoded).';
 $string['questionbank'] = 'Question bank';
 $string['questionidnumber'] = 'Question id number';
