@@ -28,9 +28,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core_user/repos
         /**
          * Initialise the handling.
          *
-         * @param {string} defaultQbank - The default question bank to select, if any.
+         * @param {string} defaultQbankCmid - The default question bank to select, if any.
          */
-        init: function(defaultQbank) {
+        init: function(defaultQbankCmid) {
             $('select#id_qbankcmid').on('change', t.qbankChanged);
             $('select#id_categoryidnumber').on('change', t.categoryChanged);
 
@@ -42,9 +42,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core_user/repos
                     $('#id_questionheadercontainer h5').text(string);
                     return;
                 }).catch(Notification.exception);
-            if (defaultQbank) {
+            if (defaultQbankCmid) {
                 // If a default question bank is set, we need to trigger the change event to load the categories.
-                $('select#id_qbankcmid').val(defaultQbank).trigger('change');
+                $('select#id_qbankcmid').val(defaultQbankCmid).trigger('change');
             }
         },
 
@@ -69,7 +69,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core_user/repos
                 Ajax.call([{
                     methodname: 'filter_embedquestion_get_sharable_question_choices',
                     args: {cmid: t.lastQbank, categoryidnumber: t.lastCategory},
-                }])[0].done(t.updateChoices);
+                }])[0].then(t.updateChoices).catch(Notification.exception);
                 $('select#id_questionidnumber').attr('disabled', false);
             }
         },
@@ -92,8 +92,8 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core_user/repos
                 }).catch(Notification.exception);
             var prefKey = 'filter_embedquestion_userdefaultqbank';
             var courseId = document.querySelector('input[name="courseid"]').value;
-            var courseShortname = document.querySelector('input[name="courseshortname"]').value;
-            if (courseShortname === '' || courseShortname === null) {
+            var isSameCourse = document.querySelector('input[name="issamecourse"]').value;
+            if (isSameCourse) {
                 UserRepository.getUserPreference(prefKey).then(current => {
                     let prefs = current ? JSON.parse(current) : {};
                     prefs[courseId] = t.lastQbank;
@@ -106,9 +106,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core_user/repos
                 t.updateChoices([]);
             } else {
                 Ajax.call([{
-                    methodname: 'filter_embedquestion_get_sharable_categories_choices',
+                    methodname: 'filter_embedquestion_get_sharable_category_choices',
                     args: {cmid: t.lastQbank}
-                }])[0].done(t.updateCategories);
+                }])[0].then(t.updateCategories).catch(Notification.exception);
                 M.util.js_pending('filter_embedquestion-get_questions');
                 t.updateChoices([]);
             }

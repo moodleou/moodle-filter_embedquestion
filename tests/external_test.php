@@ -128,14 +128,14 @@ final class external_test extends \advanced_testcase {
      */
     public static function get_embed_code_cases(): array {
         return [
-            ['abc123', 'toad', '', '', 'abc123/toad'],
+            ['abc123', 'toad', '', '', '*/abc123/toad'],
             ['abc123', 'toad', '', 'id1', 'id1/abc123/toad'],
             ['abc123', 'toad', 'c1', 'id1', 'c1/id1/abc123/toad'],
-            ['abc123', 'toad', 'c1', '', 'c1/abc123/toad'],
-            ['A/V questions', '|---> 100%', '', '', 'A%2FV questions/%7C---> 100%25'],
+            ['abc123', 'toad', 'c1', '', 'c1/*/abc123/toad'],
+            ['A/V questions', '|---> 100%', '', '', '*/A%2FV questions/%7C---> 100%25'],
             ['A/V questions', '|---> 100%', '', 'id1', 'id1/A%2FV questions/%7C---> 100%25'],
             ['A/V questions', '|---> 100%', 'c1', 'id1', 'c1/id1/A%2FV questions/%7C---> 100%25'],
-            ['A/V questions', '|---> 100%', 'c1', '', 'c1/A%2FV questions/%7C---> 100%25'],
+            ['A/V questions', '|---> 100%', 'c1', '', 'c1/*/A%2FV questions/%7C---> 100%25'],
         ];
     }
 
@@ -164,6 +164,9 @@ final class external_test extends \advanced_testcase {
 
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $category->id, 'name' => 'Question', 'idnumber' => $questionid]);
+        if (!$qbankidnumber) {
+            $qbankidnumber = '*';
+        }
         $embedid = new embed_id($catid, $questionid, $qbankidnumber, $courseshortname);
         $iframedescription = '';
         $behaviour = '';
@@ -179,19 +182,19 @@ final class external_test extends \advanced_testcase {
 
         $token = token::make_secret_token($embedid);
         $expected = '{Q{' . $expectedembedid . '|' . $token . '}Q}';
-        $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
+        $actual = external::get_embed_code($qbank->cmid, $embedid->categoryidnumber,
                 $embedid->questionidnumber, $iframedescription, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback,
-                $generalfeedback, $rightanswer, $history, '', $courseshortname, $qbankidnumber);
+                $generalfeedback, $rightanswer, $history, '');
 
         $this->assertEquals($expected, $actual);
 
         $behaviour = 'immediatefeedback';
         $expected = '{Q{' . $expectedembedid . '|behaviour=' . $behaviour . '|' . $token . '}Q}';
-        $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
+        $actual = external::get_embed_code($qbank->cmid, $embedid->categoryidnumber,
                 $embedid->questionidnumber, $iframedescription, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback,
-                $rightanswer, $history, '', $courseshortname, $qbankidnumber);
+                $rightanswer, $history, '');
 
         $this->assertEquals($expected, $actual);
     }
@@ -203,7 +206,7 @@ final class external_test extends \advanced_testcase {
         $this->setAdminUser();
         $generator = $this->getDataGenerator();
         $course = $generator->create_course();
-        $qbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id, 'idnumber' => 'abc123']);
+        $qbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id, 'idnumber' => '']);
 
         /** @var \core_question_generator $questiongenerator */
         $questiongenerator = $generator->get_plugin_generator('core_question');
@@ -215,7 +218,7 @@ final class external_test extends \advanced_testcase {
         $questiongenerator->create_question('shortanswer', null,
                 ['category' => $category->id, 'name' => 'Question2', 'idnumber' => 'frog']);
 
-        $embedid = new embed_id('abc123', 'toad');
+        $embedid = new embed_id('abc123', 'toad', '*', $course->shortname);
         $iframedescription = 'Embedded random question';
         $behaviour = '';
         $maxmark = '';
@@ -232,26 +235,26 @@ final class external_test extends \advanced_testcase {
 
         $token = token::make_secret_token($embedid);
         $expected = '{Q{' . $embedid . $titlebit . '|' . $token . '}Q}';
-        $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
+        $actual = external::get_embed_code($qbank->cmid, $embedid->categoryidnumber,
                 $embedid->questionidnumber, $iframedescription, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback,
                 $rightanswer, $history, '');
         $this->assertEquals($expected, $actual);
 
-        $embedid = new embed_id('abc123', 'frog');
+        $embedid = new embed_id('abc123', 'frog', '*', $course->shortname);
         $token = token::make_secret_token($embedid);
         $expected = '{Q{' . $embedid . $titlebit . '|' . $token . '}Q}';
-        $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
+        $actual = external::get_embed_code($qbank->cmid, $embedid->categoryidnumber,
                 $embedid->questionidnumber, $iframedescription, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback,
                 $rightanswer, $history, '');
         $this->assertEquals($expected, $actual);
 
         // Accept '*' for $questionidnumber to indicate a random question.
-        $embedid = new embed_id('abc123', '*');
+        $embedid = new embed_id('abc123', '*', '*', $course->shortname);
         $token = token::make_secret_token($embedid);
         $expected = '{Q{' . $embedid . $titlebit . '|' . $token . '}Q}';
-        $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
+        $actual = external::get_embed_code($qbank->cmid, $embedid->categoryidnumber,
                 $embedid->questionidnumber, $iframedescription, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback,
                 $rightanswer, $history, '');
@@ -259,7 +262,7 @@ final class external_test extends \advanced_testcase {
 
         $behaviour = 'immediatefeedback';
         $expected = '{Q{' . $embedid . $titlebit . '|behaviour=' . $behaviour . '|' . $token . '}Q}';
-        $actual = external::get_embed_code($course->id, $embedid->categoryidnumber,
+        $actual = external::get_embed_code($qbank->cmid, $embedid->categoryidnumber,
                 $embedid->questionidnumber, $iframedescription, $behaviour,
                 $maxmark, $variant, $correctness, $marks, $markdp, $feedback, $generalfeedback,
                 $rightanswer, $history, '');

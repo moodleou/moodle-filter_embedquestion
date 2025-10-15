@@ -93,22 +93,29 @@ class attempt {
         $this->embedlocation = $embedlocation;
         $this->user = $user;
         $this->options = $options;
-        $this->category = $this->find_category($embedid->categoryidnumber, $embedid->courseshortname,
-                $embedid->questionbankidnumber);
+
+        $courseid = utils::get_relevant_courseid($this->embedlocation->context);
+        if ($embedid->courseshortname) {
+            $courseid = utils::get_courseid_by_course_shortname($embedid->courseshortname);
+        }
+        $this->category = $this->find_category(
+            $embedid->categoryidnumber,
+            $courseid,
+            $embedid->questionbankidnumber
+        );
     }
 
     /**
      * Find the category for a category idnumber, if it exists.
      *
      * @param string $categoryidnumber idnumber of the category to use.
-     * @param string|null $courseshortname the short name of the course, if relevant.
+     * @param int $courseid the id of the course question banks are being shared from.
      * @param string|null $qbankidnumber the idnumber of the question bank,
      * @return \stdClass if the category was OK. If not null and problem and problemdetails are set.
      */
-    private function find_category(string $categoryidnumber, ?string $courseshortname = null,
+    private function find_category(string $categoryidnumber, int $courseid,
             ?string $qbankidnumber = null): ?\stdClass {
-        $cmid = utils::get_qbank_by_idnumber(utils::get_relevant_courseid($this->embedlocation->context),
-                $courseshortname, $qbankidnumber);
+        $cmid = utils::get_qbank_by_idnumber($courseid, $qbankidnumber);
         if (!$cmid || $cmid === -1) {
             if ($cmid === -1) {
                 $this->problem = 'invalidquestionbank';

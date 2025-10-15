@@ -31,9 +31,9 @@ use filter_embedquestion\utils;
  * @copyright 2025 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class get_sharable_categories_choices extends external_api {
+class get_sharable_category_choices extends external_api {
     /**
-     * Returns parameter types for get_sharable_categories_choices function.
+     * Returns parameter types for get_sharable_category_choices function.
      *
      * @return external_function_parameters Parameters
      */
@@ -44,7 +44,7 @@ class get_sharable_categories_choices extends external_api {
     }
 
     /**
-     * Returns result type for get_sharable_categories_choices function.
+     * Returns result type for get_sharable_category_choices function.
      *
      * @return external_description Result type
      */

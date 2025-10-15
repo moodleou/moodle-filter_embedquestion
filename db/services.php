@@ -34,8 +34,8 @@ $functions = [
         'ajax' => true,
     ],
 
-    'filter_embedquestion_get_sharable_categories_choices' => [
-        'classname' => 'filter_embedquestion\external\get_sharable_categories_choices',
+    'filter_embedquestion_get_sharable_category_choices' => [
+        'classname' => 'filter_embedquestion\external\get_sharable_category_choices',
         'description' => 'Use by form autocomplete for selecting a sharable qbank.',
         'type' => 'read',
         'ajax' => true,

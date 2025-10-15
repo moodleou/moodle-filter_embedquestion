@@ -140,17 +140,15 @@ class utils {
     /**
      * Find a question bank with a given idnumber in a given course.
      *
-     * @param int $currentcourseid the id of the course to look in.
-     * @param string|null $courseshortname the shortname of the course to look in.
+     * @param int $courseid the id of the course to look in.
      * @param string|null $qbankidnumber the idnumber of the question bank to look for.
      * @param int|null $userid if set, only count question banks created by this user.
      * @return int|null cmid or null if not found.
      *                  If there are multiple question banks in the course, and no idnumber is given, return -1 only if there is no
      *                  question bank with no idnumber created by system.
      */
-    public static function get_qbank_by_idnumber(int $currentcourseid, ?string $courseshortname = null,
-        ?string $qbankidnumber = null, ?int $userid = null): ?int {
-        $qbanks = self::get_shareable_question_banks($currentcourseid, $courseshortname, $userid, $qbankidnumber);
+    public static function get_qbank_by_idnumber(int $courseid, ?string $qbankidnumber = null, ?int $userid = null): ?int {
+        $qbanks = self::get_shareable_question_banks($courseid, $userid, $qbankidnumber);
         if (empty($qbanks)) {
             return null;
         } else if (count($qbanks) === 1) {
@@ -206,19 +204,17 @@ class utils {
      *
      * The list is returned in a form suitable for using in a select menu.
      *
-     * @param int $currentcourseid the id of the course to look in.
-     * @param string|null $courseshortname the shortname of the course to look in.
-     * @param int|null $userid if set, only count question banks created by this user.
+     * @param int $courseid the id of the course to look in.
+     * @param int|null $userid if set, only count question created by this user.
      * @param string|null $qbankidnumber if set, only count question banks with this idnumber.
      * @return array course module id => object with fields cmid, qbankidnumber, courseid, qbankid.
      */
-    public static function get_shareable_question_banks(int $currentcourseid, ?string $courseshortname = null,
+    public static function get_shareable_question_banks(int $courseid,
             ?int $userid = null, ?string $qbankidnumber = null): array {
         global $DB;
         $params = [
             'modulename' => 'qbank',
-            'courseshortname' => $courseshortname ?: null,
-            'currentcourseid' => $courseshortname ? null : $currentcourseid,
+            'courseid' => $courseid,
             'contextlevel' => CONTEXT_MODULE,
             'ready' => question_version_status::QUESTION_STATUS_READY,
         ];
@@ -256,7 +252,7 @@ class utils {
                                                                 AND qv2.status = :ready
                                                      )
                   JOIN {question} q ON q.id = qv.questionid
-                 WHERE (c.shortname = :courseshortname OR c.id = :currentcourseid)
+                 WHERE c.id = :courseid
                        AND qc.idnumber IS NOT NULL
                        AND qc.idnumber <> ''
                        $idnumber
@@ -365,18 +361,13 @@ class utils {
             $params['userid'] = $userid;
         }
         $params['status'] = question_version_status::QUESTION_STATUS_READY;
-        $params['cmid'] = $context->instanceid;
-        $params['contextlevel'] = CONTEXT_MODULE;
         $params['modulename'] = 'qbank';
+        $params['contextid'] = $context->id;
 
         $categories = $DB->get_records_sql("
                 SELECT qc.id, qc.name, qc.idnumber, COUNT(q.id) AS count
 
                   FROM {question_categories} qc
-                  JOIN {context} ctx ON ctx.id = qc.contextid
-                  JOIN {course_modules} cm ON cm.id = ctx.instanceid
-                  JOIN {modules} m ON m.id = cm.module AND m.name = :modulename
-                  JOIN {qbank} qbank ON qbank.id = cm.instance
                   JOIN {question_bank_entries} qbe ON qbe.questioncategoryid = qc.id
                        AND qbe.idnumber IS NOT NULL $creatortest
                   JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id AND qv.version = (
@@ -386,8 +377,7 @@ class utils {
                                 )
                   JOIN {question} q ON q.id = qv.questionid
 
-                 WHERE cm.id = :cmid
-                       AND ctx.contextlevel = :contextlevel
+                 WHERE qc.contextid = :contextid
                        AND qc.idnumber IS NOT NULL
                        AND qc.idnumber <> ''
               GROUP BY qc.id, qc.name, qc.idnumber
@@ -625,5 +615,32 @@ class utils {
         }
 
         return false;
+    }
+
+    /**
+     * Get course id by course shortname.
+     *
+     * @param string $courseshortname
+     * @return int
+     */
+    public static function get_courseid_by_course_shortname(string $courseshortname): int {
+        global $DB;
+        return $DB->get_field('course', 'id', ['shortname' => $courseshortname]);
+    }
+
+    /**
+     * Check if the current user has permission to embed questions in this context.
+     *
+     * @param \context $context the context to check.
+     * @return bool true if the user has permission, false if not.
+     */
+    public static function has_permission(\context $context): bool {
+        if (has_capability('moodle/question:useall', $context)) {
+            return true;
+        } else if (has_capability('moodle/question:usemine', $context)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
