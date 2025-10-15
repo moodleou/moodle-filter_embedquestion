@@ -47,7 +47,7 @@ class embed_options_form extends \moodleform {
         $mform = $this->_form;
         /** @var \context $context */
         $context = $this->_customdata['context'];
-        $courseshortname = $this->_customdata['cousrseshortname'] ?? null;
+        $courseshortname = $this->_customdata['courseshortname'] ?? null;
         $defaultqbankcmid = $this->_customdata['qbankcmid'] ?? null;
         $embedcode = $this->_customdata['embedcode'] ?? null;
 
@@ -59,58 +59,45 @@ class embed_options_form extends \moodleform {
         $defaultoptions = new question_options();
         $mform->addElement('hidden', 'contextid', $context->id);
         $mform->setType('contextid', PARAM_INT);
-        $mform->setType('courseshortname', PARAM_RAW);
         $mform->addElement('hidden', 'courseid', $context->instanceid);
         $mform->setType('courseid', PARAM_INT);
-        $mform->addElement('hidden', 'courseshortname', '');
-        $mform->setType('courseshortname', PARAM_RAW);
+        $mform->addElement('hidden', 'issamecourse', 1);
+        $mform->setType('issamecourse', PARAM_INT);
         $mform->addElement('header', 'questionheader', get_string('whichquestion', 'filter_embedquestion'));
 
         $prefs = [];
 
         // Only load user preference if we do not have a default question bank cmid or embed code.
         if (!$defaultqbankcmid && !$embedcode) {
-            // Preference key unique to your filter.
-            $prefname = 'filter_embedquestion_userdefaultqbank';
             // Retrieve existing preference (empty array if none).
-            $prefs = json_decode(get_user_preferences($prefname, '{}'));
+            $prefs = json_decode(get_user_preferences('filter_embedquestion_userdefaultqbank', '{}'));
         }
-
         $cmid = !empty($defaultqbankcmid) ? $defaultqbankcmid : ($prefs->{$context->instanceid} ?? null);
-        // If we have default question bank cmid, we will use it to get the course shortname.
+        // If we have default question bank cmid, we will use it to get the course id.
         if ($cmid) {
             [, $cm] = get_course_and_cm_from_cmid($cmid);
             $cminfo = cm_info::create($cm);
-            $courseshortname = $cminfo->get_course()->shortname;
-            if ($cminfo->get_course()->id !== $context->instanceid) {
-                // If the course shortname is not the same as the course shortname, we need to add it to the form.
-                // This is to allow the course shortname to the embed code.
-                $mform->setDefault('courseshortname', $courseshortname);
+            $courseid = $cminfo->get_course()->id;
+        } else if ($courseshortname) {
+            $courseid = utils::get_courseid_by_course_shortname($courseshortname);
+            if ($courseid != $context->instanceid) {
+                $mform->setDefault('issamecourse', 0);
             }
+        } else {
+            $courseid = $context->instanceid;
         }
-
-        $qbanks = utils::get_shareable_question_banks($context->instanceid, $courseshortname,
-            $this->get_user_retriction());
+        $qbanks = utils::get_shareable_question_banks($courseid, $this->get_user_retriction());
         $qbanksselectoptions = utils::create_select_qbank_choices($qbanks);
-        // Build the hidden array of question bank idnumbers.
-        $qbanksidnumber = array_combine(
-            array_keys($qbanks),
-            array_map(fn($q) => $q->qbankidnumber, $qbanks)
-        );
         // If we have a default question bank cmid, we will use it to set the default value.
         // If the default question bank cmid is not in the list of question banks, we will add it.
         if ($cmid && empty($qbanksselectoptions[$cmid])) {
             $qbanksselectoptions[$cmid] = format_string($cminfo->name);
-            $qbanksidnumber[$cmid] = $cminfo->idnumber;
         }
         $mform->addElement('html', $OUTPUT->render_from_template('mod_quiz/switch_bank_header',
             ['currentbank' => reset($qbanksselectoptions)]));
         $mform->addElement('select', 'qbankcmid', get_string('questionbank', 'question'),
             $qbanksselectoptions);
         $mform->addRule('qbankcmid', null, 'required', null, 'client');
-        $mform->addElement('hidden', 'qbankidnumber');
-        $mform->setType('qbankidnumber', PARAM_RAW);
-        $mform->setDefault('qbankidnumber', json_encode($qbanksidnumber));
 
         $mform->addElement('select', 'categoryidnumber', get_string('questioncategory', 'question'),
             []);
@@ -226,20 +213,21 @@ class embed_options_form extends \moodleform {
             return;
         }
         $qbankcmid = $qbankcmid[0];
+        if (!$qbankcmid || $qbankcmid == -1) {
+            return;
+        }
         $categoryidnumber = $categoryidnumbers[0];
         if ($categoryidnumber === '' || $categoryidnumber === null) {
             return;
         }
-        $courseshortname = $mform->getElementValue('courseshortname');
-        if ($courseshortname) {
-            $qbanks = utils::get_shareable_question_banks($this->_customdata['context']->instanceid,
-                $courseshortname, $this->get_user_retriction());
-            $qbanksselectoptions = utils::create_select_qbank_choices($qbanks);
-            $element = $mform->getElement('qbankcmid');
-            // Clear the existing options, so that we can load the new ones.
-            $element->_options = [];
-            $mform->getElement('qbankcmid')->loadArray($qbanksselectoptions);
-        }
+
+        [$course,] = get_course_and_cm_from_cmid($qbankcmid);
+        $qbanks = utils::get_shareable_question_banks($course->id, $this->get_user_retriction());
+        $qbanksselectoptions = utils::create_select_qbank_choices($qbanks);
+        $element = $mform->getElement('qbankcmid');
+        // Clear the existing options, so that we can load the new ones.
+        $element->_options = [];
+        $mform->getElement('qbankcmid')->loadArray($qbanksselectoptions);
         $context = \context_module::instance($qbankcmid);
         $mform->setDefault('qbankcmid', $qbankcmid);
 
@@ -277,12 +265,17 @@ class embed_options_form extends \moodleform {
     #[\Override]
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        if (!isset($data['qbankcmid'])) {
-            $errors['qbankcmid'] = get_string('errorquestionbanknotfound', 'filter_embedquestion');
-        }
         $qbankcontext = \context_module::instance($data['qbankcmid']);
-        $category = utils::get_category_by_idnumber($qbankcontext, $data['categoryidnumber']);
+        if (!$qbankcontext) {
+            $errors['qbankcmid'] = get_string('errorquestionbanknotfound', 'filter_embedquestion');
+            return $errors;
+        }
+        if (!utils::has_permission($qbankcontext) || !get_coursemodule_from_id('qbank', $data['qbankcmid'])) {
+            $errors['qbankcmid'] = get_string('errornopermissions', 'filter_embedquestion');
+            return $errors;
+        }
 
+        $category = utils::get_category_by_idnumber($qbankcontext, $data['categoryidnumber']);
         $questiondata = false;
         if (isset($data['questionidnumber'])) {
             $questiondata = utils::get_question_by_idnumber($category->id, $data['questionidnumber']);

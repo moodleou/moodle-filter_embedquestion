@@ -57,6 +57,7 @@ $string['iframetitle'] = 'Embedded question';
 $string['iframetitleauto'] = 'Embedded question {$a}';
 $string['invalidcantfindquestionbank'] = 'We have multiple question banks in this context  "{$a->contextname}", but the one you are trying to use does not exist.';
 $string['invalidcategory'] = 'The category with idnumber "{$a->catid}" does not exist in "{$a->contextname}".';
+$string['invalidemptycategory'] = 'The category "{$a->catname}" in "{$a->contextname}" does not contain any embeddable questions.';
 $string['invalidqbankidnumber'] = 'The question bank with idnumber "{$a->qbankidnumber}" does not exist in "{$a->contextname}".';
 $string['invalidquestion'] = 'The question with idnumber "{$a->qid}" does not exist in category "{$a->catname} [{$a->catidnumber}]".';
 $string['invalidquestionbank'] = 'The question bank does not exist.';

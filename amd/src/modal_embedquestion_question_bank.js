@@ -75,11 +75,11 @@ export class ModalEmbedQuestionQuestionBank extends Modal {
      * This will destroy the current modal and dispatch an event to switch to the new modal.
      *
      * @param {String} bankCmid - The course module ID of the question bank to switch to.
-     * @method switchToEmbedQuestionModal
+     * @method fireQbankSelectedEvent
      */
-    switchToEmbedQuestionModal(bankCmid) {
+    fireQbankSelectedEvent(bankCmid) {
         this.destroy();
-        const event = new CustomEvent('tiny_embedquestion::displayDialog', {
+        const event = new CustomEvent('filter_embedquestion:qbank_selected', {
             detail: {bankCmid: bankCmid, editor: this.currentEditor},
         });
         document.dispatchEvent(event);
@@ -97,12 +97,12 @@ export class ModalEmbedQuestionQuestionBank extends Modal {
         this.getModal().on('click', SELECTORS.ANCHOR, (e) => {
             const anchorElement = e.currentTarget;
             e.preventDefault();
-            this.switchToEmbedQuestionModal(anchorElement.getAttribute(SELECTORS.NEW_BANKMOD_ID));
+            this.fireQbankSelectedEvent(anchorElement.getAttribute(SELECTORS.NEW_BANKMOD_ID));
         });
 
         this.getModal().on('click', SELECTORS.GO_BACK_BUTTON, (e) => {
             e.preventDefault();
-            this.switchToEmbedQuestionModal(e.currentTarget.value);
+            this.fireQbankSelectedEvent(e.currentTarget.value);
         });
     }
 
@@ -154,7 +154,7 @@ export class ModalEmbedQuestionQuestionBank extends Modal {
                 // This will be the chosen qbankCmid.
                 const selectedValue = e.target.value;
                 if (selectedValue > 0) {
-                    this.switchToEmbedQuestionModal(selectedValue);
+                    this.fireQbankSelectedEvent(selectedValue);
                 }
             });
         }
@@ -164,6 +164,5 @@ export class ModalEmbedQuestionQuestionBank extends Modal {
 
 export default {
     ModalEmbedQuestionQuestionBank,
-    SELECTORS
 };
 ModalEmbedQuestionQuestionBank.registerModalType();

@@ -75,6 +75,21 @@ function filter_embedquestion_question_pluginfile($givencourse, $context, $compo
 }
 
 /**
+ * Build and return the output for the question bank and category chooser.
+ *
+ * @param array $args provided by the AJAX request.
+ * @return string html to render to the modal.
+ */
+function filter_embedquestion_output_fragment_switch_question_bank(array $args): string {
+    global $USER, $OUTPUT;
+
+    $courseid = clean_param($args['courseid'], PARAM_INT);
+    $switchbankwidget = new filter_embedquestion\output\switch_question_bank($courseid, $USER->id);
+
+    return $OUTPUT->render($switchbankwidget);
+}
+
+/**
  * Allow update of user preferences via AJAX.
  *
  * @return array[]

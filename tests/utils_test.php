@@ -421,7 +421,7 @@ final class utils_test extends \advanced_testcase {
         $this->assertArrayHasKey($qbank->cmid, $banks);
         $this->assertArrayHasKey($qbank2->cmid, $banks);
 
-        $banks = utils::get_shareable_question_banks($course->id, $course->shortname, null, 'qbank2');
+        $banks = utils::get_shareable_question_banks($course->id, null, 'qbank2');
         $this->assertArrayHasKey($qbank2->cmid, $banks);
         $this->assertArrayNotHasKey($qbank->cmid, $banks);
     }
@@ -447,9 +447,7 @@ final class utils_test extends \advanced_testcase {
 
         // Check that we can get the question bank.
         $this->assertEquals($qbank->cmid, utils::get_qbank_by_idnumber($course->id));
-        $this->assertEquals($qbank2->cmid, utils::get_qbank_by_idnumber($course->id, '', 'abcd1234'));
-        // We can get the question bank by with idnumber using course short name.
-        $this->assertEquals($qbank2->cmid, utils::get_qbank_by_idnumber(SITEID, 'C1', 'abcd1234'));
+        $this->assertEquals($qbank2->cmid, utils::get_qbank_by_idnumber($course->id, 'abcd1234'));
 
         $qbank3 = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id], ['idnumber' => '']);
         $attemptgenerator->create_embeddable_question('truefalse', null, [],
@@ -459,6 +457,6 @@ final class utils_test extends \advanced_testcase {
         // Can't get a question bank doesn't exist in the course.
         $this->assertEquals(null, utils::get_qbank_by_idnumber($course->id, 'C2'));
         // Can't get a question bank with an idnumber that does not exist.
-        $this->assertEquals(null, utils::get_qbank_by_idnumber($course->id, '', 'randomidnumber'));
+        $this->assertEquals(null, utils::get_qbank_by_idnumber($course->id, 'randomidnumber'));
     }
 }
