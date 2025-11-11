@@ -373,11 +373,19 @@ class attempt {
     public function find_questionid(string $questionidnumber): int {
         $questiondata = utils::get_question_by_idnumber($this->category->id, $questionidnumber);
         if (!$questiondata) {
+            $contexts = new \core_question\local\bank\question_edit_contexts($this->context);
+            $error = format_string($this->category->name) . ' [' . s($this->category->idnumber) . ']';
+            if ($contexts->have_one_edit_tab_cap('questions')) {
+                $editurl = new \moodle_url('/question/edit.php', [
+                    'cmid' => $this->context->instanceid,
+                    'cat' => "{$this->category->id},{$this->context->id}",
+                ]);
+                $error = \html_writer::link($editurl, $error, ['target' => '_blank']);
+            }
             $this->problem = 'invalidquestion';
             $this->problemdetails = [
                     'qid' => $questionidnumber,
-                    'catname' => format_string($this->category->name),
-                    'catidnumber' => s($this->category->idnumber),
+                    'errortext' => $error,
             ];
             return 0;
         }

@@ -152,9 +152,11 @@ final class attempt_test extends \advanced_testcase {
         }
         \question_bank::notify_question_edited($q->id);
 
-        // And try to restart. Should give an error.
+        // And try to restart. Should give an error link.
         $this->expectOutputRegex('~The question with idnumber "embeddableq\d+" ' .
-                'does not exist in category "Test question category \d+ \[embeddablecat\d+\]"\.~');
+            'does not exist in category "<a target="_blank" ' .
+            'href="https://www\.example\.com/moodle/question/edit\.php\?cmid=\d+&amp;cat=\d+%2C\d+">' .
+            'Test question category \d+ \[embeddablecat\d+\]</a>"\.~');
         $this->expectException(\coding_exception::class);
         $attempt->start_new_attempt_at_question();
     }
