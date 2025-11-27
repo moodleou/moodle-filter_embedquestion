@@ -39,17 +39,14 @@ use filter_embedquestion\attempt_storage;
  * @param bool $forcedownload whether the user must be forced to download the file.
  * @param array $fileoptions additional options affecting the file serving
  */
-function filter_embedquestion_question_pluginfile($givencourse, $context, $component,
+function filter_embedquestion_question_pluginfile($givencourse, $filecontext, $component,
         $filearea, $qubaid, $slot, $args, $forcedownload, $fileoptions) {
 
-    list($context, $course, $cm) = get_context_info_array($context->id);
-    if ($givencourse->id !== $course->id) {
-        send_file_not_found();
-    }
+    $quba = question_engine::load_questions_usage_by_activity($qubaid);
+    [$renderingcontext, $course, $cm] = get_context_info_array($quba->get_owning_context()->id);
     require_login($course, false, $cm);
 
-    $quba = question_engine::load_questions_usage_by_activity($qubaid);
-    attempt_storage::instance()->verify_usage($quba, $context);
+    attempt_storage::instance()->verify_usage($quba, $renderingcontext);
 
     $options = new question_display_options();
     $options->feedback = question_display_options::VISIBLE;
@@ -65,7 +62,7 @@ function filter_embedquestion_question_pluginfile($givencourse, $context, $compo
 
     $fs = get_file_storage();
     $relativepath = implode('/', $args);
-    $fullpath = "/{$context->id}/{$component}/{$filearea}/{$relativepath}";
+    $fullpath = "/{$filecontext->id}/{$component}/{$filearea}/{$relativepath}";
     $file = $fs->get_file_by_hash(sha1($fullpath));
     if (!$file || $file->is_directory()) {
         send_file_not_found();
