@@ -93,79 +93,223 @@ class embed_options_form extends \moodleform {
         if ($cmid && empty($qbanksselectoptions[$cmid])) {
             $qbanksselectoptions[$cmid] = format_string($cminfo->name);
         }
-        $mform->addElement('html', $OUTPUT->render_from_template('mod_quiz/switch_bank_header',
-            ['currentbank' => reset($qbanksselectoptions)]));
-        $mform->addElement('select', 'qbankcmid', get_string('questionbank', 'question'),
-            $qbanksselectoptions);
-        $mform->addRule('qbankcmid', null, 'required', null, 'client');
+        $mform->addElement(
+            'html'
+        );
+        $mform->addElement(
+            'select',
+            'qbankcmid',
+            get_string('questionbank', 'question'),
+            $qbanksselectoptions
+        );
+        $mform->addRule(
+            'qbankcmid',
+            null,
+            'required',
+            null,
+            'client'
+        );
 
-        $mform->addElement('select', 'categoryidnumber', get_string('questioncategory', 'question'),
-            []);
-        $mform->addRule('categoryidnumber', null, 'required', null, 'client');
-        $mform->disabledIf('questionidnumber', 'qbankcmid', 'eq', '');
-        $mform->addElement('select', 'questionidnumber', get_string('question'), []);
-        $mform->addRule('questionidnumber', null, 'required', null, 'client');
-        $mform->disabledIf('questionidnumber', 'categoryidnumber', 'eq', '');
-        $PAGE->requires->js_call_amd('filter_embedquestion/questionid_choice_updater', 'init', [$cmid]);
+        $mform->addElement(
+            'select',
+            'categoryidnumber',
+            get_string('questioncategory', 'question'),
+            []
+        );
+        $mform->addRule(
+            'categoryidnumber',
+            null,
+            'required',
+            null,
+            'client'
+        );
+        $mform->disabledIf(
+            'questionidnumber',
+            'qbankcmid',
+            'eq',
+            ''
+        );
+        $mform->addElement(
+            'select',
+            'questionidnumber',
+            get_string('question'),
+            []
+        );
+        $mform->addRule(
+            'questionidnumber',
+            null,
+            'required',
+            null,
+            'client'
+        );
+        $mform->disabledIf(
+            'questionidnumber',
+            'categoryidnumber',
+            'eq',
+            ''
+        );
+        $PAGE->requires->js_call_amd(
+            'filter_embedquestion/questionid_choice_updater',
+            'init',
+            [$cmid]
+        );
 
-        $mform->addElement('text', 'iframedescription', get_string('iframedescription', 'filter_embedquestion'),
-            ['size' => 100]);
-        $mform->setType('iframedescription', PARAM_TEXT);
-        $mform->addRule('iframedescription', get_string('iframedescriptionmaxlengthwarning', 'filter_embedquestion'),
-        'maxlength', 100, 'client');
-        $mform->addRule('iframedescription', get_string('iframedescriptionminlengthwarning', 'filter_embedquestion'),
-        'minlength', 3, 'client');
-        $mform->addHelpButton('iframedescription', 'iframedescription', 'filter_embedquestion');
+        $mform->addElement(
+            'text',
+            'iframedescription',
+            get_string('iframedescription', 'filter_embedquestion'),
+            ['size' => 100]
+        );
+        $mform->setType(
+            'iframedescription',
+            PARAM_TEXT
+        );
+        $mform->addRule(
+            'iframedescription',
+            get_string('iframedescriptionmaxlengthwarning', 'filter_embedquestion'),
+            'maxlength',
+            100,
+            'client'
+        );
+        $mform->addRule(
+            'iframedescription',
+            get_string('iframedescriptionminlengthwarning', 'filter_embedquestion'),
+            'minlength',
+            3,
+            'client'
+        );
+        $mform->addHelpButton(
+            'iframedescription',
+            'iframedescription',
+            'filter_embedquestion'
+        );
 
-        $mform->addElement('header', 'attemptheader', get_string('attemptoptions', 'filter_embedquestion'));
+        $mform->addElement(
+            'header',
+            'attemptheader',
+            get_string('attemptoptions', 'filter_embedquestion')
+        );
 
         $behaviours = [
-                '' => get_string('defaultx', 'filter_embedquestion',
-                        \question_engine::get_behaviour_name($defaultoptions->behaviour)),
-            ] + utils::behaviour_choices();
-        $mform->addElement('select', 'behaviour', get_string('howquestionbehaves', 'filter_embedquestion'),
-                $behaviours);
+            '' => get_string(
+                'defaultx',
+                'filter_embedquestion',
+                \question_engine::get_behaviour_name($defaultoptions->behaviour)
+            ),
+        ] + utils::behaviour_choices();
+        $mform->addElement(
+            'select',
+            'behaviour',
+            get_string('howquestionbehaves', 'filter_embedquestion'),
+            $behaviours
+        );
 
-        $mform->addElement('text', 'maxmark', get_string('markedoutof', 'filter_embedquestion'), ['size' => 7]);
-        $mform->setType('maxmark', PARAM_RAW_TRIMMED); // Not PARAM_FLOAT because we need to keep blank input as ''.
+        $mform->addElement(
+            'text',
+            'maxmark',
+            get_string('markedoutof', 'filter_embedquestion'),
+            ['size' => 7]
+        );
+        $mform->setType(
+            'maxmark',
+            PARAM_RAW_TRIMMED
+        ); // Not PARAM_FLOAT because we need to keep blank input as ''.
 
-        $mform->addElement('text', 'variant', get_string('questionvariant', 'question'));
-        $mform->setType('variant', PARAM_RAW_TRIMMED); // Not PARAM_INT because we need to keep blank input as ''.
-        $mform->disabledIf('variant', 'questionidnumber', 'eq', '');
+        $mform->addElement(
+            'text',
+            'variant',
+            get_string('questionvariant', 'question')
+        );
+        $mform->setType(
+            'variant',
+            PARAM_RAW_TRIMMED
+        ); // Not PARAM_INT because we need to keep blank input as ''.
+        $mform->disabledIf(
+            'variant',
+            'questionidnumber',
+            'eq',
+            ''
+        );
 
-        $mform->addElement('header', 'reviewheader', get_string('displayoptions', 'filter_embedquestion'));
+        $mform->addElement(
+            'header',
+            'reviewheader',
+            get_string('displayoptions', 'filter_embedquestion')
+        );
 
-        $mform->addElement('select', 'correctness', get_string('whethercorrect', 'question'),
-                $this->get_show_hide_options($defaultoptions->correctness));
+        $mform->addElement(
+            'select',
+            'correctness',
+            get_string('whethercorrect', 'question'),
+            $this->get_show_hide_options($defaultoptions->correctness)
+        );
 
-        $mform->addElement('select', 'marks', get_string('marks', 'question'),
-                $this->get_marks_options($defaultoptions->marks));
+        $mform->addElement(
+            'select',
+            'marks',
+            get_string('marks', 'question'),
+            $this->get_marks_options($defaultoptions->marks)
+        );
 
         $options = array_merge(
-                ['' => get_string('defaultx', 'filter_embedquestion', $defaultoptions->markdp)],
-                \question_engine::get_dp_options());
-        $mform->addElement('select', 'markdp',
-                get_string('decimalplacesingrades', 'question'), $options);
+            ['' => get_string('defaultx', 'filter_embedquestion', $defaultoptions->markdp)],
+            \question_engine::get_dp_options()
+        );
+        $mform->addElement(
+            'select',
+            'markdp',
+            get_string('decimalplacesingrades', 'question'),
+            $options
+        );
 
-        $mform->addElement('select', 'feedback', get_string('specificfeedback', 'question'),
-                $this->get_show_hide_options($defaultoptions->feedback));
+        $mform->addElement(
+            'select',
+            'feedback',
+            get_string('specificfeedback', 'question'),
+            $this->get_show_hide_options($defaultoptions->feedback)
+        );
 
-        $mform->addElement('select', 'generalfeedback', get_string('generalfeedback', 'question'),
-                $this->get_show_hide_options($defaultoptions->generalfeedback));
+        $mform->addElement(
+            'select',
+            'generalfeedback',
+            get_string('generalfeedback', 'question'),
+            $this->get_show_hide_options($defaultoptions->generalfeedback)
+        );
 
-        $mform->addElement('select', 'rightanswer', get_string('rightanswer', 'question'),
-                $this->get_show_hide_options($defaultoptions->rightanswer));
+        $mform->addElement(
+            'select',
+            'rightanswer',
+            get_string('rightanswer', 'question'),
+            $this->get_show_hide_options($defaultoptions->rightanswer)
+        );
 
-        $mform->addElement('select', 'history', get_string('responsehistory', 'question'),
-                $this->get_show_hide_options($defaultoptions->history));
+        $mform->addElement(
+            'select',
+            'history',
+            get_string('responsehistory', 'question'),
+            $this->get_show_hide_options($defaultoptions->history)
+        );
 
         $languages = utils::get_installed_language_choices();
         if ($languages) {
-            $mform->addElement('select', 'forcedlanguage', get_string('forcelanguage'), $languages);
+            $mform->addElement(
+                'select',
+                'forcedlanguage',
+                get_string('forcelanguage'),
+                $languages
+            );
         }
 
-        $this->add_action_buttons(false, get_string('embedquestion', 'filter_embedquestion'));
-        $mform->disabledIf('submitbutton', 'questionidnumber', 'eq', '');
+        $this->add_action_buttons(
+            false,
+            get_string('embedquestion', 'filter_embedquestion')
+        );
+        $mform->disabledIf(
+            'submitbutton',
+            'questionidnumber',
+            'eq',
+            ''
+        );
     }
 
     /**
@@ -221,7 +365,7 @@ class embed_options_form extends \moodleform {
             return;
         }
 
-        [$course,] = get_course_and_cm_from_cmid($qbankcmid);
+        [$course, ] = get_course_and_cm_from_cmid($qbankcmid);
         $qbanks = utils::get_shareable_question_banks($course->id, $this->get_user_retriction());
         $qbanksselectoptions = utils::create_select_qbank_choices($qbanks);
         $element = $mform->getElement('qbankcmid');
@@ -231,8 +375,10 @@ class embed_options_form extends \moodleform {
         $context = \context_module::instance($qbankcmid);
         $mform->setDefault('qbankcmid', $qbankcmid);
 
-        $categories = utils::get_categories_with_sharable_question_choices($context,
-            $this->get_user_retriction());
+        $categories = utils::get_categories_with_sharable_question_choices(
+            $context,
+            $this->get_user_retriction()
+        );
         $mform->getElement('categoryidnumber')->loadArray($categories);
         $category = utils::get_category_by_idnumber($context, $categoryidnumber);
         if ($category) {

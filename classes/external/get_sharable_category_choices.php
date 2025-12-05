@@ -38,9 +38,11 @@ class get_sharable_category_choices extends external_api {
      * @return external_function_parameters Parameters
      */
     public static function execute_parameters(): external_function_parameters {
-        return new external_function_parameters([
-            'cmid' => new external_value(PARAM_INT, 'Course module ID'),
-        ]);
+        return new external_function_parameters(
+            [
+                'cmid' => new external_value(PARAM_INT, 'Course module ID'),
+            ]
+        );
     }
 
     /**
@@ -50,10 +52,13 @@ class get_sharable_category_choices extends external_api {
      */
     public static function execute_returns(): external_description {
         return new external_multiple_structure(
-            new external_single_structure([
-                'value' => new external_value(PARAM_RAW, 'Choice value to return from the form.'),
-                'label' => new external_value(PARAM_RAW, 'Choice name, to display to users.'),
-            ]));
+            new external_single_structure(
+                [
+                    'value' => new external_value(PARAM_RAW, 'Choice value to return from the form.'),
+                    'label' => new external_value(PARAM_RAW, 'Choice name, to display to users.'),
+                ]
+            )
+        );
     }
 
     /**
@@ -66,15 +71,16 @@ class get_sharable_category_choices extends external_api {
     public static function execute(int $cmid): array {
         global $USER;
 
-        self::validate_parameters(self::execute_parameters(),
-            ['cmid' => $cmid]);
+        self::validate_parameters(
+            self::execute_parameters(),
+            ['cmid' => $cmid]
+        );
 
         $context = \context_module::instance($cmid);
         self::validate_context($context);
 
         if (has_capability('moodle/question:useall', $context)) {
             $userlimit = null;
-
         } else if (has_capability('moodle/question:usemine', $context)) {
             $userlimit = $USER->id;
         } else {

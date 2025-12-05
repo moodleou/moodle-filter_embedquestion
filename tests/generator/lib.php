@@ -28,23 +28,22 @@ use filter_embedquestion\utils;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
 class filter_embedquestion_generator extends component_generator_base {
-
     /**
      * @var core_question_generator convenient reference to the question generator.
      */
     protected $questiongenerator;
-
     /**
      * @var int used to generate unique ids.
      */
     protected static $uniqueid = 1;
-
     /**
      * Constructor.
      *
      * @param testing_data_generator $datagenerator The data generator.
      */
-    public function __construct(testing_data_generator $datagenerator) {
+    public function __construct(
+        testing_data_generator $datagenerator
+    ) {
         parent::__construct($datagenerator);
         $this->questiongenerator = $this->datagenerator->get_plugin_generator('core_question');
     }
@@ -64,8 +63,12 @@ class filter_embedquestion_generator extends component_generator_base {
      * @param array $categoryrecord as for {@see core_question_generator::create_question_category()}.
      * @return stdClass the data for the newly created question.
      */
-    public function create_embeddable_question(string $qtype, string|null $which = null,
-            array|null $overrides = null, array $categoryrecord = []): stdClass {
+    public function create_embeddable_question(
+        string $qtype,
+        string|null $which = null,
+        array|null $overrides = null,
+        array $categoryrecord = []
+    ): stdClass {
 
         // Create the category, if one is not specified.
         if (!isset($overrides['category'])) {
@@ -163,9 +166,15 @@ class filter_embedquestion_generator extends component_generator_base {
      * @param bool $isfinish Finish the attempt or not.
      * @return attempt the newly generated attempt.
      */
-    public function create_attempt_at_embedded_question(stdClass $question,
-            stdClass $user, string $response, context|null $attemptcontext = null, $pagename = null, $slot = 1,
-            $isfinish = true): attempt {
+    public function create_attempt_at_embedded_question(
+        stdClass $question,
+        stdClass $user,
+        string $response,
+        context|null $attemptcontext = null,
+        $pagename = null,
+        $slot = 1,
+        $isfinish = true
+    ): attempt {
         global $USER, $CFG;
 
         [$embedid, $qbankcontext] = $this->get_embed_id_and_context($question);
@@ -215,8 +224,11 @@ class filter_embedquestion_generator extends component_generator_base {
             } else if ($question->qtype == 'essay') {
                 $postdata = $this->get_simulated_post_data_for_essay_qtype($attempt->get_question_usage(), $slot, $response);
             } else {
-                $postdata = $this->questiongenerator->get_simulated_post_data_for_questions_in_usage($attempt->get_question_usage(),
-                        [$slot => $response], true);
+                $postdata = $this->questiongenerator->get_simulated_post_data_for_questions_in_usage(
+                    $attempt->get_question_usage(),
+                    [$slot => $response],
+                    true
+                );
             }
             // Only submit the attempt if needed.
             $attempt->process_submitted_actions($postdata);
@@ -233,7 +245,9 @@ class filter_embedquestion_generator extends component_generator_base {
      *
      * @param attempt $attempt the attempt to check.
      */
-    protected function verify_attempt_valid(attempt $attempt): void {
+    protected function verify_attempt_valid(
+        attempt $attempt
+    ): void {
         if (!$attempt->is_valid()) {
             throw new coding_exception($attempt->get_problem_description());
         }
@@ -247,7 +261,11 @@ class filter_embedquestion_generator extends component_generator_base {
      * @param array $data Data to process
      * @return array
      */
-    protected function process_response_data_to_post(question_usage_by_activity $quba, int $slot, array $data): array {
+    protected function process_response_data_to_post(
+        question_usage_by_activity $quba,
+        int $slot,
+        array $data
+    ): array {
         $prefix = $quba->get_field_prefix($slot);
 
         $fulldata = [
@@ -270,7 +288,12 @@ class filter_embedquestion_generator extends component_generator_base {
      * @param string $filename Filename.
      * @param string $contents File contents.
      */
-    protected function save_file_to_draft_area(int $usercontextid, int $draftitemid, string $filename, string $contents): void {
+    protected function save_file_to_draft_area(
+        int $usercontextid,
+        int $draftitemid,
+        string $filename,
+        string $contents
+    ): void {
         $fs = get_file_storage();
 
         $filerecord = new stdClass();
@@ -293,8 +316,11 @@ class filter_embedquestion_generator extends component_generator_base {
      * @param string $response Response data.
      * @return array
      */
-    protected function get_simulated_post_data_for_essay_qtype(question_usage_by_activity $quba, int $slot,
-            string $response): array {
+    protected function get_simulated_post_data_for_essay_qtype(
+        question_usage_by_activity $quba,
+        int $slot,
+        string $response
+    ): array {
         global $USER, $PAGE;
 
         // Required to init a text editor.
@@ -334,11 +360,20 @@ class filter_embedquestion_generator extends component_generator_base {
      * @param int $slot Slot
      * @return array
      */
-    protected function get_simulated_post_data_for_recordrtc_qtype(question_usage_by_activity $quba, int $slot): array {
+    protected function get_simulated_post_data_for_recordrtc_qtype(
+        question_usage_by_activity $quba,
+        int $slot
+    ): array {
         $currentoutput = $quba->render_question($slot, new question_display_options());
 
-        if (!preg_match('/name="' . preg_quote($quba->get_question_attempt($slot)->get_qt_field_name('recording')) .
-                '" value="(\d+)"/', $currentoutput, $matches)) {
+        if (
+            !preg_match(
+                '/name="' . preg_quote($quba->get_question_attempt($slot)->get_qt_field_name('recording')) .
+                '" value="(\d+)"/',
+                $currentoutput,
+                $matches
+            )
+        ) {
             throw new coding_exception('Draft item id not found.');
         }
         $userresponse = [

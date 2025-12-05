@@ -24,22 +24,18 @@ namespace filter_embedquestion;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class embed_location {
-
     /**
      * @var \context the context in which ths question is being shown.
      */
     public $context;
-
     /**
      * @var \moodle_url URL of the page where the question was shown.
      */
     public $pageurl;
-
     /**
      * @var string the name of the page where the question was shown, for information.
      */
     public $pagetitle;
-
     /**
      * Private constructor. Use one of the make methods to get an instance.
      *
@@ -49,11 +45,9 @@ class embed_location {
      */
     private function __construct(\context $context, \moodle_url $pageurl, string $pagetitle) {
         $this->context = $context;
-
         if (CLI_SCRIPT && empty($pageurl->out())) {
             $pageurl = new \moodle_url('/');
         }
-
         $this->pageurl = $pageurl;
         $this->pagetitle = $pagetitle;
     }
@@ -83,9 +77,10 @@ class embed_location {
      */
     public static function make_from_url_params(): embed_location {
         return new self(
-                \context::instance_by_id(required_param('contextid', PARAM_INT)),
-                new \moodle_url(required_param('pageurl', PARAM_LOCALURL)),
-                required_param('pagetitle', PARAM_TEXT));
+            \context::instance_by_id(required_param('contextid', PARAM_INT)),
+            new \moodle_url(required_param('pageurl', PARAM_LOCALURL)),
+            required_param('pagetitle', PARAM_TEXT)
+        );
     }
 
     /**
@@ -119,7 +114,13 @@ class embed_location {
      * @return string context name.
      */
     public function context_name_for_errors(): string {
-        return \context_course::instance(
-                utils::get_relevant_courseid($this->context))->get_context_name(false, true);
+        return get_string(
+            'contextname',
+            'filter_embedquestion',
+            [
+                'contextid' => $this->context->id,
+                'contextlevel' => $this->context->contextlevel,
+            ]
+        );
     }
 }

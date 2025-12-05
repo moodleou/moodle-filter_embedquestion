@@ -30,7 +30,7 @@ use filter_embedquestion\attempt_storage;
  *
  * @category files
  * @param stdClass $givencourse course settings object
- * @param stdClass $context context object
+ * @param stdClass $filecontext context object
  * @param string $component the name of the component we are serving files for.
  * @param string $filearea the name of the file area.
  * @param int $qubaid the question_usage this image belongs to.
@@ -39,9 +39,17 @@ use filter_embedquestion\attempt_storage;
  * @param bool $forcedownload whether the user must be forced to download the file.
  * @param array $fileoptions additional options affecting the file serving
  */
-function filter_embedquestion_question_pluginfile($givencourse, $filecontext, $component,
-        $filearea, $qubaid, $slot, $args, $forcedownload, $fileoptions) {
-
+function filter_embedquestion_question_pluginfile(
+    $givencourse,
+    $filecontext,
+    $component,
+    $filearea,
+    $qubaid,
+    $slot,
+    $args,
+    $forcedownload,
+    $fileoptions
+) {
     $quba = question_engine::load_questions_usage_by_activity($qubaid);
     [$renderingcontext, $course, $cm] = get_context_info_array($quba->get_owning_context()->id);
     require_login($course, false, $cm);
@@ -55,8 +63,16 @@ function filter_embedquestion_question_pluginfile($givencourse, $filecontext, $c
     $options->rightanswer = question_display_options::VISIBLE;
     $options->manualcomment = question_display_options::VISIBLE;
     $options->history = question_display_options::VISIBLE;
-    if (!$quba->check_file_access($slot, $options, $component,
-        $filearea, $args, $forcedownload)) {
+    if (
+        !$quba->check_file_access(
+            $slot,
+            $options,
+            $component,
+            $filearea,
+            $args,
+            $forcedownload
+        )
+    ) {
         send_file_not_found();
     }
 

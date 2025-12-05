@@ -176,8 +176,12 @@ class question_options extends \question_display_options {
      */
     public static function get_embed_from_form_options(\stdClass $fromform): string {
 
-        $embedid = new embed_id($fromform->categoryidnumber, $fromform->questionidnumber,
-            $fromform->questionbankidnumber ?? '', $fromform->courseshortname ?? '');
+        $embedid = new embed_id(
+            $fromform->categoryidnumber,
+            $fromform->questionidnumber,
+            $fromform->questionbankidnumber ?? '',
+            $fromform->courseshortname ?? '',
+        );
         $parts = [(string) $embedid];
         foreach (self::get_field_types() as $field => $type) {
             if (!isset($fromform->$field) || $fromform->$field === '') {

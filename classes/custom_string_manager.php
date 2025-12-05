@@ -26,7 +26,6 @@ namespace filter_embedquestion;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class custom_string_manager extends \core_string_manager_standard {
-
     /** @var string language to force. */
     protected $forcedlanguage;
 

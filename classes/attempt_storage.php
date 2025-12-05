@@ -28,7 +28,6 @@ namespace filter_embedquestion;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class attempt_storage {
-
     /**
      * Private constructor. Use {@see instance()} to get an instance.
      */
@@ -60,8 +59,11 @@ class attempt_storage {
      * @param \stdClass $user The user who is attempting the question (defaults to $USER).
      * @return array [question_usage, int slot number], or [null, 0] if not found.
      */
-    public function find_existing_attempt(embed_id $embedid, embed_location $embedlocation,
-            \stdClass $user): array {
+    public function find_existing_attempt(
+        embed_id $embedid,
+        embed_location $embedlocation,
+        \stdClass $user
+    ): array {
         return [null, 0];
     }
 
@@ -70,7 +72,9 @@ class attempt_storage {
      *
      * @param int $qubaid usage id for the attempt to update.
      */
-    public function update_timemodified(int $qubaid): void {
+    public function update_timemodified(
+        int $qubaid
+    ): void {
     }
 
     /**
@@ -84,10 +88,15 @@ class attempt_storage {
      * @param \stdClass $user the user who is attempting the question (defaults to $USER).
      * @return \question_usage_by_activity usage to use.
      */
-    public function make_new_usage(embed_id $embedid, embed_location $embedlocation,
-            \stdClass $user): \question_usage_by_activity {
+    public function make_new_usage(
+        embed_id $embedid,
+        embed_location $embedlocation,
+        \stdClass $user
+    ): \question_usage_by_activity {
         $quba = \question_engine::make_questions_usage_by_activity(
-                'filter_embedquestion', \context_user::instance($user->id));
+            'filter_embedquestion',
+            \context_user::instance($user->id)
+        );
         return $quba;
     }
 
@@ -102,8 +111,12 @@ class attempt_storage {
      * @param embed_location $embedlocation where the question(s) are being embedded.
      * @param \stdClass $user the user who is attempting the question (defaults to $USER).
      */
-    public function new_usage_saved(\question_usage_by_activity $quba,
-            embed_id $embedid, embed_location $embedlocation, \stdClass $user): void {
+    public function new_usage_saved(
+        \question_usage_by_activity $quba,
+        embed_id $embedid,
+        embed_location $embedlocation,
+        \stdClass $user
+    ): void {
     }
 
     /**
@@ -114,7 +127,10 @@ class attempt_storage {
      * @param \question_usage_by_activity $quba the usage to check.
      * @param \context $context the context we are in.
      */
-    public function verify_usage(\question_usage_by_activity $quba, \context $context): void {
+    public function verify_usage(
+        \question_usage_by_activity $quba,
+        \context $context
+    ): void {
         global $USER;
 
         if ($quba->get_owning_component() != 'filter_embedquestion') {
@@ -133,7 +149,9 @@ class attempt_storage {
      *
      * @param \question_usage_by_activity $quba
      */
-    public function delete_attempt(\question_usage_by_activity $quba) {
+    public function delete_attempt(
+        \question_usage_by_activity $quba
+    ) {
         // Do nothing here. Use by subclasses.
     }
 }

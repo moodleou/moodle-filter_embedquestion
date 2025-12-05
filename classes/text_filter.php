@@ -76,8 +76,11 @@ class text_filter extends \moodle_text_filter {
      * @return string the filtered text.
      */
     public function filter($text, array $options = []): string {
-        return preg_replace_callback(self::get_filter_regexp(),
-                [$this, 'embed_question_callback'], $text);
+        return preg_replace_callback(
+            self::get_filter_regexp(),
+            [$this, 'embed_question_callback'],
+            $text
+        );
     }
 
     /**
@@ -109,7 +112,7 @@ class text_filter extends \moodle_text_filter {
             return $this->display_error('noguests');
         }
 
-        list($embedid, $params) = self::parse_embed_code($embedcode);
+        [$embedid, $params] = self::parse_embed_code($embedcode);
         if ($embedid === null) {
             return $this->display_error('invalidtoken');
         }
@@ -136,8 +139,11 @@ class text_filter extends \moodle_text_filter {
      * @return string HTML for the error.
      */
     protected function display_error(string $string, array|null $a = null): string {
-        return $this->renderer->render(new error_message(
-                get_string($string, 'filter_embedquestion', $a)));
+        return $this->renderer->render(
+            new error_message(
+                get_string($string, 'filter_embedquestion', $a)
+            )
+        );
     }
 
     /**
@@ -185,7 +191,7 @@ class text_filter extends \moodle_text_filter {
             if (strpos($part, '=') === false) {
                 return null;
             }
-            list($name, $value) = explode('=', $part);
+            [$name, $value] = explode('=', $part);
             $params[$name] = $value;
         }
         return $params;

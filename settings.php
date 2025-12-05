@@ -39,62 +39,122 @@ if ($ADMIN->fulltree) {
     ];
 
     // Intro text.
-    $settings->add(new admin_setting_heading('filter_embedquestion/defaultinfo',
+    $settings->add(
+        new admin_setting_heading(
+            'filter_embedquestion/defaultinfo',
             get_string('defaultsheading', 'filter_embedquestion'),
-            get_string('defaultsheading_desc', 'filter_embedquestion')));
+            get_string('defaultsheading_desc', 'filter_embedquestion')
+        )
+    );
 
     // Behaviour.
-    $settings->add(new filter_embedquestion\admin\question_behaviour_setting(
-            'filter_embedquestion/behaviour', get_string('howquestionbehaves', 'filter_embedquestion'),
-            get_string('howquestionbehaves_desc', 'filter_embedquestion'), 'interactive', null));
+    $settings->add(
+        new filter_embedquestion\admin\question_behaviour_setting(
+            'filter_embedquestion/behaviour',
+            get_string('howquestionbehaves', 'filter_embedquestion'),
+            get_string('howquestionbehaves_desc', 'filter_embedquestion'),
+            'interactive',
+            null
+        )
+    );
 
     // Correctness.
-    $settings->add(new admin_setting_configselect('filter_embedquestion/correctness',
+    $settings->add(
+        new admin_setting_configselect(
+            'filter_embedquestion/correctness',
             get_string('whethercorrect', 'question'),
             get_string('whethercorrect_desc', 'filter_embedquestion'),
-            1, $hiddenorvisible));
+            1,
+            $hiddenorvisible
+        )
+    );
 
     // Show marks.
-    $settings->add(new admin_setting_configselect('filter_embedquestion/marks',
+    $settings->add(
+        new admin_setting_configselect(
+            'filter_embedquestion/marks',
             get_string('marks', 'question'),
-            get_string('marks_desc', 'filter_embedquestion'), 2, $marksoptions));
+            get_string('marks_desc', 'filter_embedquestion'),
+            2,
+            $marksoptions
+        )
+    );
 
     // Decimal places in grades.
-    $settings->add(new admin_setting_configselect('filter_embedquestion/markdp',
-            get_string('decimalplaces', 'quiz'), get_string('markdp_desc', 'filter_embedquestion'),
-            2, question_engine::get_dp_options()));
+    $settings->add(
+        new admin_setting_configselect(
+            'filter_embedquestion/markdp',
+            get_string('decimalplaces', 'quiz'),
+            get_string('markdp_desc', 'filter_embedquestion'),
+            2,
+            question_engine::get_dp_options()
+        )
+    );
 
     // Specific feedback.
-    $settings->add(new admin_setting_configselect('filter_embedquestion/feedback',
+    $settings->add(
+        new admin_setting_configselect(
+            'filter_embedquestion/feedback',
             get_string('specificfeedback', 'question'),
             get_string('specificfeedback_desc', 'filter_embedquestion'),
-            1, $hiddenorvisible));
+            1,
+            $hiddenorvisible
+        )
+    );
 
     // General feedback.
-    $settings->add(new admin_setting_configselect('filter_embedquestion/generalfeedback',
+    $settings->add(
+        new admin_setting_configselect(
+            'filter_embedquestion/generalfeedback',
             get_string('generalfeedback', 'question'),
             get_string('generalfeedback_desc', 'filter_embedquestion'),
-            1, $hiddenorvisible));
+            1,
+            $hiddenorvisible
+        )
+    );
 
     // Right answer.
-    $settings->add(new admin_setting_configselect('filter_embedquestion/rightanswer',
+    $settings->add(
+        new admin_setting_configselect(
+            'filter_embedquestion/rightanswer',
             get_string('rightanswer', 'question'),
             get_string('rightanswer_desc', 'filter_embedquestion'),
-            0, $hiddenorvisible));
+            0,
+            $hiddenorvisible
+        )
+    );
 
     // Response history.
-    $settings->add(new admin_setting_configselect('filter_embedquestion/history',
+    $settings->add(
+        new admin_setting_configselect(
+            'filter_embedquestion/history',
             get_string('responsehistory', 'question'),
             get_string('responsehistory_desc', 'filter_embedquestion'),
-            0, $hiddenorvisible));
+            0,
+            $hiddenorvisible
+        )
+    );
 
     // Security header.
-    $settings->add(new admin_setting_heading('filter_embedquestion/securityinfo',
-            get_string('securityheading', 'filter_embedquestion'), ''));
+    $settings->add(
+        new admin_setting_heading(
+            'filter_embedquestion/securityinfo',
+            get_string('securityheading', 'filter_embedquestion'),
+            ''
+        )
+    );
 
     // Authorized secrets.
-    $settings->add(new admin_setting_configtextarea('filter_embedquestion/authorizedsecrets',
+    $settings->add(
+        new admin_setting_configtextarea(
+            'filter_embedquestion/authorizedsecrets',
             get_string('authorizedsecrets', 'filter_embedquestion'),
-            get_string('authorizedsecrets_desc', 'filter_embedquestion',
-                    get_config('filter_embedquestion', 'secret')), ''));
+            get_string(
+                'authorizedsecrets_desc',
+                'filter_embedquestion',
+                get_config('filter_embedquestion', 'secret')
+            ),
+            ''
+        )
+    );
 }

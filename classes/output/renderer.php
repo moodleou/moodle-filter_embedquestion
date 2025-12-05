@@ -35,8 +35,10 @@ class renderer extends \plugin_renderer_base {
      * @return string HTML to output.
      */
     public function render_embed_iframe(embed_iframe $embediframe) {
-        return $this->render_from_template('filter_embedquestion/embed_iframe',
-                $embediframe->export_for_template($this));
+        return $this->render_from_template(
+            'filter_embedquestion/embed_iframe',
+            $embediframe->export_for_template($this)
+        );
     }
 
     /**
@@ -46,8 +48,10 @@ class renderer extends \plugin_renderer_base {
      * @return string HTML to output.
      */
     public function render_error_message(error_message $errormessage) {
-        return $this->render_from_template('filter_embedquestion/error_message',
-                $errormessage->export_for_template($this));
+        return $this->render_from_template(
+            'filter_embedquestion/error_message',
+            $errormessage->export_for_template($this)
+        );
     }
 
     /**
@@ -59,20 +63,20 @@ class renderer extends \plugin_renderer_base {
      * @param string $displaynumber how to display the question number.
      * @return string HTML to output.
      */
-    public function embedded_question(\question_usage_by_activity $quba, int $slot,
-            question_options $options, string $displaynumber): string {
-
+    public function embedded_question(
+        \question_usage_by_activity $quba,
+        int $slot,
+        question_options $options,
+        string $displaynumber
+    ): string {
         $this->page->requires->js_module('core_question_engine');
         $output = $quba->render_question($slot, $options, $displaynumber);
-
         if ($options->showquestionbank) {
             $output = $this->add_questionbank_link($quba, $slot, $output);
         }
-
         if ($options->fillwithcorrect) {
             $output = $this->add_fill_with_correct_link($output);
         }
-
         if (class_exists(report_embedquestion\attempt_summary_table::class)) {
             // We want to display the Previous attempts link only if there is at least one completed attempt.
             $hasattempts = false;
@@ -86,7 +90,6 @@ class renderer extends \plugin_renderer_base {
                 $output = $this->add_embedded_question_report_link($quba, $slot, $output);
             }
         }
-
         return $output;
     }
 
@@ -98,13 +101,21 @@ class renderer extends \plugin_renderer_base {
      * @param string $output Template string.
      * @return string Updated question rendering.
      */
-    protected function add_embedded_question_report_link(\question_usage_by_activity $quba, int $slot,
-            string $output): string {
-
+    protected function add_embedded_question_report_link(
+        \question_usage_by_activity $quba,
+        int $slot,
+        string $output
+    ): string {
         $reportlink = $this->render_embedded_question_report_link($quba, $slot);
         if (preg_match('~<div class="info">.*</div><div class="content">~', $output)) {
             // Insert the report link before the edit question div.
-            $output = preg_replace('~(<div class="editquestion">)~', $reportlink . '$1' , $output, 1, $count);
+            $output = preg_replace(
+                '~(<div class="editquestion">)~',
+                $reportlink . '$1',
+                $output,
+                1,
+                $count
+            );
             // If The editquestion div isn't exist, insert into the end of info section.
             if ($count === 0) {
                 $output = $this->insert_html_into_info_section($output, $reportlink);
@@ -113,7 +124,6 @@ class renderer extends \plugin_renderer_base {
             // Otherwise, just add at the end.
             $output .= $reportlink;
         }
-
         return $output;
     }
 
@@ -124,16 +134,20 @@ class renderer extends \plugin_renderer_base {
      * @param int $slot slot number of the question to display.
      * @return string Embedded question report link HTML string.
      */
-    public function render_embedded_question_report_link(\question_usage_by_activity $quba, int $slot): string {
+    public function render_embedded_question_report_link(
+        \question_usage_by_activity $quba,
+        int $slot
+    ): string {
         global $USER;
-
-        $displayoption = new \report_embedquestion\report_display_options($this->page->course->id, $this->page->cm);
+        $displayoption = new \report_embedquestion\report_display_options(
+            $this->page->course->id,
+            $this->page->cm,
+        );
         $url = $displayoption->get_url();
         $url->params([
             'userid' => $USER->id,
             'usageid' => $quba->get_question_attempt($slot)->get_usage_id(),
         ]);
-
         return \html_writer::div(
             \html_writer::link(
                 $url,
@@ -180,14 +194,15 @@ class renderer extends \plugin_renderer_base {
             \html_writer::tag(
                 'button',
                 $this->pix_icon('e/tick', '', 'moodle', ['class' => 'iconsmall']) .
-                        \html_writer::span(get_string('fillcorrect', 'mod_quiz')),
+                \html_writer::span(get_string('fillcorrect', 'mod_quiz')),
                 [
                     'type' => 'submit',
-                    'name' => 'fillwithcorrect', 'value' => 1,
+                    'name' => 'fillwithcorrect',
+                    'value' => 1,
                     'class' => 'btn btn-link',
-                ],
+                ]
             ),
-            'filter_embedquestion-fill-link',
+            'filter_embedquestion-fill-link'
         );
     }
 
@@ -198,14 +213,22 @@ class renderer extends \plugin_renderer_base {
      * @param int $slot Slot number of the question to display.
      * @return string Question bank HTML string.
      */
-    public function render_questionbank_link(\question_usage_by_activity $quba, int $slot): string {
+    public function render_questionbank_link(
+        \question_usage_by_activity $quba,
+        int $slot
+    ): string {
         $question = $quba->get_question_attempt($slot)->get_question(false);
-
-        return \html_writer::tag('div',
+        return \html_writer::tag(
+            'div',
             \html_writer::link(
                 utils::get_question_bank_url($question),
-                $this->pix_icon('qbank', '', 'filter_embedquestion',
-                    ['class' => 'iconsmall']) . get_string('questionbank', 'filter_embedquestion'),
+                $this->pix_icon(
+                    'qbank',
+                    '',
+                    'filter_embedquestion',
+                    ['class' => 'iconsmall'],
+                )
+                . get_string('questionbank', 'filter_embedquestion'),
                 ['target' => '_top']
             ),
             ['class' => 'filter_embedquestion-viewquestionbank']
@@ -224,8 +247,12 @@ class renderer extends \plugin_renderer_base {
     protected function insert_html_into_info_section(string $template, string $childtemplate): string {
         // If we can, insert at the end of the info section.
         if (preg_match('~<div class="info">.*</div><div class="content">~', $template)) {
-            $template = preg_replace('~(<div class="info">.*)(</div><div class="content">)~',
-                '$1' . $childtemplate . '$2', $template, 1);
+            $template = preg_replace(
+                '~(<div class="info">.*)(</div><div class="content">)~',
+                '$1' . $childtemplate . '$2',
+                $template,
+                1,
+            );
         } else {
             // Otherwise, just add at the end.
             $template .= $childtemplate;

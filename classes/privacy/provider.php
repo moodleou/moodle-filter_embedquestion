@@ -25,7 +25,8 @@ use core_privacy\local\request\writer;
  * @copyright  2018 The Open Univesity
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider implements \core_privacy\local\metadata\provider,
+class provider implements
+    \core_privacy\local\metadata\provider,
     \core_privacy\local\request\user_preference_provider {
     #[\Override]
     public static function get_metadata(collection $collection): collection {
