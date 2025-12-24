@@ -57,8 +57,12 @@ class embed_id {
      * @param null|string $questionbankidnumber the question bank idnumber, optional.
      * @param null|string $courseshortname the course shortname, optional.
      */
-    public function __construct(string $categoryidnumber, string $questionidnumber,
-            ?string $questionbankidnumber = null, ?string $courseshortname = null) {
+    public function __construct(
+        string $categoryidnumber,
+        string $questionidnumber,
+        ?string $questionbankidnumber = null,
+        ?string $courseshortname = null
+    ) {
         $this->categoryidnumber = $categoryidnumber;
         $this->questionidnumber = $questionidnumber;
         $this->questionbankidnumber = $questionbankidnumber;
@@ -80,10 +84,28 @@ class embed_id {
         $parts = array_pad($parts, -4, '');
         // Assign in order: courseshortname, qbankid, categoryid, questionid.
         [$courseshortname, $questionbankidnumber, $categoryidnumber, $questionidnumber] = $parts;
-        return new embed_id(str_replace(self::ESCAPED, self::TO_ESCAPE, $categoryidnumber),
-                str_replace(self::ESCAPED, self::TO_ESCAPE, $questionidnumber),
-                str_replace(self::ESCAPED, self::TO_ESCAPE, $questionbankidnumber),
-                str_replace(self::ESCAPED, self::TO_ESCAPE, $courseshortname));
+        return new embed_id(
+            str_replace(
+                self::ESCAPED,
+                self::TO_ESCAPE,
+                $categoryidnumber
+            ),
+            str_replace(
+                self::ESCAPED,
+                self::TO_ESCAPE,
+                $questionidnumber
+            ),
+            str_replace(
+                self::ESCAPED,
+                self::TO_ESCAPE,
+                $questionbankidnumber
+            ),
+            str_replace(
+                self::ESCAPED,
+                self::TO_ESCAPE,
+                $courseshortname
+            )
+        );
     }
 
     /**

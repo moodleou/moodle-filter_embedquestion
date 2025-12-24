@@ -27,7 +27,6 @@ namespace filter_embedquestion;
  * @covers    \filter_embedquestion
  */
 final class filter_test extends \advanced_testcase {
-
     public function setUp(): void {
         parent::setUp();
         utils::unit_test_reset();
@@ -139,12 +138,10 @@ final class filter_test extends \advanced_testcase {
 
         if (is_string($expectedoutput)) {
             $this->assertSame($expectedoutput, $actualoutput);
-
         } else if (is_array($expectedoutput)) {
             foreach ($expectedoutput as $expectedpart) {
                 $this->assertStringContainsString($expectedpart, $actualoutput);
             }
-
         } else {
             throw new \coding_exception('Unexpected expected output type.');
         }

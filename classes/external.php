@@ -38,8 +38,8 @@ class external extends \external_api {
      */
     public static function get_sharable_question_choices_parameters(): \external_function_parameters {
         return new \external_function_parameters([
-                'cmid' => new \external_value(PARAM_INT, 'Course module ID'),
-                'categoryidnumber' => new \external_value(PARAM_RAW, 'Idnumber of the question category.'),
+            'cmid' => new \external_value(PARAM_INT, 'Course module ID'),
+            'categoryidnumber' => new \external_value(PARAM_RAW, 'Idnumber of the question category.'),
         ]);
     }
 
@@ -51,9 +51,10 @@ class external extends \external_api {
     public static function get_sharable_question_choices_returns(): \external_description {
         return new \external_multiple_structure(
             new \external_single_structure([
-                    'value' => new \external_value(PARAM_RAW, 'Choice value to return from the form.'),
-                    'label' => new \external_value(PARAM_RAW, 'Choice name, to display to users.'),
-            ]));
+                'value' => new \external_value(PARAM_RAW, 'Choice value to return from the form.'),
+                'label' => new \external_value(PARAM_RAW, 'Choice name, to display to users.'),
+            ])
+        );
     }
 
     /**
@@ -76,15 +77,16 @@ class external extends \external_api {
     public static function get_sharable_question_choices(int $cmid, string $categoryidnumber): array {
         global $USER;
 
-        self::validate_parameters(self::get_sharable_question_choices_parameters(),
-                ['cmid' => $cmid, 'categoryidnumber' => $categoryidnumber]);
+        self::validate_parameters(
+            self::get_sharable_question_choices_parameters(),
+            ['cmid' => $cmid, 'categoryidnumber' => $categoryidnumber]
+        );
 
         $context = \context_module::instance($cmid);
         self::validate_context($context);
 
         if (has_capability('moodle/question:useall', $context)) {
             $userlimit = null;
-
         } else if (has_capability('moodle/question:usemine', $context)) {
             $userlimit = $USER->id;
         } else {
@@ -113,36 +115,66 @@ class external extends \external_api {
         // We can't use things like PARAM_INT for things like variant, because it is
         // and int of '' for not set.
         return new \external_function_parameters([
-                'cmid' => new \external_value(PARAM_INT,
-                        'Course module id of the question bank.'),
-                'categoryidnumber' => new \external_value(PARAM_RAW,
-                        'Id number of the question category.'),
-                'questionidnumber' => new \external_value(PARAM_RAW,
-                        'Id number of the question.'),
-                'iframedescription' => new \external_value(PARAM_TEXT,
-                        'Iframe description.'),
-                'behaviour' => new \external_value(PARAM_RAW,
-                        'Question behaviour.'),
-                'maxmark' => new \external_value(PARAM_RAW_TRIMMED,
-                        'Question maximum mark (float or "").'),
-                'variant' => new \external_value(PARAM_RAW_TRIMMED,
-                        'Question variant (int or "").'),
-                'correctness' => new \external_value(PARAM_RAW_TRIMMED,
-                        'Whether to show question correctness (1/0/"") for show, hide or default.'),
-                'marks' => new \external_value(PARAM_RAW_TRIMMED,
-                        'Wheter to show mark information (0/1/2/"") for hide, show max only, show mark and max or default.'),
-                'markdp' => new \external_value(PARAM_RAW_TRIMMED,
-                        'Decimal places to use when outputting grades.'),
-                'feedback' => new \external_value(PARAM_RAW_TRIMMED,
-                        'Whether to show specific feedback (1/0/"") for show, hide or default.'),
-                'generalfeedback' => new \external_value(PARAM_RAW_TRIMMED,
-                        'Whether to show general feedback (1/0/"") for show, hide or default.'),
-                'rightanswer' => new \external_value(PARAM_RAW_TRIMMED,
-                        'Whether to show the automatically generated right answer display (1/0/"") for show, hide or default.'),
-                'history' => new \external_value(PARAM_RAW_TRIMMED,
-                        'Whether to show the response history (1/0/"") for show, hide or default.'),
-                'forcedlanguage' => new \external_value(PARAM_LANG,
-                        'Whether to force the UI language of the question. Lang code or empty string.'),
+            'cmid' => new \external_value(
+                PARAM_INT,
+                'Course module id of the question bank.'
+            ),
+            'categoryidnumber' => new \external_value(
+                PARAM_RAW,
+                'Id number of the question category.'
+            ),
+            'questionidnumber' => new \external_value(
+                PARAM_RAW,
+                'Id number of the question.'
+            ),
+            'iframedescription' => new \external_value(
+                PARAM_TEXT,
+                'Iframe description.'
+            ),
+            'behaviour' => new \external_value(
+                PARAM_RAW,
+                'Question behaviour.'
+            ),
+            'maxmark' => new \external_value(
+                PARAM_RAW_TRIMMED,
+                'Question maximum mark (float or "").'
+            ),
+            'variant' => new \external_value(
+                PARAM_RAW_TRIMMED,
+                'Question variant (int or "").'
+            ),
+            'correctness' => new \external_value(
+                PARAM_RAW_TRIMMED,
+                'Whether to show question correctness (1/0/"") for show, hide or default.'
+            ),
+            'marks' => new \external_value(
+                PARAM_RAW_TRIMMED,
+                'Wheter to show mark information (0/1/2/"") for hide, show max only, show mark and max or default.'
+            ),
+            'markdp' => new \external_value(
+                PARAM_RAW_TRIMMED,
+                'Decimal places to use when outputting grades.'
+            ),
+            'feedback' => new \external_value(
+                PARAM_RAW_TRIMMED,
+                'Whether to show specific feedback (1/0/"") for show, hide or default.'
+            ),
+            'generalfeedback' => new \external_value(
+                PARAM_RAW_TRIMMED,
+                'Whether to show general feedback (1/0/"") for show, hide or default.'
+            ),
+            'rightanswer' => new \external_value(
+                PARAM_RAW_TRIMMED,
+                'Whether to show the automatically generated right answer display (1/0/"") for show, hide or default.'
+            ),
+            'history' => new \external_value(
+                PARAM_RAW_TRIMMED,
+                'Whether to show the response history (1/0/"") for show, hide or default.'
+            ),
+            'forcedlanguage' => new \external_value(
+                PARAM_LANG,
+                'Whether to force the UI language of the question. Lang code or empty string.'
+            ),
         ]);
     }
 
@@ -152,7 +184,10 @@ class external extends \external_api {
      * @return \external_description Result type
      */
     public static function get_embed_code_returns(): \external_description {
-        return new \external_value(PARAM_RAW, 'Embed code to show this question with those options.');
+        return new \external_value(
+            PARAM_RAW,
+            'Embed code to show this question with those options.'
+        );
     }
 
     /**
@@ -186,10 +221,23 @@ class external extends \external_api {
      *
      * @return string the embed code.
      */
-    public static function get_embed_code(int $cmid, string $categoryidnumber, string $questionidnumber,
-            string $iframedescription, string $behaviour, string $maxmark, string $variant, string $correctness,
-            string $marks, string $markdp, string $feedback, string $generalfeedback, string $rightanswer, string $history,
-            string $forcedlanguage): string {
+    public static function get_embed_code(
+        int $cmid,
+        string $categoryidnumber,
+        string $questionidnumber,
+        string $iframedescription,
+        string $behaviour,
+        string $maxmark,
+        string $variant,
+        string $correctness,
+        string $marks,
+        string $markdp,
+        string $feedback,
+        string $generalfeedback,
+        string $rightanswer,
+        string $history,
+        string $forcedlanguage
+    ): string {
         global $CFG;
 
         self::validate_parameters(
@@ -254,11 +302,15 @@ class external extends \external_api {
 
         // Log this.
         if ($questionidnumber === '*') {
-            \filter_embedquestion\event\category_token_created::create(
-                    ['context' => $context, 'objectid' => $category->id])->trigger();
+            \filter_embedquestion\event\category_token_created::create([
+                'context' => $context,
+                'objectid' => $category->id,
+            ])->trigger();
         } else {
-            \filter_embedquestion\event\token_created::create(
-                    ['context' => $context, 'objectid' => $question->id])->trigger();
+            \filter_embedquestion\event\token_created::create([
+                'context' => $context,
+                'objectid' => $question->id,
+            ])->trigger();
         }
         return question_options::get_embed_from_form_options($fromform);
     }

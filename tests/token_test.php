@@ -25,7 +25,6 @@ namespace filter_embedquestion;
  * @covers    \filter_embedquestion\token
  */
 final class token_test extends \advanced_testcase {
-
     public function test_is_authorized_secret_token(): void {
         $this->resetAfterTest();
 

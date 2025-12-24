@@ -36,7 +36,7 @@ use filter_embedquestion\utils;
 
 // Check login.
 $contextid = required_param('contextid', PARAM_INT);
-list($context, $course, $cm) = get_context_info_array($contextid);
+[$context, $course, $cm] = get_context_info_array($contextid);
 require_login($course, false, $cm);
 $PAGE->set_pagelayout('embedded');
 $PAGE->requires->js_call_amd('filter_embedquestion/question', 'init');
@@ -83,13 +83,11 @@ try {
         $attempt->find_or_create_attempt();
     }
     utils::report_if_error($attempt, $context);
-
 } catch (Exception $e) {
     // They have already seen the error once (see below), and clicked the restart button.
     if (optional_param('forcerestart', false, PARAM_BOOL)) {
         $attempt->discard_broken_attempt();
         redirect($PAGE->url);
-
     } else {
         // First time error happened, show a nice message, with a button to get out of the mess.
         $nexturl = new moodle_url($PAGE->url, ['forcerestart' => '1']);
@@ -100,8 +98,13 @@ try {
             $message = 'corruptattempt';
             $a = null;
         }
-
-        throw new moodle_exception($message, 'filter_embedquestion', $nexturl, $a, $e);
+        throw new moodle_exception(
+            $message,
+            'filter_embedquestion',
+            $nexturl,
+            $a,
+            $e
+        );
     }
 }
 
@@ -118,7 +121,6 @@ if (data_submitted() && confirm_sesskey()) {
         if (optional_param('restart', false, PARAM_BOOL)) {
             $attempt->start_new_attempt_at_question();
             redirect($attempt->get_action_url());
-
         } else if (optional_param('fillwithcorrect', false, PARAM_BOOL)) {
             $quba = $attempt->get_question_usage();
             question_require_capability_on($quba->get_question($attempt->get_slot()), 'use');
@@ -135,11 +137,12 @@ if (data_submitted() && confirm_sesskey()) {
             $attempt->process_submitted_actions();
             redirect($attempt->get_action_url(true));
         }
-
     } catch (question_out_of_sequence_exception $e) {
-        throw new moodle_exception('submissionoutofsequencefriendlymessage', 'question',
-                $attempt->get_action_url());
-
+        throw new moodle_exception(
+            'submissionoutofsequencefriendlymessage',
+            'question',
+            $attempt->get_action_url()
+        );
     } catch (Exception $e) {
         // This sucks, if we display our own custom error message, there is no way
         // to display the original stack trace.
@@ -147,8 +150,13 @@ if (data_submitted() && confirm_sesskey()) {
         if (!empty($e->debuginfo)) {
             $debuginfo = $e->debuginfo;
         }
-        throw new moodle_exception('errorprocessingresponses', 'question',
-                $attempt->get_action_url(), $e->getMessage(), $debuginfo);
+        throw new moodle_exception(
+            'errorprocessingresponses',
+            'question',
+            $attempt->get_action_url(),
+            $e->getMessage(),
+            $debuginfo
+        );
     }
 }
 

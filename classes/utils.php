@@ -28,7 +28,6 @@ use core_question\local\bank\question_version_status;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class utils {
-
     /**
      * Are we running in a Moodle version with question versionning.
      *
@@ -127,8 +126,11 @@ class utils {
      * @param question_options $options the options for how it is displayed.
      * @return \moodle_url the URL to access the question.
      */
-    public static function get_show_url(embed_id $embedid, embed_location $embedlocation,
-            question_options $options): \moodle_url {
+    public static function get_show_url(
+        embed_id $embedid,
+        embed_location $embedlocation,
+        question_options $options
+    ): \moodle_url {
         $url = new \moodle_url('/filter/embedquestion/showquestion.php');
         $embedid->add_params_to_url($url);
         $embedlocation->add_params_to_url($url);
@@ -147,7 +149,11 @@ class utils {
      *                  If there are multiple question banks in the course, and no idnumber is given, return -1 only if there is no
      *                  question bank with no idnumber created by system.
      */
-    public static function get_qbank_by_idnumber(int $courseid, ?string $qbankidnumber = null, ?int $userid = null): ?int {
+    public static function get_qbank_by_idnumber(
+        int $courseid,
+        ?string $qbankidnumber = null,
+        ?int $userid = null
+    ): ?int {
         $qbanks = self::get_shareable_question_banks($courseid, $userid, $qbankidnumber);
         if (empty($qbanks)) {
             return null;
@@ -156,7 +162,7 @@ class utils {
         } else {
             if (!$qbankidnumber || $qbankidnumber === '*') {
                 // Multiple qbanks in this course.
-                $qbankswithoutidnumber = array_filter($qbanks, function($qbank) {
+                $qbankswithoutidnumber = array_filter($qbanks, function ($qbank) {
                     return empty($qbank->qbankidnumber);
                 });
                 if (count($qbankswithoutidnumber) === 1) {
@@ -190,9 +196,11 @@ class utils {
     public static function get_category_by_idnumber(\context $context, string $idnumber): ?\stdClass {
         global $DB;
 
-        $category = $DB->get_record_select('question_categories',
-                'contextid = ? AND idnumber = ?',
-                [$context->id, $idnumber]) ?? null;
+        $category = $DB->get_record_select(
+            'question_categories',
+            'contextid = ? AND idnumber = ?',
+            [$context->id, $idnumber]
+        ) ?? null;
         if (!$category) {
             return null;
         }
@@ -209,8 +217,11 @@ class utils {
      * @param string|null $qbankidnumber if set, only count question banks with this idnumber.
      * @return array course module id => object with fields cmid, qbankidnumber, courseid, qbankid.
      */
-    public static function get_shareable_question_banks(int $courseid,
-            ?int $userid = null, ?string $qbankidnumber = null): array {
+    public static function get_shareable_question_banks(
+        int $courseid,
+        ?int $userid = null,
+        ?string $qbankidnumber = null
+    ): array {
         global $DB;
         $params = [
             'modulename' => 'qbank',
@@ -273,8 +284,11 @@ class utils {
         $choices = ['' => get_string('choosedots')];
         foreach ($qbanks as $cmid => $qbank) {
             if ($qbank->qbankidnumber) {
-                $choices[$cmid] = get_string('nameandidnumber', 'filter_embedquestion',
-                        ['name' => format_string($qbank->name), 'idnumber' => s($qbank->qbankidnumber)]);
+                $choices[$cmid] = get_string(
+                    'nameandidnumber',
+                    'filter_embedquestion',
+                    ['name' => format_string($qbank->name), 'idnumber' => s($qbank->qbankidnumber)]
+                );
             } else {
                 $choices[$cmid] = format_string($qbank->name);
             }
@@ -289,24 +303,27 @@ class utils {
      * @param string $idnumber the idnumber to look for.
      * @return \stdClass|null row from the question table, or false if none.
      */
-    public static function get_question_by_idnumber(int $categoryid, string $idnumber): ?\stdClass {
+    public static function get_question_by_idnumber(
+        int $categoryid,
+        string $idnumber
+    ): ?\stdClass {
         global $DB;
-
-        $question = $DB->get_record_sql('
-            SELECT q.*, qbe.idnumber, qbe.questioncategoryid AS category,
-                   qv.id AS versionid, qv.version, qv.questionbankentryid
-              FROM {question_bank_entries} qbe
-              JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id AND qv.version = (
+        $question = $DB->get_record_sql(
+            'SELECT q.*, qbe.idnumber, qbe.questioncategoryid AS category,
+                    qv.id AS versionid, qv.version, qv.questionbankentryid
+               FROM {question_bank_entries} qbe
+               JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id AND qv.version = (
                               SELECT MAX(version)
                                 FROM {question_versions}
                                WHERE questionbankentryid = qbe.id AND status = :ready
                           )
-              JOIN {question} q ON q.id = qv.questionid
-             WHERE qbe.questioncategoryid = :category AND qbe.idnumber = :idnumber',
+               JOIN {question} q ON q.id = qv.questionid
+              WHERE qbe.questioncategoryid = :category AND qbe.idnumber = :idnumber',
             [
                 'ready' => question_version_status::QUESTION_STATUS_READY,
-                'category' => $categoryid, 'idnumber' => $idnumber,
-            ],
+                'category' => $categoryid,
+                'idnumber' => $idnumber,
+            ]
         );
         if (!$question) {
             return null;
@@ -351,8 +368,10 @@ class utils {
      * @param int|null $userid (optional) if set, only count questions created by this user.
      * @return array category idnumber => Category name (question count).
      */
-    public static function get_categories_with_sharable_question_choices(\context $context,
-            int|null $userid = null): array {
+    public static function get_categories_with_sharable_question_choices(
+        \context $context,
+        int|null $userid = null
+    ): array {
         global $DB;
         $params = [];
         $creatortest = '';
@@ -387,8 +406,15 @@ class utils {
 
         $choices = ['' => get_string('choosedots')];
         foreach ($categories as $category) {
-            $choices[$category->idnumber] = get_string('nameidnumberandcount', 'filter_embedquestion',
-                    ['name' => format_string($category->name), 'idnumber' => s($category->idnumber), 'count' => $category->count]);
+            $choices[$category->idnumber] = get_string(
+                'nameidnumberandcount',
+                'filter_embedquestion',
+                [
+                    'name' => format_string($category->name),
+                    'idnumber' => s($category->idnumber),
+                    'count' => $category->count,
+                ]
+            );
         }
         return $choices;
     }
@@ -446,15 +472,22 @@ class utils {
      * @param int|null $userid (optional) if set, only count questions created by this user.
      * @return array question idnumber => question name.
      */
-    public static function get_sharable_question_choices(int $categoryid, int|null $userid = null): array {
+    public static function get_sharable_question_choices(
+        int $categoryid,
+        int|null $userid = null
+    ): array {
         $questions = self::get_sharable_question_ids($categoryid, $userid);
-
         $choices = ['' => get_string('choosedots')];
         foreach ($questions as $question) {
-            $choices[$question->idnumber] = get_string('nameandidnumber', 'filter_embedquestion',
-                    ['name' => format_string($question->name), 'idnumber' => s($question->idnumber)]);
+            $choices[$question->idnumber] = get_string(
+                'nameandidnumber',
+                'filter_embedquestion',
+                [
+                    'name' => format_string($question->name),
+                    'idnumber' => s($question->idnumber),
+                ]
+            );
         }
-
         // When we are not restricting by user, and there are at least 2 questions in the category,
         // allow random choice. > 2 because of the 'Choose ...' option.
         if (!$userid && count($choices) > 2) {
@@ -534,11 +567,11 @@ class utils {
                 ", [$question->questionbankentryid, $question->questionbankentryid]);
 
         return new \moodle_url('/question/edit.php', [
-                'cmid' => $context->instanceid,
-                'cat' => $question->category . ',' . $question->contextid,
-                'qperpage' => MAXIMUM_QUESTIONS_PER_PAGE,
-                'lastchanged' => $latestquestionid,
-            ]);
+            'cmid' => $context->instanceid,
+            'cat' => $question->category . ',' . $question->contextid,
+            'qperpage' => MAXIMUM_QUESTIONS_PER_PAGE,
+            'lastchanged' => $latestquestionid,
+        ]);
     }
 
     /**
@@ -578,20 +611,16 @@ class utils {
      */
     public static function moodle_version_is(string $operator, string $version): bool {
         global $CFG;
-
         if (strlen($version) == 2) {
-            $version = $version[0]."0".$version[1];
+            $version = $version[0] . "0" . $version[1];
         }
-
         $current = $CFG->branch;
         if (strlen($current) == 2) {
-            $current = $current[0]."0".$current[1];
+            $current = $current[0] . "0" . $current[1];
         }
-
         $from = intval($current);
         $to = intval($version);
         $ops = str_split($operator);
-
         foreach ($ops as $op) {
             switch ($op) {
                 case self::OP_LT:
@@ -610,10 +639,9 @@ class utils {
                     }
                     break;
                 default:
-                    throw new \coding_exception('invalid operator '.$op);
+                    throw new \coding_exception('invalid operator ' . $op);
             }
         }
-
         return false;
     }
 

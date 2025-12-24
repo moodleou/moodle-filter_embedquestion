@@ -27,7 +27,6 @@ use filter_embedquestion\task\cleanup_task;
  * @covers    \filter_embedquestion\task\cleanup_task
  */
 final class cleanup_task_test extends \advanced_testcase {
-
     public function test_cleanup_task(): void {
 
         $this->resetAfterTest();

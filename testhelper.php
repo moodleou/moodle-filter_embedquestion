@@ -57,8 +57,11 @@ if ($fromform = $form->get_data()) {
         echo $OUTPUT->heading('Information for embedding question selected randomly from ' . format_string($category->name));
 
         \filter_embedquestion\event\category_token_created::create(
-                ['context' => $qbankcontext, 'objectid' => $category->id])->trigger();
-
+            [
+                'context' => $qbankcontext,
+                'objectid' => $category->id,
+            ]
+        )->trigger();
     } else {
         $questiondata = utils::get_question_by_idnumber($category->id, $fromform->questionidnumber);
         $question = question_bank::load_question($questiondata->id);
@@ -66,7 +69,11 @@ if ($fromform = $form->get_data()) {
 
         // Log this.
         \filter_embedquestion\event\token_created::create(
-                ['context' => $context, 'objectid' => $question->id])->trigger();
+            [
+                'context' => $context,
+                'objectid' => $question->id,
+            ]
+        )->trigger();
     }
     $embedcode = question_options::get_embed_from_form_options($fromform);
     echo html_writer::tag('p', 'Code to embed the question: ' . s($embedcode));
@@ -78,4 +85,3 @@ echo $OUTPUT->heading('Generate the code to embed a question');
 echo $form->render();
 
 echo $OUTPUT->footer();
-

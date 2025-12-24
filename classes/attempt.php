@@ -24,7 +24,6 @@ namespace filter_embedquestion;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class attempt {
-
     /**
      * @var embed_id identity of the question(s) being embedded in this place.
      */
@@ -87,13 +86,16 @@ class attempt {
      * @param \stdClass $user The user who is attempting the question (defaults to $USER).
      * @param question_options $options options for how the attempt should work.
      */
-    public function __construct(embed_id $embedid, embed_location $embedlocation,
-            \stdClass $user, question_options $options) {
+    public function __construct(
+        embed_id $embedid,
+        embed_location $embedlocation,
+        \stdClass $user,
+        question_options $options
+    ) {
         $this->embedid = $embedid;
         $this->embedlocation = $embedlocation;
         $this->user = $user;
         $this->options = $options;
-
         $courseid = utils::get_relevant_courseid($this->embedlocation->context);
         if ($embedid->courseshortname) {
             $courseid = utils::get_courseid_by_course_shortname($embedid->courseshortname);
@@ -113,8 +115,11 @@ class attempt {
      * @param string|null $qbankidnumber the idnumber of the question bank,
      * @return \stdClass if the category was OK. If not null and problem and problemdetails are set.
      */
-    private function find_category(string $categoryidnumber, int $courseid,
-            ?string $qbankidnumber = null): ?\stdClass {
+    private function find_category(
+        string $categoryidnumber,
+        int $courseid,
+        ?string $qbankidnumber = null
+    ): ?\stdClass {
         $cmid = utils::get_qbank_by_idnumber($courseid, $qbankidnumber);
         if (!$cmid || $cmid === -1) {
             if ($cmid === -1) {
@@ -155,11 +160,13 @@ class attempt {
      * @param int $qubaid the id of the usage.
      * @param int $slot the slot number.
      */
-    public function continue_current_attempt(int $qubaid, int $slot) {
+    public function continue_current_attempt(
+        int $qubaid,
+        int $slot
+    ) {
         $quba = \question_engine::load_questions_usage_by_activity($qubaid);
         attempt_storage::instance()->verify_usage($quba, $this->embedlocation->context);
         $quba->get_question($slot); // Verifies that the slot exists.
-
         $this->setup_usage_info($quba, $slot);
     }
 
@@ -169,16 +176,15 @@ class attempt {
     public function find_or_create_attempt() {
         global $DB;
         $attemptstorage = attempt_storage::instance();
-
-        // See of we can find an existing attempt to continue.
-        list($existingquba, $slot) = $attemptstorage->find_existing_attempt(
-                $this->embedid, $this->embedlocation, $this->user);
-
+        // See if we can find an existing attempt to continue.
+        [$existingquba, $slot] = $attemptstorage->find_existing_attempt(
+            $this->embedid,
+            $this->embedlocation,
+            $this->user
+        );
         if ($existingquba) {
-            // Found.
             $desiredmaxmark = $this->options->maxmark;
             $this->setup_usage_info($existingquba, $slot);
-
             // When we find an existing attempt, if max mark option has changed since the
             // attempt was started, then we update the max mark in the quba.
             if ($desiredmaxmark !== null && $existingquba->get_question_max_mark($slot) != $desiredmaxmark) {
@@ -186,19 +192,25 @@ class attempt {
                 \question_engine::save_questions_usage_by_activity($existingquba);
                 $this->synch_options_from_loaded_quba();
             }
-
         } else {
             // There is not already an attempt at this question. Start one.
             $transaction = $DB->start_delegated_transaction();
             $quba = $attemptstorage->make_new_usage(
-                    $this->embedid, $this->embedlocation, $this->user);
+                $this->embedid,
+                $this->embedlocation,
+                $this->user
+            );
             $quba->set_preferred_behaviour($this->options->behaviour);
             $this->start_new_attempt_at_question($quba);
             if (!$this->is_valid()) {
                 return;
             }
-            $attemptstorage->new_usage_saved($quba, $this->embedid,
-                    $this->embedlocation, $this->user);
+            $attemptstorage->new_usage_saved(
+                $quba,
+                $this->embedid,
+                $this->embedlocation,
+                $this->user
+            );
             $transaction->allow_commit();
         }
     }
@@ -211,27 +223,35 @@ class attempt {
      * @param \question_usage_by_activity $quba the question usage.
      * @param int $slot the slot number.
      */
-    public function setup_usage_info(\question_usage_by_activity $quba, int $slot) {
+    public function setup_usage_info(
+        \question_usage_by_activity $quba,
+        int $slot
+    ) {
         $this->quba = $quba;
         $this->slot = $slot;
-
         $question = $this->quba->get_question($this->slot);
-
         if ($this->embedid->questionidnumber === '*') {
             if (empty($question->idnumber)) {
                 throw new \moodle_exception('questionnolongerhasidnumber', 'filter_embedquestion');
             }
         } else {
             if ($this->embedid->questionidnumber !== $question->idnumber) {
-                throw new \moodle_exception('questionidnumberchanged', 'filter_embedquestion', '',
-                        s($this->embedid->questionidnumber));
+                throw new \moodle_exception(
+                    'questionidnumberchanged',
+                    'filter_embedquestion',
+                    '',
+                    s($this->embedid->questionidnumber)
+                );
             }
         }
         if ($question->category != $this->category->id) {
-            throw new \moodle_exception('questionnolongerincategory', 'filter_embedquestion', '',
-                    s($this->embedid->categoryidnumber));
+            throw new \moodle_exception(
+                'questionnolongerincategory',
+                'filter_embedquestion',
+                '',
+                s($this->embedid->categoryidnumber)
+            );
         }
-
         $this->synch_options_from_loaded_quba();
     }
 
@@ -241,13 +261,12 @@ class attempt {
      * @param \question_usage_by_activity|null $quba usage to use. If null will continue using the same usage.
      */
     public function start_new_attempt_at_question(
-            \question_usage_by_activity|null $quba = null) {
+        \question_usage_by_activity|null $quba = null
+    ) {
         global $DB;
-
         if ($quba) {
             $this->quba = $quba;
         }
-
         if ($this->embedid->questionidnumber === '*') {
             $questionid = $this->pick_random_questionid();
         } else {
@@ -256,28 +275,23 @@ class attempt {
         if (!$this->is_valid()) {
             utils::report_if_error($this, $this->embedlocation->context);
         }
-
         $question = \question_bank::load_question($questionid);
         $this->slot = $this->quba->add_question($question, $this->options->maxmark);
-
         if ($this->options->variant) {
-            // Fixed option specified in the embed options. Ensure it is in range.
             $variant = min($question->get_num_variants(), max(1, $this->options->variant));
         } else {
-
+            // Fixed option specified in the embed options. Ensure it is in range.
             $variant = $this->pick_random_variant($question);
         }
-
         $this->quba->start_question($this->slot, $variant);
-
         $transaction = $DB->start_delegated_transaction();
         \question_engine::save_questions_usage_by_activity($this->quba);
         attempt_storage::instance()->update_timemodified($this->quba->get_id());
         $this->synch_options_from_loaded_quba();
-
-        \filter_embedquestion\event\question_started::create(
-                ['context' => $this->embedlocation->context, 'objectid' => $question->id])->trigger();
-
+        \filter_embedquestion\event\question_started::create([
+            'context' => $this->embedlocation->context,
+            'objectid' => $question->id,
+        ])->trigger();
         $transaction->allow_commit();
     }
 
@@ -293,11 +307,9 @@ class attempt {
             // that might be important. Therefore, just abandon the current
             // attempt and start a new on.
             $this->start_new_attempt_at_question();
-
         } else if (!empty($this->quba)) {
             // The usage only has this one question, so throw it all away and start again.
             attempt_storage::instance()->delete_attempt($this->quba);
-
         } else {
             // It should not be possible to get here if there is not a current $quba.
             throw new \coding_exception('Unexpected error occured when restarting embedded question.');
@@ -359,9 +371,13 @@ class attempt {
             $qubaids = [];
         }
         $variantstrategy = new \core_question\engine\variants\least_used_strategy(
-                $this->quba, new \qubaid_list($qubaids));
-        return $variantstrategy->choose_variant($question->get_num_variants(),
-                $question->get_variants_selection_seed());
+            $this->quba,
+            new \qubaid_list($qubaids)
+        );
+        return $variantstrategy->choose_variant(
+            $question->get_num_variants(),
+            $question->get_variants_selection_seed()
+        );
     }
 
     /**
@@ -373,11 +389,19 @@ class attempt {
     public function find_questionid(string $questionidnumber): int {
         $questiondata = utils::get_question_by_idnumber($this->category->id, $questionidnumber);
         if (!$questiondata) {
+            $contexts = new \core_question\local\bank\question_edit_contexts($this->context);
+            $error = format_string($this->category->name) . ' [' . s($this->category->idnumber) . ']';
+            if ($contexts->have_one_edit_tab_cap('questions')) {
+                $editurl = new \moodle_url('/question/edit.php', [
+                    'cmid' => $this->context->instanceid,
+                    'cat' => "{$this->category->id},{$this->context->id}",
+                ]);
+                $error = \html_writer::link($editurl, $error, ['target' => '_blank']);
+            }
             $this->problem = 'invalidquestion';
             $this->problemdetails = [
                     'qid' => $questionidnumber,
-                    'catname' => format_string($this->category->name),
-                    'catidnumber' => s($this->category->idnumber),
+                    'errortext' => $error,
             ];
             return 0;
         }
@@ -422,18 +446,19 @@ class attempt {
      * @param array|null $simulatedpostdata for testing, simulated post data (e.g. from
      *      $quba->get_simulated_post_data_for_questions_in_usage()).
      */
-    public function process_submitted_actions(array|null $simulatedpostdata = null) {
+    public function process_submitted_actions(
+        array|null $simulatedpostdata = null
+    ) {
         global $DB;
-
         $this->quba->process_all_actions(null, $simulatedpostdata);
-
         $transaction = $DB->start_delegated_transaction();
         \question_engine::save_questions_usage_by_activity($this->quba);
         attempt_storage::instance()->update_timemodified($this->quba->get_id());
-
         // Log the submit.
-        \filter_embedquestion\event\question_attempted::create(
-            ['context' => $this->embedlocation->context, 'objectid' => $this->current_question()->id])->trigger();
+        \filter_embedquestion\event\question_attempted::create([
+            'context' => $this->embedlocation->context,
+            'objectid' => $this->current_question()->id,
+        ])->trigger();
         $transaction->allow_commit();
     }
 
@@ -441,8 +466,10 @@ class attempt {
      * Log that the user is viewing the question.
      */
     public function log_view() {
-        \filter_embedquestion\event\question_viewed::create(
-            ['context' => $this->embedlocation->context, 'objectid' => $this->current_question()->id])->trigger();
+        \filter_embedquestion\event\question_viewed::create([
+            'context' => $this->embedlocation->context,
+            'objectid' => $this->current_question()->id,
+        ])->trigger();
     }
 
     /**
@@ -451,48 +478,52 @@ class attempt {
      * @param \filter_embedquestion\output\renderer $renderer instance of our renderer to use.
      * @return string HTML to display.
      */
-    public function render_question(\filter_embedquestion\output\renderer $renderer): string {
-        // Work out the question number to display.
+    public function render_question(
+        \filter_embedquestion\output\renderer $renderer
+    ): string {
         if ($this->current_question()->length) {
             $displaynumber = "\u{00a0}"; // Non-breaking space.
         } else {
             $displaynumber = 'i';
         }
-
         // Allow questions to initialise their JavaScript.
         $this->quba->render_question_head_html($this->slot);
-
         // If the question is finished, add a Start again button.
         if ($this->is_question_finished()) {
             $this->options->extrainfocontent = \html_writer::div(
-                    \html_writer::empty_tag('input', [
+                \html_writer::empty_tag(
+                    'input',
+                    [
                         'type' => 'submit',
                         'name' => 'restart',
                         'value' => get_string('restart', 'filter_embedquestion'),
                         'class' => 'btn btn-secondary',
                         'data-formchangechecker-non-submit' => 1,
-                    ])
-                );
+                    ]
+                )
+            );
         }
-
         // Show an 'Edit question' action to those with permissions.
         $relevantcourseid = utils::get_relevant_courseid($this->embedlocation->context);
         if (question_has_capability_on($this->current_question(), 'edit')) {
-            $this->options->editquestionparams =
-                ['returnurl' => $this->embedlocation->pageurl, 'cmid' => $this->context->instanceid];
+            $this->options->editquestionparams = [
+                'returnurl' => $this->embedlocation->pageurl,
+                'cmid' => $this->context->instanceid,
+            ];
         }
-
         // Show an 'Question bank' action to those with permissions.
-        $contexts = new \core_question\local\bank\question_edit_contexts(\context_course::instance($relevantcourseid));
+        $contexts = new \core_question\local\bank\question_edit_contexts(
+            \context_course::instance($relevantcourseid)
+        );
         $this->options->showquestionbank = $contexts->have_one_edit_tab_cap('questions');
-
         // Show a 'Fill with correct' action to those with permissions.
-        if (question_has_capability_on($this->current_question(), 'use') &&
-                !$this->quba->get_question_state($this->slot)->is_finished() &&
-                $this->current_question()->get_correct_response() !== null) {
+        if (
+            question_has_capability_on($this->current_question(), 'use') &&
+            !$this->quba->get_question_state($this->slot)->is_finished() &&
+            $this->current_question()->get_correct_response() !== null
+        ) {
             $this->options->fillwithcorrect = true;
         }
-
         // Start the question form.
         $output = '';
         $output .= \html_writer::start_tag('form', [
@@ -502,20 +533,32 @@ class attempt {
             'id' => 'responseform',
         ]);
         $output .= \html_writer::start_tag('div');
-        $output .= \html_writer::empty_tag('input',
-                ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
-        $output .= \html_writer::empty_tag('input',
-                ['type' => 'hidden', 'name' => 'slots', 'value' => $this->slot]);
-        $output .= \html_writer::empty_tag('input',
-                ['type' => 'hidden', 'name' => 'scrollpos', 'value' => '', 'id' => 'scrollpos']);
+        $output .= \html_writer::empty_tag('input', [
+            'type' => 'hidden',
+            'name' => 'sesskey',
+            'value' => sesskey(),
+        ]);
+        $output .= \html_writer::empty_tag('input', [
+            'type' => 'hidden',
+            'name' => 'slots',
+            'value' => $this->slot,
+        ]);
+        $output .= \html_writer::empty_tag('input', [
+            'type' => 'hidden',
+            'name' => 'scrollpos',
+            'value' => '',
+            'id' => 'scrollpos',
+        ]);
         $output .= \html_writer::end_tag('div');
-
         // Render the question.
-        $output .= $renderer->embedded_question($this->quba, $this->slot, $this->options, $displaynumber);
-
+        $output .= $renderer->embedded_question(
+            $this->quba,
+            $this->slot,
+            $this->options,
+            $displaynumber
+        );
         // Finish the question form.
         $output .= \html_writer::end_tag('form');
-
         return $output;
     }
 
@@ -538,13 +581,11 @@ class attempt {
             // Auto-restart is only relevant in Moodle 4.0+.
             return false;
         }
-
         $question = $this->current_question();
         if (!question_has_capability_on($question, 'edit')) {
             // Only auto-restart for users who can edit the question.
             return false;
         }
-
         // Need to auto-restart if this is not the latest version.
         return !utils::is_latest_version($question);
     }
@@ -564,11 +605,12 @@ class attempt {
      * @param bool $withscrollpos if true, and scrollpos is a param to this request, pass it through.
      * @return \moodle_url the URL.
      */
-    public function get_action_url(bool $withscrollpos = false): \moodle_url {
+    public function get_action_url(
+        bool $withscrollpos = false
+    ): \moodle_url {
         $url = utils::get_show_url($this->embedid, $this->embedlocation, $this->options);
         $url->param('qubaid', $this->quba->get_id());
         $url->param('slot', $this->slot);
-
         if ($withscrollpos) {
             $scrollpos = optional_param('scrollpos', '', PARAM_RAW);
             if ($scrollpos !== '') {

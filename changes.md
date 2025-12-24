@@ -1,5 +1,11 @@
 # Change log for the embed questions filter
 
+## Changes in 2.4.1
+
+* Fix permission checks for embedded questions
+* Fix display category error to a hyperlink
+
+
 ## Changes in 2.4
 
 * This version works with Moodle 5.0+
