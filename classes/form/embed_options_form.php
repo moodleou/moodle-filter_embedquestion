@@ -93,9 +93,16 @@ class embed_options_form extends \moodleform {
         if ($cmid && empty($qbanksselectoptions[$cmid])) {
             $qbanksselectoptions[$cmid] = format_string($cminfo->name);
         }
-        $mform->addElement(
-            'html'
+
+        $currentbank = reset($qbanksselectoptions);
+        $switchbankheaderhtml = $OUTPUT->render_from_template(
+            'mod_quiz/switch_bank_header',
+            [
+                'currentbank' => $currentbank,
+            ]
         );
+        $mform->addElement('html', $switchbankheaderhtml);
+
         $mform->addElement(
             'select',
             'qbankcmid',
