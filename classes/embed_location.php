@@ -114,13 +114,13 @@ class embed_location {
      * @return string context name.
      */
     public function context_name_for_errors(): string {
-        return get_string(
-            'contextname',
-            'filter_embedquestion',
-            [
-                'contextid' => $this->context->id,
-                'contextlevel' => $this->context->contextlevel,
-            ]
+        return \context_course::instance(
+            utils::get_relevant_courseid(
+                $this->context
+            )
+        )->get_context_name(
+            false,
+            true
         );
     }
 }
