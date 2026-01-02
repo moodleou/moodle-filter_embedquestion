@@ -1,5 +1,10 @@
 # Change log for the embed questions filter
 
+## Changes in 2.4.2
+* Fix show wrong warning message when we can't find the question by idnumber.
+* Fix issue where the switch question bank button is missing.
+
+
 ## Changes in 2.4.1
 
 * Fix permission checks for embedded questions
