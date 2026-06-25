@@ -744,4 +744,58 @@ final class utils_test extends \advanced_testcase {
             utils::get_qbank_by_idnumber($course->id, 'randomidnumber')
         );
     }
+
+    /**
+     * Test that question banks with deletioninprogress=1 are excluded from shareable banks.
+     *
+     */
+    public function test_get_shareable_question_banks_excludes_deletion_in_progress(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Create a course with two question banks.
+        $course = $this->getDataGenerator()->create_course(['fullname' => 'Course 1', 'shortname' => 'C1']);
+        $activeqbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id], ['idnumber' => 'active']);
+        $deletingqbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id], ['idnumber' => 'deleting']);
+
+        $generator = $this->getDataGenerator();
+        $attemptgenerator = $generator->get_plugin_generator('filter_embedquestion');
+
+        // Add embeddable questions to both banks.
+        $attemptgenerator->create_embeddable_question(
+            'truefalse',
+            null,
+            [],
+            ['contextid' => \context_module::instance($activeqbank->cmid)->id]
+        );
+        $attemptgenerator->create_embeddable_question(
+            'truefalse',
+            null,
+            [],
+            ['contextid' => \context_module::instance($deletingqbank->cmid)->id]
+        );
+
+        // Before marking deletion: both banks should be visible.
+        $banks = utils::get_shareable_question_banks($course->id);
+        $this->assertArrayHasKey($activeqbank->cmid, $banks);
+        $this->assertArrayHasKey($deletingqbank->cmid, $banks);
+
+        // Simulate the second qbank being scheduled for deletion (deletioninprogress = 1).
+        $DB->set_field('course_modules', 'deletioninprogress', 1, ['id' => $deletingqbank->cmid]);
+
+        // After marking deletion: only the active bank should be returned.
+        $banks = utils::get_shareable_question_banks($course->id);
+        $this->assertArrayHasKey(
+            $activeqbank->cmid,
+            $banks,
+            'Active qbank should appear in shareable banks.'
+        );
+        $this->assertArrayNotHasKey(
+            $deletingqbank->cmid,
+            $banks,
+            'Qbank with deletioninprogress=1 must not appear in shareable banks.'
+        );
+    }
 }

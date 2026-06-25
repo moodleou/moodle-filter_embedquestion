@@ -266,6 +266,7 @@ class utils {
                  WHERE c.id = :courseid
                        AND qc.idnumber IS NOT NULL
                        AND qc.idnumber <> ''
+                       AND cm.deletioninprogress = 0
                        $idnumber
               GROUP BY cm.id, cm.idnumber, qbank.id, qbank.name
                        HAVING COUNT(q.id) > 0

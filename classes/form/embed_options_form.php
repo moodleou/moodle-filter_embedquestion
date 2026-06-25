@@ -74,17 +74,20 @@ class embed_options_form extends \moodleform {
         }
         $cmid = !empty($defaultqbankcmid) ? $defaultqbankcmid : ($prefs->{$context->instanceid} ?? null);
         // If we have default question bank cmid, we will use it to get the course id.
+        $courseid = $context->instanceid;
         if ($cmid) {
-            [, $cm] = get_course_and_cm_from_cmid($cmid);
-            $cminfo = cm_info::create($cm);
-            $courseid = $cminfo->get_course()->id;
+            $cm = get_coursemodule_from_id('qbank', $cmid);
+            if (!$cm || $cm->deletioninprogress) {
+                $cmid = null;
+            } else {
+                $courseid = $cm->course;
+                $cminfo = cm_info::create($cm);
+            }
         } else if ($courseshortname) {
             $courseid = utils::get_courseid_by_course_shortname($courseshortname);
             if ($courseid != $context->instanceid) {
                 $mform->setDefault('issamecourse', 0);
             }
-        } else {
-            $courseid = $context->instanceid;
         }
         $qbanks = utils::get_shareable_question_banks($courseid, $this->get_user_retriction());
         $qbanksselectoptions = utils::create_select_qbank_choices($qbanks);

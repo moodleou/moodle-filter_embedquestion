@@ -43,3 +43,8 @@ body#page-filter-embedquestion-showquestion .que .filter_embedquestion-fill-link
 form#embedqform select {
     max-width: 100%;
 }
+
+/* Align the switch question bank heading with the other elements. */
+form#embedqform h5 {
+    margin-left: 3px;
+}

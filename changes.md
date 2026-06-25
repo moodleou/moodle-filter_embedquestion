@@ -1,5 +1,9 @@
 # Change log for the embed questions filter
 
+## Changes in 2.6
+* Added support for Moodle 5.2+
+
+
 ## Changes in 2.5
 * This version works with Moodle 5.2+.
 * Allow question attempt-level deletion
