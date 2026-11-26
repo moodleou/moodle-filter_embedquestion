@@ -35,7 +35,7 @@ class cleanup_task extends scheduled_task {
     /**
      * @var int time after which to delete attempts. We delete attempts that have not been touched for 24 hours.
      */
-    const MAX_AGE = 24 * 60 * 60;
+    public const MAX_AGE = 24 * 60 * 60;
 
     #[\Override]
     public function get_name(): string {

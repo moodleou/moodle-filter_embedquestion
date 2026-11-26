@@ -26,15 +26,15 @@ use filter_embedquestion\output\error_message;
  * @copyright 2018 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class text_filter extends \moodle_text_filter {
+class text_filter extends \core_filters\text_filter {
     /**
      * @var string Closing part of the embed token wrapper.
      */
-    const STRING_PREFIX = '{Q{';
+    public const STRING_PREFIX = '{Q{';
     /**
      * @var string Closing part of the embed token wrapper.
      */
-    const STRING_SUFFIX = '}Q}';
+    public const STRING_SUFFIX = '}Q}';
 
     /**
      * @var \filter_embedquestion\output\renderer the renderer.

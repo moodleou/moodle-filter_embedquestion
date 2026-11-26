@@ -268,7 +268,7 @@ final class attempt_test extends \advanced_testcase {
             $previousattemptlink = '<div class="link-wrapper-class"><a target="_top" href="[^\"]+">' .
                 '<span>Previous attempts</span></a></div>';
         }
-        $icon = '<i class="icon fa fa-pen fa-fw iconsmall"  title="Edit"[^>]*></i>\s*Edit question\s*</a>\s*</div>';
+        $icon = '<i class="icon fa fa-pen(?:cil)? fa-fw iconsmall"  title="Edit"[^>]*></i>\s*Edit question\s*</a>\s*</div>';
         // Verify that the edit question, question bank link and fill with correct links are present.
         $expectedregex = '~<div class="info"><h3 class="no">Question <span class="qno">[^<]+</span>' .
             '</h3><div class="state">Not complete</div><div class="grade">Marked out of 1.00</div>' .

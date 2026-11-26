@@ -21,5 +21,6 @@
  * @copyright  2018 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 // Compatibility so that Moodle pre-4.5 can still load the filter.
 class_alias(\filter_embedquestion\text_filter::class, \filter_embedquestion::class);
