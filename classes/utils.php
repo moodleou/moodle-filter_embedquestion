@@ -585,11 +585,11 @@ class utils {
     }
 
     /** @var string - Less than operator */
-    const OP_LT = "<";
+    public const OP_LT = "<";
     /** @var string - equal operator */
-    const OP_E = "=";
+    public const OP_E = "=";
     /** @var string - greater than operator */
-    const OP_GT = ">";
+    public const OP_GT = ">";
 
     /**
      * Conveniently compare the current moodle version to a provided version in branch format. This function will

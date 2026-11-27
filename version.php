@@ -24,11 +24,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026061600;
+$plugin->version   = 2026112600;
 $plugin->requires  = 2025100600; // Requires Moodle 5.1.
 $plugin->component = 'filter_embedquestion';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.6 for Moodle 5.2+';
-$plugin->supported = [501, 502];
+$plugin->release   = '2.7 for Moodle 5.3+';
+$plugin->supported = [501, 503];
 
 $plugin->outestssufficient = true;

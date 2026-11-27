@@ -40,6 +40,11 @@ body#page-filter-embedquestion-showquestion .que .filter_embedquestion-fill-link
     padding: 5px 10px;
 }
 
+/* Moodle 5.3+ Boost dark colour mode: keep the error message readable on a dark surface. */
+[data-bs-theme="dark"] .filter_embedquestion-error {
+    background-color: var(--bs-tertiary-bg);
+}
+
 form#embedqform select {
     max-width: 100%;
 }

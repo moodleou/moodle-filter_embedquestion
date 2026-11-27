@@ -1,5 +1,10 @@
 # Change log for the embed questions filter
 
+## Changes in 2.7
+* This version works with Moodle 5.3.
+* The error message box stays readable in Boost's dark colour mode.
+
+
 ## Changes in 2.6
 * Added support for Moodle 5.2+
 

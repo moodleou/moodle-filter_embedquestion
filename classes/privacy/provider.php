@@ -18,6 +18,7 @@ namespace filter_embedquestion\privacy;
 
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\writer;
+
 /**
  * Privacy Subsystem for filter_embedquestion implementing null_provider.
  *
